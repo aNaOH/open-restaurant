@@ -1,0 +1,19 @@
+{
+    "name": "abel/openrestaurant",
+    "description": "Application to create and manage a restaurant",
+    "type": "project",
+    "require": {
+        "bramus/router": "^1.6"
+    },
+    "autoload": {
+        "classmap": [
+            "./globals/"
+        ]
+    },
+    "authors": [
+        {
+            "name": "Abel",
+            "email": "abehsosa2004@gmail.com"
+        }
+    ]
+}
