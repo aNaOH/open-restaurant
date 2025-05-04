@@ -28,7 +28,12 @@ $router->post("/db", function() {
     $db_user = $_POST['db_user'];
     $db_pass = isset($_POST['db_pass']) ? $_POST['db_pass'] : '';
 
-    if(Connection::createDB($db_host, $db_name, $db_user, $db_pass)) {
+    $conn = Connection::createDB($db_host, $db_name, $db_user, $db_pass);
+
+    if($conn) {
+
+        Connection::executeSqlScript($conn, './openRestaurant.sql');
+
         $config = new Config();
 
         $config->DB_HOST = $db_host;
@@ -40,7 +45,7 @@ $router->post("/db", function() {
 
         $config->save();
 
-        header("Location: /config");
+        header("Location: /admin");
         exit;
     } else {
         ViewController::render('wizard/db', ['error' => 'No se pudo conectar a la base de datos.']);
