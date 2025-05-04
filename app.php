@@ -17,4 +17,6 @@ if (!$is_installed) {
 
 define('DBCONN', new Connection(CONFIG->DB_HOST, CONFIG->DB_NAME, CONFIG->DB_USER, CONFIG->DB_PASS));
 
+session_start();
+
 include_once 'routes/index.php';
