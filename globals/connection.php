@@ -34,9 +34,9 @@ class Connection {
             $dbConn = new PDO($dsn, $user, $password);
             $dbConn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $dbConn->exec("CREATE DATABASE IF NOT EXISTS `$dbname`");
+            
             return self::connectToDB($host, $dbname, $user, $password);
-        } catch (PDOException $e) {
-            echo "Error: " . $e->getMessage();
+        } catch (Exception $e) {
             return false;
         }
     }

@@ -15,6 +15,6 @@ if (!$is_installed) {
     exit;
 }
 
-define('CONNECTION', new Connection(CONFIG->DB_HOST, CONFIG->DB_NAME, CONFIG->DB_USER, CONFIG->DB_PASS));
+define('DBCONN', new Connection(CONFIG->DB_HOST, CONFIG->DB_NAME, CONFIG->DB_USER, CONFIG->DB_PASS));
 
 include_once 'routes/index.php';

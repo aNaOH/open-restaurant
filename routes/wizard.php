@@ -14,20 +14,25 @@ $router->post("/db", function() {
     $db_host = $_POST['db_host'];
     $db_name = $_POST['db_name'];
     $db_user = $_POST['db_user'];
-    $db_pass = $_POST['db_pass'];
+    $db_pass = isset($_POST['db_pass']) ? $_POST['db_pass'] : '';
 
-    $config = new Config();
+    if(Connection::createDB($db_host, $db_name, $db_user, $db_pass)) {
+        $config = new Config();
 
-    $config->DB_HOST = $db_host;
-    $config->DB_NAME = $db_name;
-    $config->DB_USER = $db_user;
-    $config->DB_PASS = $db_pass;
+        $config->DB_HOST = $db_host;
+        $config->DB_NAME = $db_name;
+        $config->DB_USER = $db_user;
+        $config->DB_PASS = $db_pass;
 
-    $config->INSTALL_FINISHED = false;
+        $config->INSTALL_FINISHED = false;
 
-    $config->save();
+        $config->save();
 
-    header("Location: /config");
+        header("Location: /config");
+        exit;
+    } else {
+        ViewController::render('wizard/db', ['error' => 'No se pudo conectar a la base de datos.']);
+    }
     exit;
 });
 

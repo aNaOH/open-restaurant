@@ -2,8 +2,37 @@
 
 {% block content %}
     <div>
-        <h2 class="text-xl font-bold mb-4">Bienvenido al asistente de instalación</h2>
-        <p class="mb-4">Este asistente te guiará a través del proceso de instalación de OpenRestaurant.</p>
-        <a href="/db" class="bg-blue-500 text-white px-4 py-2 rounded">Comenzar</a>
+        <form action="/config" method="post">
+            <h2 class="text-xl font-bold mb-4">Configuración de OpenRestaurant</h2>
+            <p class="mb-4">¿Qué restaurante estás configurando?</p>
+
+            <div class="mb-4">
+                <label for="restaurant_name" class="block text-sm font-medium text-gray-700">Nombre del restaurante</label>
+                <input type="text" id="restaurant_name" name="restaurant_name" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+
+            <div class="mb-4">
+                <label for="restaurant_address" class="block text-sm font-medium text-gray-700">Dirección del restaurante</label>
+                <input type="text" id="restaurant_address" name="restaurant_address" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+
+            <div class="mb-4">
+                <label for="restaurant_phone" class="block text-sm font-medium text-gray-700">Teléfono del restaurante</label>
+                <input type="text" id="restaurant_phone" name="restaurant_phone" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+
+            <div class="mb-4">
+                <label for="restaurant_email" class="block text-sm font-medium text-gray-700">Email del restaurante</label>
+                <input type="email" id="restaurant_email" name="restaurant_email" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+
+            <div class="mb-4">
+                <label for="restaurant_logo" class="block text-sm font-medium text-gray-700">Logo del restaurante</label>
+                <input type="file" id="restaurant_logo" name="restaurant_logo" accept="image/*" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Guardar y continuar</button>
+
+        </form>
     </div>
 {% endblock %}

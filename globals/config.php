@@ -1,7 +1,7 @@
 <?php
 
 class Config {
-    public $DB_HOST = 'localhost';
+    public $DB_HOST = '';
     public $DB_NAME = '';
     public $DB_USER = '';
     public $DB_PASS = '';
@@ -10,14 +10,14 @@ class Config {
 
     // Check if the application is installed, check if the database name and user are set
     public function isInstalled() {
-        return ( !empty($this->DB_NAME) && !empty($this->DB_USER) ) || $this->INSTALL_FINISHED == true;
+        return ( !empty($this->DB_NAME) && !empty($this->DB_USER) ) && $this->INSTALL_FINISHED == true;
     }
 
     public function __construct() {
-        if(!file_exists('../config.json')) {
+        if(!file_exists('./config.json')) {
             return;
         }
-        $content = file_get_contents('../config.json');
+        $content = file_get_contents('./config.json');
         $config = json_decode($content, true);
         
         if ($config) {
@@ -42,7 +42,7 @@ class Config {
         ];
 
         $content = json_encode($config);
-        file_put_contents('../config.json', $content);
+        file_put_contents('./config.json', $content);
     }
 }
 
