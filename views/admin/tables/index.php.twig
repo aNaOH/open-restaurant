@@ -1,0 +1,35 @@
+{% extends "/templates/admin.php.twig" %}
+
+{% block title %}Mesas{% endblock %}
+
+{% block name %}Mesas{% endblock %}
+{% block content %}
+    <div class="flex flex-col h-full">
+        <div class="flex items-center justify-end mb-4">
+            <a href="/admin/tables/add" class="bg-blue-500 text-white px-4 py-2 rounded">Añadir Mesa</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg">
+                <thead>
+                    <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                        <th class="py-3 px-6 text-left">Nº de mesa</th>
+                        <th class="py-3 px-6 text-left">Nota</th>
+                        <th class="py-3 px-6 text-left">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-600 text-sm font-light">
+                    {% for table in tables %}
+                        <tr class="border-b border-gray-200 hover:bg-gray-100">
+                            <td class="py-3 px-6 text-left">{{ table.id }}</td>
+                            <td class="py-3 px-6 text-left">{{ table.notes }}</td>
+                            <td class="py-3 px-6 text-left">
+                                <a href="/admin/tables/edit/{{ table.id }}" class="text-blue-500 hover:underline">Editar</a>
+                                <a href="/admin/tables/delete/{{ table.id }}" class="text-red-500 hover:underline ml-4">Eliminar</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

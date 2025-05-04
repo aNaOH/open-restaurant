@@ -15,7 +15,7 @@ if (!$is_installed) {
     exit;
 }
 
-define('DBCONN', new Connection(CONFIG->DB_HOST, CONFIG->DB_NAME, CONFIG->DB_USER, CONFIG->DB_PASS));
+define('DBCONN', Connection::connectToDB(CONFIG->DB_HOST, CONFIG->DB_NAME, CONFIG->DB_USER, CONFIG->DB_PASS));
 
 session_start();
 
