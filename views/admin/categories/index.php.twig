@@ -1,0 +1,35 @@
+{% extends "/templates/admin.php.twig" %}
+
+{% block title %}Categorías{% endblock %}
+
+{% block name %}Categorías{% endblock %}
+{% block content %}
+    <div class="flex flex-col h-full">
+        <div class="flex items-center justify-end mb-4">
+            <a href="/admin/categories/add" class="bg-blue-500 text-white px-4 py-2 rounded">Añadir categoría</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg">
+                <thead>
+                    <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                        <th class="py-3 px-6 text-left">ID</th>
+                        <th class="py-3 px-6 text-left">Nombre</th>
+                        <th class="py-3 px-6 text-left">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-600 text-sm font-light">
+                    {% for category in categories %}
+                        <tr class="border-b border-gray-200 hover:bg-gray-100">
+                            <td class="py-3 px-6 text-left">{{ category.id }}</td>
+                            <td class="py-3 px-6 text-left">{{ category.name }}</td>
+                            <td class="py-3 px-6 text-left">
+                                <a href="/admin/tables/edit/{{ category.id }}" class="text-blue-500 hover:underline">Editar</a>
+                                <a href="/admin/tables/delete/{{ category.id }}" class="text-red-500 hover:underline ml-4">Eliminar</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

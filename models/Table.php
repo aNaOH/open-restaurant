@@ -11,10 +11,17 @@ class Table {
 
     public function save() {
         $data = ['notes' => $this->notes];
-        if ($this->id) {
+
+        // Verificar si el registro ya existe en la base de datos
+        $existingRecord = Connection::doSelect(DBCONN, 'table', ['id' => $this->id]);
+
+        if ($existingRecord) {
+            // Si el registro existe, realizar un UPDATE
             Connection::doUpdate(DBCONN, 'table', $data, ['id' => $this->id]);
         } else {
-            Connection::doInsert(DBCONN, 'table', array_merge($data, ['id' => $this->id]));
+            // Si el registro no existe, realizar un INSERT
+            $data['id'] = $this->id; // Agregar el ID al conjunto de datos
+            Connection::doInsert(DBCONN, 'table', $data);
         }
     }
 
