@@ -2,9 +2,15 @@
 
 {% block content %}
     <div>
-        <form action="/config" method="post">
+        <form action="/features" method="post">
             <h2 class="text-xl font-bold mb-4">Características de OpenRestaurant</h2>
             <p class="mb-4">OpenRestaurant permite cambiar ciertos aspectos de la aplicación para satisfacer todas las necesidades.</p>
+
+            {% if error is defined %}
+                <div class="bg-red-300 border-2 border-red-400 font-semibold text-red-900 rounded-md p-2 mb-4">
+                    <p>{{ error }}</p>
+                </div>
+            {% endif %}
 
             <h2 class="text-lg font-semibold mb-2">Códigos promocionales</h2>
             <p class="mb-4">¿Quieres permitir que los clientes utilicen códigos promocionales?</p>
@@ -16,7 +22,7 @@
             </div>
 
             <h2 class="text-lg font-semibold mb-2">Programa de fidelización</h2>
-            <p class="mb-4">¿Quieres permitir que los clientes utilicen un programa de fidelización? Esto permitirá que los clientes puedan crear una cuenta en tu aplicación de OpenRestaurant</p>
+            <p class="mb-4">¿Quieres permitir que los clientes utilicen un programa de fidelización? Esto permitirá que los clientes puedan crear una cuenta en tu aplicación de OpenRestaurant. Por defecto 1€ equivale a 100 puntos.</p>
             <div class="mb-4">
                 <label for="loyalty_program" class="inline-flex items-center">
                     <input type="checkbox" id="loyalty_program" name="loyalty_program" class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded">
@@ -24,7 +30,7 @@
                 </label>
             </div>
 
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Guardar y continuar</button>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Guardar y terminar</button>
 
         </form>
     </div>

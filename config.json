@@ -1,1 +1,1 @@
-{"database":{"host":"localhost","name":"or","user":"root","pass":""},"install_finished":false}
+{"database":{"host":"localhost","name":"or","user":"root","pass":""},"admin":{"user":"abel","pass":"$2y$10$zNGuhofwZxzfM6Ml8.L6U.psvEOYSnROFNw2i6HgFolSBIGJyy\/eS","email":"prueba@prueba.com"},"restaurant":{"name":"Prueba","address":"C\/ Prueba","phone":"1111111111","email":"prueba@prueba.com"},"features":{"discountEnabled":true,"fidelityEnabled":true,"pointsPerUnit":null},"installFinished":true}

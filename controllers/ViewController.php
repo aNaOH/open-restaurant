@@ -9,7 +9,7 @@ class ViewController
     {
         $loader = new \Twig\Loader\FilesystemLoader('./views');
         $twig = new \Twig\Environment($loader, [
-            'cache' => '/cache/twin',
+            'cache' => './cache/twig',
             'debug' => true,
         ]);
 
