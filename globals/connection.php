@@ -19,6 +19,28 @@ class Connection {
     const DBORDER_ASC = "ASC";
     const DBORDER_DESC = "DESC";
 
+    
+    /**
+     * Crea una base de datos y devuelve la conexión a ella.
+     * @param string $host Host de la base de datos.
+     * @param string $dbname Nombre de la base de datos.
+     * @param string $user Usuario de la base de datos.
+     * @param string $password Contraseña del usuario.
+     * @return PDO|bool Retorna la conexión a la base de datos o false en caso de error.
+     */
+    public static function createDB($host, $dbname, $user, $password): PDO|bool {
+        try {
+            $dsn = "mysql:host=$host";
+            $dbConn = new PDO($dsn, $user, $password);
+            $dbConn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $dbConn->exec("CREATE DATABASE IF NOT EXISTS `$dbname`");
+            return self::connectToDB($host, $dbname, $user, $password);
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            return false;
+        }
+    }
+
     /**
      * Conecta a la base de datos usando credenciales dadas.
      * @param string $host
@@ -273,5 +295,22 @@ class Connection {
         }
     }
 
+    /**
+     * Ejecuta un script SQL para crear tablas y datos iniciales.
+     * @param PDO $dbConn Conexión a la base de datos.
+     * @param string $sqlScript Ruta al archivo SQL.
+     * @return bool Retorna true si se ejecutó correctamente, false en caso contrario.
+     */
+    public static function executeSqlScript($dbConn, $sqlScript): bool {
+        try {
+            $sql = file_get_contents($sqlScript);
+            $dbConn->exec($sql);
+            return true;
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            return false;
+        }
+    }
+
 }
-?>
+

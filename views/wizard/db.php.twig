@@ -1,0 +1,33 @@
+{% extends "/templates/wizard.php.twig" %}
+
+{% block content %}
+    <div>
+        <form action="/db" method="post" class="space-y-4">
+            <h2 class="text-xl font-bold mb-4">Configuración de la base de datos</h2>
+            <p class="mb-4">Por favor, proporciona los detalles de tu base de datos.</p>
+
+            <div class="mb-4">
+                <label for="db_host" class="block text-sm font-medium text-gray-700">Host de la base de datos</label>
+                <input type="text" id="db_host" name="db_host" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+
+            <div class="mb-4">
+                <label for="db_name" class="block text-sm font-medium text-gray-700">Nombre de la base de datos</label>
+                <input type="text" id="db_name" name="db_name" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+
+            <div class="mb-4">
+                <label for="db_user" class="block text-sm font-medium text-gray-700">Usuario de la base de datos</label>
+                <input type="text" id="db_user" name="db_user" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+
+            <div class="mb-4">
+                <label for="db_password" class="block text-sm font-medium text-gray-700">Contraseña de la base de datos</label>
+                <input type="password" id="db_password" name="db_password" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Guardar y continuar</button>
+
+        </form>
+    </div>
+{% endblock %}
