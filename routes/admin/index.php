@@ -26,7 +26,11 @@ $router->before('GET|POST', '/admin', function() {
 $router->mount('/admin', function() use ($router) {
     $router->get('/', function() {
         $tables = Table::getAll();
-        ViewController::render('admin/index', ['tables' => $tables]);
+        ViewController::render('admin/index', SidebarHelpers::getBaseData());
+    });
+
+    $router->get('/config', function() {
+        ViewController::render('admin/config');
     });
     
     include_once 'routes/admin/tables.php';

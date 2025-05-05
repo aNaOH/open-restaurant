@@ -1,0 +1,37 @@
+{% extends "/templates/admin.php.twig" %}
+
+{% block title %}Configuración{% endblock %}
+
+{% block name %}Configuración{% endblock %}
+{% block content %}
+    <div class="flex flex-col gap-2 h-full">
+        <h2 class="text-xl font-bold">Características</h2>
+        <form action="/admin/config/features" method="POST" class="flex flex-col gap-4">
+            <div class="flex flex-col mb-4">
+                <h2 class="text-lg font-semibold">Códigos promocionales</h2>
+                <p class="mb-4">¿Quieres permitir que los clientes utilicen códigos promocionales?</p>
+                <div class="mb-4">
+                    <label for="promo_codes" class="inline-flex items-center">
+                        <input type="checkbox" id="promo_codes" name="promo_codes" class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded">
+                        <span class="ml-2 text-gray-700">Sí, quiero permitir códigos promocionales</span>
+                    </label>
+                </div>
+            </div>
+            <div class="flex flex-col mb-4">
+                <h2 class="text-lg font-semibold">Programa de fidelización</h2>
+                <p class="mb-4">¿Quieres permitir que los clientes utilicen un programa de fidelización? Esto permitirá que los clientes puedan crear una cuenta en tu aplicación de OpenRestaurant. Por defecto 1€ equivale a 100 puntos.</p>
+                <div class="mb-4">
+                    <label for="loyalty_program" class="inline-flex items-center">
+                        <input type="checkbox" id="loyalty_program" name="loyalty_program" class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded">
+                        <span class="ml-2 text-gray-700">Sí, quiero permitir un programa de fidelización</span>
+                    </label>
+                </div>
+                <div class="mb-4">
+                    <label for="points_per_unit" class="block text-gray-700 text-sm font-bold mb-2">Puntos por € gastado.</label>
+                    <input type="number" id="points_per_unit" name="points_per_unit" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                </div>
+            </div>
+            <input type="submit" class="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer" value="Guardar cambios">
+        </form>
+    </div>
+{% endblock %}

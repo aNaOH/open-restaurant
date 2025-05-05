@@ -3,11 +3,13 @@
 $router->mount('/tables', function() use ($router) {
     $router->get('/', function() {
         $tables = Table::getAll();
-        ViewController::render('admin/tables/index', ['tables' => $tables]);
+        ViewController::render('admin/tables/index', array_merge(SidebarHelpers::getBaseData(), [
+            'tables' => $tables,
+        ]));
     });
 
     $router->get('/add', function() {
-        ViewController::render('admin/tables/add');
+        ViewController::render('admin/tables/add', SidebarHelpers::getBaseData());
     });
 
     $router->post('/add', function() {
@@ -17,14 +19,18 @@ $router->mount('/tables', function() use ($router) {
             header("Location: /admin/tables");
             exit;
         } else {
-            ViewController::render('admin/tables/add', ['error' => 'Introduce el número de mesa.']);
+            ViewController::render('admin/tables/add', array_merge(SidebarHelpers::getBaseData(), [
+                'error' => 'Introduce el número de mesa.',
+            ]));
         }
     });
 
     $router->get('/edit/{id}', function($id) {
         $table = Table::getById($id);
         if ($table) {
-            ViewController::render('admin/tables/edit', ['table' => $table]);
+            ViewController::render('admin/tables/edit', array_merge(SidebarHelpers::getBaseData(), [
+                'table' => $table,
+            ]));
         } else {
             header("Location: /admin/tables");
             exit;
@@ -43,7 +49,10 @@ $router->mount('/tables', function() use ($router) {
             header("Location: /admin/tables");
             exit;
         } else {
-            ViewController::render('admin/tables/edit', ['error' => 'Introduce el número de mesa.']);
+            ViewController::render('admin/tables/edit', array_merge(SidebarHelpers::getBaseData(), [
+                'error' => 'Introduce el número de mesa.',
+                'table' => Table::getById($id),
+            ]));
         }
     });
 
@@ -54,7 +63,9 @@ $router->mount('/tables', function() use ($router) {
             header("Location: /admin/tables");
             exit;
         } else {
-            ViewController::render('admin/tables/index', ['error' => 'Mesa no encontrada.']);
+            ViewController::render('admin/tables/index', array_merge(SidebarHelpers::getBaseData(), [
+                'error' => 'Mesa no encontrada.',
+            ]));
         }
     });
 });
