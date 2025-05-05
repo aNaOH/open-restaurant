@@ -3,14 +3,19 @@
 $router->mount('/categories', function() use ($router) {
     $router->get('/', function() {
         $categories = Category::getAll();
-        ViewController::render('admin/categories/index', ['categories' => $categories]);
+        ViewController::render('admin/categories/index', array_merge(SidebarHelpers::getBaseData(), ['categories' => $categories]));
     });
 
     $router->get('/add', function() {
-        ViewController::render('admin/categories/add');
+        ViewController::render('admin/categories/add', SidebarHelpers::getBaseData());
     });
 
     $router->post('/add', function() {
+
+        var_dump($_FILES);
+
+        exit;
+
         if (isset($_POST['name'])) {
             $category = new Category(null, $_POST['name']);
             $category->save();
@@ -24,7 +29,7 @@ $router->mount('/categories', function() use ($router) {
     $router->get('/edit/{id}', function($id) {
         $category = Category::getById($id);
         if ($category) {
-            ViewController::render('admin/categories/edit', ['category' => $category]);
+            ViewController::render('admin/categories/edit', array_merge(SidebarHelpers::getBaseData(), ['category' => $category]));
         } else {
             header("Location: /admin/categories");
             exit;
@@ -43,7 +48,7 @@ $router->mount('/categories', function() use ($router) {
             header("Location: /admin/categories");
             exit;
         } else {
-            ViewController::render('admin/categories/edit', ['error' => 'Introduce el número de mesa.']);
+            ViewController::render('admin/categories/edit', array_merge(SidebarHelpers::getBaseData(), ['error' => 'Introduce el nombre de la categoría.']));
         }
     });
 
@@ -54,7 +59,7 @@ $router->mount('/categories', function() use ($router) {
             header("Location: /admin/categories");
             exit;
         } else {
-            ViewController::render('admin/categories/index', ['error' => 'Mesa no encontrada.']);
+            ViewController::render('admin/categories/index', array_merge(SidebarHelpers::getBaseData(), ['error' => 'Categoría no encontrada.']));
         }
     });
 });

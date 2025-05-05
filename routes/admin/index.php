@@ -30,7 +30,7 @@ $router->mount('/admin', function() use ($router) {
     });
 
     $router->get('/config', function() {
-        ViewController::render('admin/config');
+        ViewController::render('admin/config', SidebarHelpers::getBaseData());
     });
     
     include_once 'routes/admin/tables.php';
