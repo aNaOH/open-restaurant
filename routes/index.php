@@ -3,7 +3,7 @@
 $router = new \Bramus\Router\Router();
 
 $router->get("/", function() {
-    ViewController::render('index');
+    ViewController::render('index', ['restaurantName' => CONFIG->RESTAURANT_NAME, 'showLogin' => CONFIG->FIDELITY_ENABLED]);
 });
 
 $router->get("/login", function() {
@@ -32,5 +32,6 @@ $router->post("/login", function() {
 });
 
 include_once 'routes/admin/index.php';
+include_once 'routes/content/index.php';
 
 $router->run();

@@ -1,5 +1,6 @@
 composer.phar
-config.json
 /vendor/
 /node_modules/
 /cache/
+assets/style.css
+config.json

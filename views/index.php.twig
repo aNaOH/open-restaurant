@@ -1,0 +1,29 @@
+{% extends "/templates/base.php.twig" %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+    <div class="flex flex-col h-full w-full justify-between">
+
+        {% if showLogin %}
+            <div class="w-full m-4 bg-white shadow-md rounded-lg p-4 flex items-center justify-between">
+                <a href="/login" class="text-blue-500 hover:underline">Iniciar sesión</a>
+            </div>
+        {% endif %}
+
+        <div class="flex flex-col justify-center items-center h-screen">
+            <img src="/content/logo" alt="Logo" class="w-32 mb-4">
+            <h1 class="text-2xl text-gray-800">Bienvenido a <span class="font-bold">{{restaurantName}}</span></h1>
+            <form action="/order/begin" method="POST" class="mt-4 flex items-center gap-2">
+                <input type="text" name="table" id="table" placeholder="Número de mesa" class="border border-gray-300 rounded px-4 py-2" required>
+                <button type="submit" class="btn primary">Comenzar pedido</button>
+            </form>
+            <a href="#menu" class="mt-4 text-blue-500 hover:underline">Ver menú</a>
+        </div>
+
+    </div>
+
+    <div id="menu" class="flex flex-col items-center">
+        <h1 class="text-2xl text-gray-800">Menú</h1>
+    </div>
+{% endblock %}
