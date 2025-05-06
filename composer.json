@@ -4,9 +4,7 @@
     "type": "project",
     "require": {
         "bramus/router": "^1.6",
-        "twig/twig": "^3.21",
-        "symfony/process": "^7.2",
-        "scssphp/scssphp": "^2.0"
+        "twig/twig": "^3.21"
     },
     "autoload": {
         "classmap": [
