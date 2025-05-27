@@ -23,8 +23,8 @@
                             <td class="py-3 px-6 text-left">{{ table.id }}</td>
                             <td class="py-3 px-6 text-left">{{ table.notes }}</td>
                             <td class="py-3 px-6 text-left">
-                                <a href="/admin/tables/edit/{{ table.id }}" class="text-blue-500 hover:underline">Editar</a>
-                                <a href="/admin/tables/delete/{{ table.id }}" class="text-red-500 hover:underline ml-4">Eliminar</a>
+                                <a href="/admin/tables/edit/{{ table.id }}" class="btn secondary">Editar</a>
+                                <a href="/admin/tables/delete/{{ table.id }}" class="btn danger ml-4">Eliminar</a>
                             </td>
                         </tr>
                     {% endfor %}
