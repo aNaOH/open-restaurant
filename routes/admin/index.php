@@ -103,6 +103,27 @@ $router->mount('/admin', function() use ($router) {
         exit;
     });
     
+    // --- BORRADO DE USUARIOS Y PRODUCTOS PROMOCIONALES SEGÚN LA CONFIGURACIÓN ---
+        if (!$loyaltyProgram) {
+            // Elimina todos los usuarios que no sean administradores ni empleados
+            // Asumimos que EUSER_ROLE::ADMIN = 0 y EUSER_ROLE::EMPLOYEE = 1
+            Connection::doDelete(DBCONN, 'User', [
+                'role' => [
+                    'param' => 'role',
+                    'value' => 0,
+                    'operator' => '='
+                ]
+            ]);
+        }
+        if (!$loyaltyProgram && !$promoCodes) {
+            // Elimina todos los productos promocionales
+            // Asumimos que EPRODUCT_TYPE::PROMOTION = 2
+            Connection::doDelete(DBCONN, 'Product', [
+                'type' => 2
+            ]);
+        }
+        // ...existing code...
+
     include_once 'routes/admin/tables.php';
     include_once 'routes/admin/categories.php';
     include_once 'routes/admin/products.php';
