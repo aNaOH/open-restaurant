@@ -24,6 +24,14 @@
     
         <!-- Scripts -->
         <script src="/assets/js/jquery-3.7.1.min.js"></script>
+        <script src="/assets/js/feather.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (window.feather) {
+                    window.feather.replace();
+                }
+            });
+        </script>
         {% block scripts %}{% endblock %}
     </body>
 </html>

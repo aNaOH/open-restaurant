@@ -1,15 +1,54 @@
-<div id="sidebar" class="bg-white shadow-lg p-4 w-1/4 h-full rounded-r-lg">
-    <h2 class="text-xl font-bold mb-4">Menú</h2>
-    <ul class="space-y-2">
-        <li><a href="/admin/" class="text-blue-500 hover:underline">Inicio</a></li>
-        <li><a href="/admin/tables" class="text-blue-500 hover:underline">Mesas</a></li>
-        <li><a href="/admin/categories" class="text-blue-500 hover:underline">Categorías</a></li>
-        <li><a href="/admin/products" class="text-blue-500 hover:underline">Productos</a></li>
-        <li><a href="/admin/composed" class="text-blue-500 hover:underline">Productos compuestos</a></li>
+<div id="sidebar" class="bg-white shadow-lg p-4 w-64 h-full rounded-r-lg flex flex-col justify-between">
+    <h2 class="text-2xl font-extrabold mb-6 flex items-center gap-2 text-gray-800">
+        Menú
+    </h2>
+    <ul class="space-y-2 flex-1">
+        <li>
+            <a href="/admin/" class="flex items-center gap-3 text-blue-600 hover:text-blue-900 hover:decoration-2 hover:underline decoration-0 font-medium transition">
+                <i data-feather="home"></i> Inicio
+            </a>
+        </li>
+        <li>
+            <a href="/admin/tables" class="flex items-center gap-3 text-blue-600 hover:text-blue-900 hover:decoration-2 hover:underline decoration-0 font-medium transition">
+                <i data-feather="grid"></i> Mesas
+            </a>
+        </li>
+        <li>
+            <a href="/admin/categories" class="flex items-center gap-3 text-blue-600 hover:text-blue-900 hover:decoration-2 hover:underline decoration-0 font-medium transition">
+                <i data-feather="tag"></i> Categorías
+            </a>
+        </li>
+        <li>
+            <a href="/admin/products" class="flex items-center gap-3 text-blue-600 hover:text-blue-900 hover:decoration-2 hover:underline decoration-0 font-medium transition">
+                <i data-feather="box"></i> Productos
+            </a>
+        </li>
+        <li>
+            <a href="/admin/composed" class="flex items-center gap-3 text-blue-600 hover:text-blue-900 hover:decoration-2 hover:underline decoration-0 font-medium transition">
+                <i data-feather="layers"></i> Productos compuestos
+            </a>
+        </li>
         {% if promosEnabled %}
-            <li><a href="/admin/promotional" class="text-blue-500 hover:underline">Productos promocionales</a></li>
+        <li>
+            <a href="/admin/promotional" class="flex items-center gap-3 text-blue-600 hover:text-blue-900 hover:decoration-2 hover:underline decoration-0 font-medium transition">
+                <i data-feather="star"></i> Productos promocionales
+            </a>
+        </li>
         {% endif %}
-        <li><a href="/admin/users" class="text-blue-500 hover:underline">Usuarios</a></li>
-        <li><a href="/admin/config" class="text-blue-500 hover:underline">Configuración</a></li>
+        <li>
+            <a href="/admin/users" class="flex items-center gap-3 text-blue-600 hover:text-blue-900 hover:decoration-2 hover:underline decoration-0 font-medium transition duration-75">
+                <i data-feather="users"></i> Usuarios
+            </a>
+        </li>
+        <li>
+            <a href="/admin/config" class="flex items-center gap-3 text-blue-600 hover:text-blue-900 hover:decoration-2 hover:underline decoration-0 font-medium transition duration-75">
+                <i data-feather="settings"></i> Configuración
+            </a>
+        </li>
     </ul>
+    <div>
+        <a href="/" class="flex items-center gap-3 text-blue-600 hover:text-blue-900 hover:decoration-2 hover:underline decoration-0 font-medium transition duration-75">
+            <i data-feather="log-out"></i> Salir
+        </a>
+    </div>
 </div>
