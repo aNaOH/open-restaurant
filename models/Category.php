@@ -14,7 +14,37 @@ class Category {
         if ($this->id) {
             Connection::doUpdate(DBCONN, 'Category', $data, ['id' => $this->id]);
         } else {
-            $this->id = Connection::doInsert(DBCONN, 'Category', $data);
+            Connection::doInsert(DBCONN, 'Category', $data);
+            $this->id = DBCONN->lastInsertId();
+        }
+    }
+
+    public function getImagePath() {
+        if ($this->id) {
+            $uploadDir = 'assets/uploads/categories/';
+            $imagePath = $uploadDir . 'category_' . $this->id;
+            $extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            foreach ($extensions as $ext) {
+                if (file_exists($imagePath . '.' . $ext)) {
+                    return $imagePath . '.' . $ext; // Return the URL relative to the root
+                }
+            }
+
+        }
+        return null;
+    }
+
+    public function getProducts() {
+        if ($this->id) {
+            $rows = Connection::doSelect(DBCONN, 'Product', ['category' => $this->id]);
+            return array_map([Product::class, 'fromRow'], $rows);
+        }
+        return [];
+    }
+
+    public function delete() {
+        if ($this->id) {
+            Connection::doDelete(DBCONN, 'Category', ['id' => $this->id]);
         }
     }
 

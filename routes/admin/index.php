@@ -1,8 +1,5 @@
 <?php
 
-include_once 'models/Table.php';
-include_once 'models/Category.php';
-
 $router->before('GET|POST', '/admin', function() {
     if (!isset($_SESSION['admin'])) {
         header("Location: /login");
@@ -35,5 +32,5 @@ $router->mount('/admin', function() use ($router) {
     
     include_once 'routes/admin/tables.php';
     include_once 'routes/admin/categories.php';
-
+    include_once 'routes/admin/products.php';
 });

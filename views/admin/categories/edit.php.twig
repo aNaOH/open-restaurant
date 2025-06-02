@@ -7,12 +7,56 @@
     <div class="flex flex-col h-full">
         <div class="flex items-center justify-end mb-4">
         </div>
-        <form action="/admin/categories/edit/{{category.id}}" method="POST">
+        <form id="editCatForm" action="/admin/categories/edit/{{category.id}}" method="POST" enctype="multipart/form-data">
             <div class="mb-4">
                 <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nombre:</label>
                 <input type="text" id="name" name="name" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ category.name }}">
             </div>
+            <div class="mb-4">
+                <label for="imgUpload" class="block text-gray-700 text-sm font-bold mb-2">Imagen:</label>
+                <file-upload id="imgUpload" class="w-full" accept-image="true" accept-video="false" image-aspect-ratio="1:1" min-image-width="512" min-image-height="512" max-image-width="2048" max-image-height="2048"></file-upload>
+                {% if category.image %}
+                    <div class="mt-2">
+                        <span class="text-xs text-gray-500">Imagen actual:</span><br>
+                        <img src="/{{ category.image }}" alt="Imagen actual" class="w-32 h-32 object-cover border rounded mt-1">
+                    </div>
+                {% endif %}
+            </div>
             <input type="submit" class="btn primary" value="Guardar cambios">
         </form>
     </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="/assets/js/components/fileUpload.js"></script>
+    <script>
+        document.getElementById('editCatForm').addEventListener('submit', function(event) {
+            // Permite enviar el formulario con o sin imagen nueva
+            if (document.getElementById('imgUpload').getFileInput()) {
+                event.preventDefault();
+                if (!document.getElementById('name').value) {
+                    alert('Por favor ingresa el nombre de la categoría.');
+                    return;
+                }
+                const formData = new FormData();
+                formData.append('name', document.getElementById('name').value);
+                if (document.getElementById('imgUpload').getFileInput()[0]) {
+                    formData.append('image', document.getElementById('imgUpload').getFileInput()[0]);
+                }
+                $.ajax({
+                    url: '/admin/categories/edit/{{category.id}}',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        //window.location.href = '/admin/categories';
+                    },
+                    error: function(xhr) {
+                        alert('Error al guardar los cambios.');
+                    }
+                });
+            }
+        });
+    </script>
 {% endblock %}

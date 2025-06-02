@@ -1,9 +1,20 @@
 <?php
 
+include_once 'models/Table.php';
+include_once 'models/Category.php';
+include_once 'models/Product.php';
+
 $router = new \Bramus\Router\Router();
 
 $router->get("/", function() {
-    ViewController::render('index', ['restaurantName' => CONFIG->RESTAURANT_NAME, 'showLogin' => CONFIG->FIDELITY_ENABLED]);
+    $categories = Category::getAll();
+    $products = Product::getAll();
+    ViewController::render('index', [
+        'restaurantName' => CONFIG->RESTAURANT_NAME,
+        'showLogin' => CONFIG->FIDELITY_ENABLED,
+        'categories' => $categories,
+        'products' => $products
+    ]);
 });
 
 $router->get("/login", function() {

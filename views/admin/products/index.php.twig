@@ -1,12 +1,12 @@
 {% extends "/templates/admin.php.twig" %}
 
-{% block title %}Categorías{% endblock %}
+{% block title %}Productos{% endblock %}
 
-{% block name %}Categorías{% endblock %}
+{% block name %}Productos{% endblock %}
 {% block content %}
     <div class="flex flex-col h-full">
         <div class="flex items-center justify-end mb-4">
-            <a href="/admin/categories/add" class="btn primary">Añadir categoría</a>
+            <a href="/admin/products/add" class="btn primary">Añadir producto</a>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg">
@@ -14,17 +14,29 @@
                     <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
                         <th class="py-3 px-6 text-left">ID</th>
                         <th class="py-3 px-6 text-left">Nombre</th>
+                        <th class="py-3 px-6 text-left">Descripción</th>
+                        <th class="py-3 px-6 text-left">Precio</th>
+                        <th class="py-3 px-6 text-left">Categoría</th>
                         <th class="py-3 px-6 text-left">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-600 text-sm font-light">
-                    {% for category in categories %}
+                    {% for product in products %}
                         <tr class="border-b border-gray-200 hover:bg-gray-100">
-                            <td class="py-3 px-6 text-left">{{ category.id }}</td>
-                            <td class="py-3 px-6 text-left">{{ category.name }}</td>
+                            <td class="py-3 px-6 text-left">{{ product.id }}</td>
+                            <td class="py-3 px-6 text-left">{{ product.name }}</td>
+                            <td class="py-3 px-6 text-left">{{ product.description }}</td>
+                            <td class="py-3 px-6 text-left">{{ product.price }}</td>
                             <td class="py-3 px-6 text-left">
-                                <a href="/admin/categories/edit/{{ category.id }}" class="btn secondary">Editar</a>
-                                <a href="/admin/categories/delete/{{ category.id }}" class="btn danger ml-4">Eliminar</a>
+                                {% if product.category %}
+                                    {{ product.category.name }}
+                                {% else %}
+                                    Ninguna
+                                {% endif %}
+                            </td>
+                            <td class="py-3 px-6 text-left">
+                                <a href="/admin/products/edit/{{ product.id }}" class="btn secondary">Editar</a>
+                                <a href="/admin/products/delete/{{ product.id }}" class="btn danger ml-4">Eliminar</a>
                             </td>
                         </tr>
                     {% endfor %}

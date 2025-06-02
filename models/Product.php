@@ -5,7 +5,7 @@ class Product {
     public $name;
     public $description;
     public $price;
-    public $type;
+    public EPRODUCT_TYPE $type;
     public $category;
 
     public function __construct($id = null, $name = null, $description = null, $price = null, $type = null, $category = null) {
@@ -13,6 +13,16 @@ class Product {
         $this->name = $name;
         $this->description = $description;
         $this->price = $price;
+        // Ensure type is an instance of EPRODUCT_TYPE enum, if it's an int, convert it to the enum type
+        if ($type === null) {
+            $type = EPRODUCT_TYPE::STANDARD; // Default type if none provided
+        }
+        if (is_int($type)) {
+            $type = EPRODUCT_TYPE::from($type);
+        } else if (!$type instanceof EPRODUCT_TYPE) {
+            throw new InvalidArgumentException('Invalid type provided for Product.');
+        }
+
         $this->type = $type;
         $this->category = $category;
     }
@@ -22,18 +32,42 @@ class Product {
             'name' => $this->name,
             'description' => $this->description,
             'price' => $this->price,
-            'type' => $this->type,
-            'category' => $this->category
+            'type' => $this->type->value,
+            'category' => $this->category instanceof Category ? $this->category->id : $this->category
         ];
         if ($this->id) {
             Connection::doUpdate(DBCONN, 'Product', $data, ['id' => $this->id]);
         } else {
-            $this->id = Connection::doInsert(DBCONN, 'Product', $data);
+            Connection::doInsert(DBCONN, 'Product', $data);
+            $this->id = DBCONN->lastInsertId();
         }
     }
 
+    public function getImagePath() {
+        if ($this->id) {
+            $uploadDir = 'assets/uploads/products/';
+            $imagePath = $uploadDir . 'product_' . $this->id;
+            $extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            foreach ($extensions as $ext) {
+                if (file_exists($imagePath . '.' . $ext)) {
+                    return $imagePath . '.' . $ext; // Return the URL relative to the root
+                }
+            }
+
+        }
+        return null;
+    }
+
+
     public static function fromRow($row) {
-        return new self($row['id'], $row['name'], $row['description'], $row['price'], $row['type'], $row['category']);
+        // Convertir type a EPRODUCT_TYPE y category a Category si es necesario
+        $type = EPRODUCT_TYPE::from($row['type']);
+        $category = null;
+        if (isset($row['category']) && $row['category'] !== null) {
+            $category = Category::getById($row['category']);
+        }
+
+        return new self($row['id'], $row['name'], $row['description'], $row['price'], $type, $category);
     }
 
     public static function getById($id) {

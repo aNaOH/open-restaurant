@@ -4,3 +4,4 @@ composer.phar
 /cache/
 assets/style.css
 config.json
+/assets/uploads/

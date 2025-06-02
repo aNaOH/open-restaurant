@@ -7,14 +7,14 @@
     <div class="flex flex-col h-full">
         <div class="flex items-center justify-end mb-4">
         </div>
-        <form id="newCatForm" action="/admin/categories/add" method="POST" enctype="multipart/form-data">
+        <form id="newCatForm" action="#" method="POST" enctype="multipart/form-data">
             <div class="mb-4">
                 <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nombre:</label>
                 <input type="text" id="name" name="name" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             </div>
             <div class="mb-4">
                 <label for="imgUpload" class="block text-gray-700 text-sm font-bold mb-2">Imagen:</label>
-                <file-upload id="imgUpload" class="w-full" accept-image="true" accept-video="false" image-aspect-ratio="1:1" min-image-width="512" max-image-width="2048"></file-upload>
+                <file-upload id="imgUpload" class="w-full" accept-image="true" accept-video="false" image-aspect-ratio="1:1" min-image-width="512" min-image-height="512" max-image-width="2048" max-image-height="2048"></file-upload>
             </div>
             <input type="submit" class="btn primary" value="Crear categoría">
         </form>
@@ -27,29 +27,40 @@
         document.getElementById('newCatForm').addEventListener('submit', function(event) {
             event.preventDefault();
 
-            const formData = new FormData(this);
+            // we should create a multipart form data to send the image
 
-            // Check image in form data
-            if (formData.has('image')) {
-                event.target.submit();
+            if (!document.getElementById('imgUpload').getFileInput()) {
+                alert('Please upload an image.');
+                return;
+            }
+            if (!document.getElementById('name').value) {
+                alert('Please enter a category name.');
                 return;
             }
 
-            const fileUpload = document.getElementById('imgUpload');
-            const file = fileUpload.getFileInput();
+            console.log(document.getElementById('imgUpload').getFileInput());
 
-            // Create a hidden input to store the file
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.style.display = 'none'; // Hide the input
-            fileInput.id = 'image';
-            fileInput.name = 'image';
-            //Add file to files
-            fileInput.files[0] = file;
+            // Create a FormData object to hold the form data
+            // and the file input
 
-            event.target.appendChild(fileInput);
+            const formData = new FormData();
+            formData.append('name', document.getElementById('name').value);
+            formData.append('image', document.getElementById('imgUpload').getFileInput()[0]);
             
-            //event.target.submit(); // Submit the form
+            // Send the form data using jquery
+            $.ajax({
+                url: '/admin/categories/add', // Cambia la URL si es necesario
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    window.location.href = '/admin/categories'; // Redirige al listado
+                },
+                error: function(xhr) {
+                    //nada
+                }
+            });
         });
     </script>
 {% endblock %}

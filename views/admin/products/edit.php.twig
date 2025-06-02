@@ -1,18 +1,79 @@
 {% extends "/templates/admin.php.twig" %}
 
-{% block title %}Editar categoría {{category.name}}{% endblock %}
+{% block title %}Editar producto {{product.name}}{% endblock %}
 
-{% block name %}Editar categoría {{category.name}}{% endblock %}
+{% block name %}Editar producto {{product.name}}{% endblock %}
 {% block content %}
     <div class="flex flex-col h-full">
         <div class="flex items-center justify-end mb-4">
         </div>
-        <form action="/admin/categories/edit/{{category.id}}" method="POST">
+        <form id="editProductForm" action="#" method="POST" enctype="multipart/form-data">
             <div class="mb-4">
                 <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nombre:</label>
-                <input type="text" id="name" name="name" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ category.name }}">
+                <input type="text" id="name" name="name" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ product.name }}">
+            </div>
+            <div class="mb-4">
+                <label for="category" class="block text-gray-700 text-sm font-bold mb-2">Categoría:</label>
+                <select id="category" name="category" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <option value="none" {% if not product.category_id %}selected{% endif %}>Ninguna</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" {% if product.category_id == category.id %}selected{% endif %}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="description" class="block text-gray-700 text-sm font-bold mb-2">Descripción:</label>
+                <textarea id="description" name="description" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ product.description }}</textarea>
+            </div>
+            <div class="mb-4">
+                <label for="price" class="block text-gray-700 text-sm font-bold mb-2">Precio:</label>
+                <input type="number" id="price" name="price" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ product.price }}">
+            </div>
+            <div class="mb-4">
+                <label for="imgUpload" class="block text-gray-700 text-sm font-bold mb-2">Imagen:</label>
+                <file-upload id="imgUpload" class="w-full" accept-image="true" accept-video="false" image-aspect-ratio="1:1" min-image-width="512" min-image-height="512" max-image-width="2048" max-image-height="2048"></file-upload>
+                {% if product.image %}
+                    <div class="mt-2">
+                        <span class="text-xs text-gray-500">Imagen actual:</span><br>
+                        <img src="/{{ product.image }}" alt="Imagen actual" class="w-32 h-32 object-cover border rounded mt-1">
+                    </div>
+                {% endif %}
             </div>
             <input type="submit" class="btn primary" value="Guardar cambios">
         </form>
     </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/assets/js/components/fileUpload.js"></script>
+<script>
+    document.getElementById('editProductForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        if (!document.getElementById('name').value || !document.getElementById('description').value || !document.getElementById('price').value) {
+            alert('Por favor completa todos los campos.');
+            return;
+        }
+        const formData = new FormData();
+        formData.append('name', document.getElementById('name').value);
+        formData.append('category', document.getElementById('category').value);
+        formData.append('description', document.getElementById('description').value);
+        formData.append('price', document.getElementById('price').value);
+        if (document.getElementById('imgUpload').getFileInput() && document.getElementById('imgUpload').getFileInput()[0]) {
+            formData.append('image', document.getElementById('imgUpload').getFileInput()[0]);
+        }
+        $.ajax({
+            url: '/admin/products/edit/{{product.id}}',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                window.location.href = '/admin/products';
+            },
+            error: function(xhr) {
+                alert('Error al guardar los cambios.');
+            }
+        });
+    });
+</script>
 {% endblock %}
