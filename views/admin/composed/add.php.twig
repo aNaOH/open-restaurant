@@ -214,7 +214,7 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
+                if (data.status === 'success') {
                     window.location.href = '/admin/composed';
                 } else {
                     alert('Error al crear el producto compuesto: ' + (data.message || 'Error desconocido'));

@@ -141,8 +141,10 @@ $router->mount('/composed', function() use ($router) {
         $composedProducts = Product::getAllByType(EPRODUCT_TYPE::COMPOSED);
         $categories = Category::getAll();
         // Para cada producto compuesto, obtener los componentes agrupados por posición
-        foreach ($composedProducts as &$composed) {
-            $composed->components = $composed->getChildren();
+        foreach ($composedProducts as $i => $composed) {
+            $composedProducts[$i] = (object) array_merge((array)$composed, [
+                'components' => $composed->getChildren()
+            ]);
         }
         ViewController::render('admin/composed/index', array_merge(SidebarHelpers::getBaseData(), [
             'composedProducts' => $composedProducts,
