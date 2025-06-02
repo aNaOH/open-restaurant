@@ -32,7 +32,7 @@
                                 <option value="product" {% if (group.type == 'product') or (group.0 is defined and group.0.type == 'product') %}selected{% endif %}>Producto</option>
                                 <option value="category" {% if (group.type == 'category') or (group.0 is defined and group.0.type == 'category') %}selected{% endif %}>Categoría</option>
                             </select>
-                            <select class="component-category-filter shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            <select class="component-category-filter shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" {% if (group.type == 'category') or (group.0 is defined and group.0.type == 'category') %}style="display:none"{% endif %}>
                                 <option value="" selected>Todas las categorías</option>
                                 {% for category in categories %}
                                     <option value="{{ category.id }}">{{ category.name }}</option>
@@ -40,20 +40,20 @@
                             </select>
                             <select class="component-product-select shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="4" data-custom-multiselect {% if (group.type == 'category') or (group.0 is defined and group.0.type == 'category') %}style="display:none"{% endif %} multiple>
                                 {% for product in products %}
-                                    <option value="{{ product.id }}" data-category="{{ product.category ? product.category.id : '' }}"
-                                        {% set selected = false %}
-                                        {% if group.type == 'product' and product.id == group.object.id %}
-                                            {% set selected = true %}
-                                        {% elseif group.0 is defined and group.0.type == 'product' %}
-                                            {% for g in group %}
-                                                {% if g.object.id == product.id %}
-                                                    {% set selected = true %}
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% endif %}
-                                        {% if selected %}selected{% endif %}>
-                                        {{ product.name }}
-                                    </option>
+                                    {% set selected = false %}
+                                    {# Caso 1: group es un solo producto #}
+                                    {% if group.type == 'product' and product.id == group.object.id %}
+                                        {% set selected = true %}
+                                    {% endif %}
+                                    {# Caso 2: group es un array de productos #}
+                                    {% if group.type == 'group' %}
+                                        {% for g in group.items %}
+                                            {% if g.object.id == product.id %}
+                                                {% set selected = true %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                    <option value="{{ product.id }}" data-category="{{ product.category ? product.category.id : '' }}" {% if selected %}selected{% endif %}>{{ product.name }}</option>
                                 {% endfor %}
                             </select>
                             <select class="component-category-select shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" {% if (group.type == 'product') or (group.0 is defined and group.0.type == 'product') %}style="display:none"{% endif %}>
@@ -98,21 +98,15 @@
     const componentsContainer = document.getElementById('componentsContainer');
     const addComponentBtn = document.getElementById('addComponentBtn');
     const form = componentsContainer.closest('form');
-    const categories = Array.from(document.querySelectorAll('.component-category-filter option')).filter(o => o.value).map(o => ({id: o.value, name: o.textContent}));
-    const products = Array.from(document.querySelectorAll('.component-product-select option')).map(o => ({id: o.value, name: o.textContent, category: o.dataset.category}));
 
     function createComponentRow(type = 'product') {
-        // Clona la primera fila como plantilla
         const template = componentsContainer.querySelector('.component-row');
         const clone = template.cloneNode(true);
-        // Limpia selección
         clone.querySelector('.component-type-select').value = type;
         clone.querySelector('.component-category-filter').value = '';
         clone.querySelector('.component-product-select').selectedIndex = -1;
         clone.querySelector('.component-category-select').selectedIndex = 0;
-        // Muestra/oculta selects
         updateComponentType(clone, type);
-        // Elimina selección previa
         Array.from(clone.querySelectorAll('option[selected]')).forEach(o => o.selected = false);
         return clone;
     }
@@ -120,12 +114,15 @@
     function updateComponentType(row, type) {
         const productSelect = row.querySelector('.component-product-select');
         const categorySelect = row.querySelector('.component-category-select');
+        const categoryFilter = row.querySelector('.component-category-filter');
         if (type === 'product') {
             productSelect.style.display = '';
             categorySelect.style.display = 'none';
+            if (categoryFilter) categoryFilter.style.display = '';
         } else {
             productSelect.style.display = 'none';
             categorySelect.style.display = '';
+            if (categoryFilter) categoryFilter.style.display = 'none';
         }
     }
 
@@ -145,6 +142,7 @@
     addComponentBtn.addEventListener('click', function() {
         const newRow = createComponentRow();
         componentsContainer.appendChild(newRow);
+        updateRemoveButtons();
     });
 
     // Delegación de eventos
@@ -162,15 +160,41 @@
     componentsContainer.addEventListener('click', function(e) {
         if (e.target.classList.contains('remove-component-btn')) {
             const row = e.target.closest('.component-row');
-            if (componentsContainer.children.length > 1) {
+            if (componentsContainer.children.length > 2) {
                 row.remove();
+                updateRemoveButtons();
             } else {
-                alert('Debe haber al menos un componente.');
+                alert('Debe haber al menos dos componentes.');
             }
         }
     });
 
-    // Validación y submit AJAX
+    // Ocultar botón eliminar si hay solo dos componentes
+    function updateRemoveButtons() {
+        const rows = componentsContainer.querySelectorAll('.component-row');
+        rows.forEach(row => {
+            const btn = row.querySelector('.remove-component-btn');
+            if (rows.length <= 2) {
+                btn.style.display = 'none';
+            } else {
+                btn.style.display = '';
+            }
+        });
+    }
+    updateRemoveButtons();
+
+    // Precarga: filtra productos por categoría si corresponde
+    componentsContainer.querySelectorAll('.component-row').forEach(row => {
+        const filter = row.querySelector('.component-category-filter');
+        if (filter && filter.value) {
+            filterProductsByCategory(row, filter.value);
+        }
+        // Ajusta visibilidad de selects según tipo
+        const type = row.querySelector('.component-type-select').value;
+        updateComponentType(row, type);
+    });
+
+    // AJAX para el submit del formulario
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         // Contar componentes seleccionados
@@ -229,25 +253,17 @@
             method: 'POST',
             body: formData
         })
-        .then(response => {
-            if (response.ok) {
-                alert('Producto compuesto actualizado correctamente.');
-                // window.location.href = '/admin/composed'; // Descomenta si quieres redirigir
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                window.location.href = '/admin/composed'; // Descomenta si quieres redirigir
             } else {
-                return response.text().then(text => { throw new Error(text); });
+                alert('Error: ' + (data.message || 'Error desconocido.'));
             }
         })
         .catch(err => {
             alert('Error al guardar los cambios: ' + (err.message || ''));
         });
-    });
-
-    // Precarga: filtra productos por categoría si corresponde
-    componentsContainer.querySelectorAll('.component-row').forEach(row => {
-        const filter = row.querySelector('.component-category-filter');
-        if (filter && filter.value) {
-            filterProductsByCategory(row, filter.value);
-        }
     });
 })();
 </script>

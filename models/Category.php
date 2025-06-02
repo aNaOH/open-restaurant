@@ -43,7 +43,7 @@ class Category {
     }
 
     public function getParentProducts(){
-        $productRows = Connection::doSelect(DBCONN, 'ComposedCategory', ['child_id' => $this->id]);
+        $productRows = Connection::doSelect(DBCONN, 'ComposedCategory', ['category_id' => $this->id]);
         $parentProducts = [];
         foreach ($productRows as $row) {
             $parentProduct = self::getById($row['product_id']);

@@ -188,6 +188,19 @@ class Product {
     }
 
     /**
+     * Añade una relación de hijo categoría a este producto compuesto, con posición.
+     * @param int $categoryId
+     * @param int $position
+     */
+    public function addCategoryChild($categoryId, $position = 0) {
+        Connection::doInsert(DBCONN, 'ComposedCategory', [
+            'product_id' => $this->id,
+            'category_id' => $categoryId,
+            'position' => $position
+        ]);
+    }
+
+    /**
      * Elimina un componente hijo (producto o categoría) de este producto compuesto en una posición concreta.
      * @param string $type 'product' o 'category'
      * @param int $id ID del producto o categoría
