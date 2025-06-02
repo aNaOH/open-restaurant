@@ -14,7 +14,7 @@ enum EPRODUCT_TYPE : int {
 }
 
 enum EUSER_ROLE : int {
-    case ADMIN = 0;
-    case USER = 1;
-    case EMPLOYEE = 2;
+    case USER = 0;
+    case EMPLOYEE = 1;
+    case ADMIN = 2;
 }

@@ -2,7 +2,7 @@
 
 $router->mount('/products', function() use ($router) {
     $router->get('/', function() {
-        $products = Product::getAll();
+        $products = Product::getAllByType(EPRODUCT_TYPE::STANDARD);
         ViewController::render('admin/products/index', array_merge(SidebarHelpers::getBaseData(), [
             'products' => $products
         ]));

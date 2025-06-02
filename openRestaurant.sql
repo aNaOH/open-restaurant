@@ -8,6 +8,7 @@ CREATE TABLE `User` (
   `email` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
+  `role` int NOT NULL,
   `points` int NOT NULL DEFAULT 0
 );
 

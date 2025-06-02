@@ -50,6 +50,7 @@
             <div class="flex flex-col mb-4">
                 <h2 class="text-lg font-semibold">Programa de fidelización</h2>
                 <p class="mb-4">¿Quieres permitir que los clientes utilicen un programa de fidelización? Esto permitirá que los clientes puedan crear una cuenta en tu aplicación de OpenRestaurant. Por defecto 1€ equivale a 100 puntos.</p>
+                <div id="fidelity-warning" class="mb-4 hidden bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4"></div>
                 <div class="mb-4">
                     <label for="loyalty_program" class="inline-flex items-center">
                         <input type="checkbox" id="loyalty_program" name="loyalty_program" class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded" {% if fidelity_enabled %}checked{% endif %}>
@@ -94,6 +95,35 @@
                     })
                     .catch(() => alert('Error al subir el logo.'));
                 });
+            }
+
+            // --- FIDELITY & PROMO WARNING MESSAGES ---
+            const loyaltyCheckbox = document.getElementById('loyalty_program');
+            const promoCheckbox = document.getElementById('promo_codes');
+            const warningDiv = document.getElementById('fidelity-warning');
+
+            function updateWarnings() {
+                let showWarning = false;
+                let warningMsg = '';
+                if (!loyaltyCheckbox.checked) {
+                    showWarning = true;
+                    warningMsg = 'Al desactivar el programa de fidelización, todos los usuarios que no sean administradores ni empleados serán borrados.';
+                    if (!promoCheckbox.checked) {
+                        warningMsg += '<br><b>Además, al desactivar ambos, todos los productos promocionales serán borrados.</b>';
+                    }
+                }
+                if (showWarning) {
+                    warningDiv.innerHTML = warningMsg;
+                    warningDiv.classList.remove('hidden');
+                } else {
+                    warningDiv.innerHTML = '';
+                    warningDiv.classList.add('hidden');
+                }
+            }
+            if (loyaltyCheckbox && promoCheckbox && warningDiv) {
+                loyaltyCheckbox.addEventListener('change', updateWarnings);
+                promoCheckbox.addEventListener('change', updateWarnings);
+                updateWarnings();
             }
         });
     </script>
