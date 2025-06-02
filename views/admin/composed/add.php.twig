@@ -41,7 +41,11 @@
                         </select>
                         <select class="component-product-select shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="4" data-custom-multiselect multiple>
                             {% for product in products %}
-                                <option value="{{ product.id }}" data-category="{{ product.category ? product.category.id : '' }}">{{ product.name }}</option>
+                                {% if composed is defined and product.id == composed.id %}
+                                    {# No permitir seleccionar el propio producto compuesto/promocional #}
+                                {% else %}
+                                    <option value="{{ product.id }}" data-category="{{ product.category ? product.category.id : '' }}">{{ product.name }}</option>
+                                {% endif %}
                             {% endfor %}
                         </select>
                         <select class="component-category-select shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" style="display:none">
@@ -65,7 +69,11 @@
                         </select>
                         <select class="component-product-select shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="4" data-custom-multiselect multiple>
                             {% for product in products %}
-                                <option value="{{ product.id }}" data-category="{{ product.category ? product.category.id : '' }}">{{ product.name }}</option>
+                                {% if composed is defined and product.id == composed.id %}
+                                    {# No permitir seleccionar el propio producto compuesto/promocional #}
+                                {% else %}
+                                    <option value="{{ product.id }}" data-category="{{ product.category ? product.category.id : '' }}">{{ product.name }}</option>
+                                {% endif %}
                             {% endfor %}
                         </select>
                         <select class="component-category-select shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" style="display:none">

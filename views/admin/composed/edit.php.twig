@@ -38,22 +38,23 @@
                                     <option value="{{ category.id }}">{{ category.name }}</option>
                                 {% endfor %}
                             </select>
-                            <select class="component-product-select shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="4" data-custom-multiselect {% if (group.type == 'category') or (group.0 is defined and group.0.type == 'category') %}style="display:none"{% endif %} multiple>
+                            <select class="component-product-select shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="4" data-custom-multiselect multiple>
                                 {% for product in products %}
-                                    {% set selected = false %}
-                                    {# Caso 1: group es un solo producto #}
-                                    {% if group.type == 'product' and product.id == group.object.id %}
-                                        {% set selected = true %}
+                                    {% if composed is defined and product.id == composed.id %}
+                                        {# No permitir seleccionar el propio producto compuesto/promocional #}
+                                    {% else %}
+                                        {% set selected = false %}
+                                        {% if group.type == 'product' and product.id == group.object.id %}
+                                            {% set selected = true %}
+                                        {% elseif group.type == 'group' and group.items is defined %}
+                                            {% for g in group.items %}
+                                                {% if g.object.id == product.id %}
+                                                    {% set selected = true %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                        <option value="{{ product.id }}" data-category="{{ product.category ? product.category.id : '' }}" {% if selected %}selected{% endif %}>{{ product.name }}</option>
                                     {% endif %}
-                                    {# Caso 2: group es un array de productos #}
-                                    {% if group.type == 'group' %}
-                                        {% for g in group.items %}
-                                            {% if g.object.id == product.id %}
-                                                {% set selected = true %}
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% endif %}
-                                    <option value="{{ product.id }}" data-category="{{ product.category ? product.category.id : '' }}" {% if selected %}selected{% endif %}>{{ product.name }}</option>
                                 {% endfor %}
                             </select>
                             <select class="component-category-select shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" {% if (group.type == 'product') or (group.0 is defined and group.0.type == 'product') %}style="display:none"{% endif %}>

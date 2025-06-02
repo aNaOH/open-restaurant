@@ -1,8 +1,8 @@
 {% extends "/templates/admin.php.twig" %}
 
-{% block title %}Editar producto compuesto{% endblock %}
+{% block title %}Editar producto promocional{% endblock %}
 
-{% block name %}Editar producto compuesto{% endblock %}
+{% block name %}Editar producto promocional{% endblock %}
 {% block content %}
     <div class="flex flex-col h-full">
         <form action="/admin/promotional/edit/{{ composed.id }}" method="POST" enctype="multipart/form-data" id="promoEditForm">
@@ -24,7 +24,7 @@
                 <file-upload id="imgUpload" class="w-full" accept-image="true" accept-video="false" image-aspect-ratio="1:1" min-image-width="512" min-image-height="512" max-image-width="2048" max-image-height="2048" existing-image="{{ composed.getImagePath() }}"></file-upload>
             </div>
             <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2">Componentes del producto compuesto:</label>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Componentes del producto promocional:</label>
                 <div id="componentsContainer">
                     {% for group in components %}
                         <div class="flex gap-2 mb-2 component-row">
@@ -40,20 +40,25 @@
                             </select>
                             <select class="component-product-select shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="4" data-custom-multiselect {% if (group.type == 'category') or (group.0 is defined and group.0.type == 'category') %}style="display:none"{% endif %} multiple>
                                 {% for product in products %}
-                                    <option value="{{ product.id }}" data-category="{{ product.category ? product.category.id : '' }}"
-                                        {% set selected = false %}
-                                        {% if group.type == 'product' and product.id == group.object.id %}
-                                            {% set selected = true %}
-                                        {% elseif group.0 is defined and group.0.type == 'product' %}
-                                            {% for g in group %}
-                                                {% if g.object.id == product.id %}
-                                                    {% set selected = true %}
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% endif %}
-                                        {% if selected %}selected{% endif %}>
-                                        {{ product.name }}
-                                    </option>
+                                    {% if composed is defined and product.id == composed.id %}
+                                        {# No permitir seleccionar el propio producto compuesto/promocional #}
+                                        {# Twig no soporta 'continue', así que usamos 'else' para saltar la opción #}
+                                    {% else %}
+                                        <option value="{{ product.id }}" data-category="{{ product.category ? product.category.id : '' }}"
+                                            {% set selected = false %}
+                                            {% if group.type == 'product' and product.id == group.object.id %}
+                                                {% set selected = true %}
+                                            {% elseif group.type == 'group' and group.items is defined %}
+                                                {% for g in group.items %}
+                                                    {% if g.object.id == product.id %}
+                                                        {% set selected = true %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                            {% if selected %}selected{% endif %}>
+                                            {{ product.name }}
+                                        </option>
+                                    {% endif %}
                                 {% endfor %}
                             </select>
                             <select class="component-category-select shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" {% if (group.type == 'product') or (group.0 is defined and group.0.type == 'product') %}style="display:none"{% endif %}>
@@ -62,12 +67,6 @@
                                     {% set selected = false %}
                                     {% if group.type == 'category' and group.object.id == category.id %}
                                         {% set selected = true %}
-                                    {% elseif group.0 is defined and group.0.type == 'category' %}
-                                        {% for g in group %}
-                                            {% if g.object.id == category.id %}
-                                                {% set selected = true %}
-                                            {% endif %}
-                                        {% endfor %}
                                     {% endif %}
                                     <option value="{{ category.id }}" {% if selected %}selected{% endif %}>{{ category.name }}</option>
                                 {% endfor %}
