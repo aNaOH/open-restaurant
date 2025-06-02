@@ -6,10 +6,12 @@
                     <i data-feather="user" class="text-blue-500"></i>
                     <span class="text-gray-800 font-semibold">{{ user.name }}</span>
                 </div>
-                <div class="flex items-center gap-2 bg-blue-50 rounded px-2 py-1 ml-2">
-                    <i data-feather="star" class="text-yellow-400"></i>
-                    <span class="text-blue-700 font-semibold">{{ user.points }} puntos</span>
-                </div>
+                {% if fidelityEnabled %}
+                    <div class="flex items-center gap-2 bg-blue-50 rounded px-2 py-1 ml-2">
+                        <i data-feather="star" class="text-yellow-400"></i>
+                        <span class="text-blue-700 font-semibold">{{ user.points }} puntos</span>
+                    </div>
+                {% endif %}
             </div>
             <div class="flex items-center gap-2">
                 {% if user.role and user.role.value == 2 %}

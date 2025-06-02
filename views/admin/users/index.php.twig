@@ -16,7 +16,9 @@
                         <th class="py-3 px-6 text-left">Nombre</th>
                         <th class="py-3 px-6 text-left">Correo</th>
                         <th class="py-3 px-6 text-left">Rol</th>
+                        {% if fidelityEnabled %}
                         <th class="py-3 px-6 text-left">Puntos</th>
+                        {% endif %}
                         <th class="py-3 px-6 text-left">Acciones</th>
                     </tr>
                 </thead>
@@ -31,7 +33,9 @@
                                 {% if user.role and user.role.value == 1 %}Empleado{% endif %}
                                 {% if user.role and user.role.value == 2 %}Administrador{% endif %}
                             </td>
+                            {% if fidelityEnabled %}
                             <td class="py-3 px-6 text-left">{{ user.points }}</td>
+                            {% endif %}
                             <td class="py-3 px-6 text-left">
                                 <a href="/admin/users/edit/{{ user.id }}" class="btn secondary">Editar</a>
                                 <form action="/admin/users/delete/{{ user.id }}" method="POST" class="inline-block delete-entity-form" data-entity="user" data-role="{{ user.role and user.role.value == 2 ? 'admin' : '' }}">
