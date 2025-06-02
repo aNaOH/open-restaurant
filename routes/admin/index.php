@@ -68,10 +68,16 @@ $router->mount('/admin', function() use ($router) {
     $router->post('/config/logo', function() {
         $success = false;
         $error = null;
+
         if (isset($_FILES['restaurant_logo']) && $_FILES['restaurant_logo']['error'] == UPLOAD_ERR_OK) {
             $uploadDir = 'content/';
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0755, true);
+            }
+
+            //eliminar archivos antiguos si existen
+            foreach (glob($uploadDir . 'logo.*') as $file) {
+                @unlink($file);
             }
             $extension = pathinfo($_FILES['restaurant_logo']['name'], PATHINFO_EXTENSION);
             $uploadFile = $uploadDir . 'logo.' . $extension;
