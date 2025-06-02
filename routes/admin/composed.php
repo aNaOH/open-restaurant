@@ -12,7 +12,7 @@ $router->mount('/composed', function() use ($router) {
 
     $router->post('/add', function() {
         // Decodificar componentes si vienen como string JSON (AJAX)
-        $components = $_POST['components'];
+        $components = isset($_POST['components']) ? $_POST['components'] : [];
         if (is_string($components)) {
             $components = json_decode($components, true);
         }
@@ -182,7 +182,7 @@ $router->mount('/composed', function() use ($router) {
             exit;
         }
         // Decodificar componentes si vienen como string JSON (AJAX)
-        $components = $_POST['components'];
+        $components = isset($_POST['components']) ? $_POST['components'] : [];
         if (is_string($components)) {
             $components = json_decode($components, true);
         }

@@ -5,7 +5,7 @@
 {% block name %}Crear categoría{% endblock %}
 {% block content %}
     <div class="max-w-lg mx-auto bg-white rounded-2xl p-8">
-        <form action="/admin/categories/add" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4">
+        <form id="newCatForm" action="/admin/categories/add" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4">
             <div>
                 <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nombre</label>
                 <input type="text" id="name" name="name" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
@@ -24,40 +24,36 @@
     <script>
         document.getElementById('newCatForm').addEventListener('submit', function(event) {
             event.preventDefault();
-
-            // we should create a multipart form data to send the image
-
-            if (!document.getElementById('imgUpload').getFileInput()) {
-                alert('Please upload an image.');
+            const nameInput = document.getElementById('name');
+            const imgUpload = document.getElementById('categoryImageUpload');
+            if (!nameInput.value) {
+                alert('Por favor ingresa un nombre para la categoría.');
                 return;
             }
-            if (!document.getElementById('name').value) {
-                alert('Please enter a category name.');
+            if (!imgUpload.getFileInput()) {
+                alert('Por favor sube una imagen.');
                 return;
             }
-
-            console.log(document.getElementById('imgUpload').getFileInput());
-
-            // Create a FormData object to hold the form data
-            // and the file input
-
             const formData = new FormData();
-            formData.append('name', document.getElementById('name').value);
-            formData.append('image', document.getElementById('imgUpload').getFileInput()[0]);
-            
-            // Send the form data using jquery
-            $.ajax({
-                url: '/admin/categories/add', // Cambia la URL si es necesario
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    window.location.href = '/admin/categories'; // Redirige al listado
-                },
-                error: function(xhr) {
-                    //nada
+            formData.append('name', nameInput.value);
+            formData.append('image', imgUpload.getFileInput()[0]);
+            fetch('/admin/categories/add', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    window.location.href = '/admin/categories';
+                } else {
+                    alert('Error al crear la categoría: ' + (data.message || 'Error desconocido'));
+                }
+            })
+            .catch(error => {
+                alert('Error en la solicitud. Por favor, inténtalo de nuevo más tarde.');
             });
         });
     </script>
