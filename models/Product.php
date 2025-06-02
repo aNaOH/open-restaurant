@@ -7,8 +7,10 @@ class Product {
     public $price;
     public EPRODUCT_TYPE $type;
     public $category;
+    public $code;
+    public $points;
 
-    public function __construct($id = null, $name = null, $description = null, $price = null, $type = null, $category = null) {
+    public function __construct($id = null, $name = null, $description = null, $price = null, $type = null, $category = null, $code = null, $points = null) {
         $this->id = $id;
         $this->name = $name;
         $this->description = $description;
@@ -25,6 +27,8 @@ class Product {
 
         $this->type = $type;
         $this->category = $category;
+        $this->code = $code;
+        $this->points = $points;
     }
 
     public function save() {
@@ -33,7 +37,9 @@ class Product {
             'description' => $this->description,
             'price' => $this->price,
             'type' => $this->type->value,
-            'category' => $this->category instanceof Category ? $this->category->id : $this->category
+            'category' => $this->category instanceof Category ? $this->category->id : $this->category,
+            'code' => $this->code,
+            'points' => $this->points
         ];
         if ($this->id) {
             Connection::doUpdate(DBCONN, 'Product', $data, ['id' => $this->id]);
@@ -67,7 +73,7 @@ class Product {
             $category = Category::getById($row['category']);
         }
 
-        return new self($row['id'], $row['name'], $row['description'], $row['price'], $type, $category);
+        return new self($row['id'], $row['name'], $row['description'], $row['price'], $type, $category, $row['code'], $row['points']);
     }
 
     public static function getById($id) {
@@ -86,11 +92,25 @@ class Product {
 
     /**
      * Retrieves all Product instances of a given type from the database.
-     * @param EPRODUCT_TYPE $type
+     * @param EPRODUCT_TYPE|array $type or array of EPRODUCT_TYPE values.
+     * If an array is provided, it will return products that match any of the types in the array.
      * @return array An array of Product objects.
      */
-    public static function getAllByType(EPRODUCT_TYPE $type) {
-        $rows = Connection::doSelect(DBCONN, 'Product', ['type' => $type->value]);
+    public static function getAllByType(EPRODUCT_TYPE|array $type) {
+        if (is_array($type)) {
+            $rows = [];
+            foreach ($type as $t) {
+                if (!$t instanceof EPRODUCT_TYPE) {
+                    throw new InvalidArgumentException('All types in the array must be instances of EPRODUCT_TYPE.');
+                }
+                $typeValue = $t->value;
+                $rows = array_merge($rows, Connection::doSelect(DBCONN, 'Product', ['type' => $typeValue]));
+
+            }
+        } else {
+            $typeValue = $type instanceof EPRODUCT_TYPE ? $type->value : $type;
+            $rows = Connection::doSelect(DBCONN, 'Product', ['type' => $typeValue]);
+        }
         return array_map([self::class, 'fromRow'], $rows);
     }
 

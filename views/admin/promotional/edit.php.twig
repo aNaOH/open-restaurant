@@ -1,18 +1,315 @@
 {% extends "/templates/admin.php.twig" %}
 
-{% block title %}Editar categoría {{category.name}}{% endblock %}
+{% block title %}Editar producto compuesto{% endblock %}
 
-{% block name %}Editar categoría {{category.name}}{% endblock %}
+{% block name %}Editar producto compuesto{% endblock %}
 {% block content %}
     <div class="flex flex-col h-full">
-        <div class="flex items-center justify-end mb-4">
-        </div>
-        <form action="/admin/categories/edit/{{category.id}}" method="POST">
+        <form action="/admin/promotional/edit/{{ composed.id }}" method="POST" enctype="multipart/form-data" id="promoEditForm">
             <div class="mb-4">
                 <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nombre:</label>
-                <input type="text" id="name" name="name" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ category.name }}">
+                <input type="text" id="name" name="name" required value="{{ composed.name }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             </div>
+            <div class="mb-4">
+                <label for="category" class="block text-gray-700 text-sm font-bold mb-2">Categoría:</label>
+                <select id="category" name="category" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <option value="none">Sin categoría</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" {% if composed.category and composed.category.id == category.id %}selected{% endif %}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="imgUpload" class="block text-gray-700 text-sm font-bold mb-2">Imagen:</label>
+                <file-upload id="imgUpload" class="w-full" accept-image="true" accept-video="false" image-aspect-ratio="1:1" min-image-width="512" min-image-height="512" max-image-width="2048" max-image-height="2048" existing-image="{{ composed.getImagePath() }}"></file-upload>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Componentes del producto compuesto:</label>
+                <div id="componentsContainer">
+                    {% for group in components %}
+                        <div class="flex gap-2 mb-2 component-row">
+                            <select class="component-type-select shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                <option value="product" {% if (group.type == 'product') or (group.0 is defined and group.0.type == 'product') %}selected{% endif %}>Producto</option>
+                                <option value="category" {% if (group.type == 'category') or (group.0 is defined and group.0.type == 'category') %}selected{% endif %}>Categoría</option>
+                            </select>
+                            <select class="component-category-filter shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                <option value="" selected>Todas las categorías</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <select class="component-product-select shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="4" data-custom-multiselect {% if (group.type == 'category') or (group.0 is defined and group.0.type == 'category') %}style="display:none"{% endif %} multiple>
+                                {% for product in products %}
+                                    <option value="{{ product.id }}" data-category="{{ product.category ? product.category.id : '' }}"
+                                        {% set selected = false %}
+                                        {% if group.type == 'product' and product.id == group.object.id %}
+                                            {% set selected = true %}
+                                        {% elseif group.0 is defined and group.0.type == 'product' %}
+                                            {% for g in group %}
+                                                {% if g.object.id == product.id %}
+                                                    {% set selected = true %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                        {% if selected %}selected{% endif %}>
+                                        {{ product.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <select class="component-category-select shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" {% if (group.type == 'product') or (group.0 is defined and group.0.type == 'product') %}style="display:none"{% endif %}>
+                                <option value="" disabled>Selecciona una categoría</option>
+                                {% for category in categories %}
+                                    {% set selected = false %}
+                                    {% if group.type == 'category' and group.object.id == category.id %}
+                                        {% set selected = true %}
+                                    {% elseif group.0 is defined and group.0.type == 'category' %}
+                                        {% for g in group %}
+                                            {% if g.object.id == category.id %}
+                                                {% set selected = true %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                    <option value="{{ category.id }}" {% if selected %}selected{% endif %}>{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="button" class="btn danger remove-component-btn">Eliminar</button>
+                        </div>
+                    {% endfor %}
+                </div>
+                <button type="button" id="addComponentBtn" class="btn secondary mt-2">Añadir componente</button>
+                <span class="text-xs text-gray-500 block mt-1">Puedes añadir productos individuales o categorías completas como componentes.</span>
+            </div>
+            <div class="mb-4">
+                <label for="description" class="block text-gray-700 text-sm font-bold mb-2">Descripción:</label>
+                <textarea id="description" name="description" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ composed.description }}</textarea>
+            </div>
+            <div class="mb-4">
+                <label for="price" class="block text-gray-700 text-sm font-bold mb-2">Precio:</label>
+                <input type="number" id="price" name="price" required step="0.01" min="0" value="{{ composed.price }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+            </div>
+            {# Mostrar campos según configuración #}
+            {% set discountEnabled = discountEnabled is defined ? discountEnabled : config.DISCOUNT_ENABLED %}
+            {% set fidelityEnabled = fidelityEnabled is defined ? fidelityEnabled : config.FIDELITY_ENABLED %}
+            {% if discountEnabled or fidelityEnabled %}
+                <div class="mb-4">
+                    {% if discountEnabled and not fidelityEnabled %}
+                        <label for="promo_code" class="block text-gray-700 text-sm font-bold mb-2">Código promocional (obligatorio):</label>
+                        <input type="text" id="promo_code" name="promo_code" maxlength="32" required value="{{ composed.code }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <span id="promoCodeError" class="text-xs text-red-500 hidden">Este código ya existe.</span>
+                    {% elseif fidelityEnabled and not discountEnabled %}
+                        <label for="loyalty_points" class="block text-gray-700 text-sm font-bold mb-2">Puntos de fidelización (obligatorio):</label>
+                        <input type="number" id="loyalty_points" name="loyalty_points" min="0" step="1" required value="{{ composed.points }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    {% else %}
+                        <label for="promo_code" class="block text-gray-700 text-sm font-bold mb-2">Código promocional:</label>
+                        <input type="text" id="promo_code" name="promo_code" maxlength="32" value="{{ composed.code }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <span id="promoCodeError" class="text-xs text-red-500 hidden">Este código ya existe.</span>
+                        <label for="loyalty_points" class="block text-gray-700 text-sm font-bold mb-2 mt-2">Puntos de fidelización:</label>
+                        <input type="number" id="loyalty_points" name="loyalty_points" min="0" step="1" value="{{ composed.points }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <span class="text-xs text-gray-500 block mt-1">Rellena al menos uno de los dos campos.</span>
+                    {% endif %}
+                </div>
+            {% endif %}
             <input type="submit" class="btn primary" value="Guardar cambios">
         </form>
     </div>
+{% endblock %}
+{% block scripts %}
+<script src="/assets/js/components/fileUpload.js"></script>
+<script>
+(function() {
+    const componentsContainer = document.getElementById('componentsContainer');
+    const addComponentBtn = document.getElementById('addComponentBtn');
+    const form = componentsContainer.closest('form');
+    const categories = Array.from(document.querySelectorAll('.component-category-filter option')).filter(o => o.value).map(o => ({id: o.value, name: o.textContent}));
+    const products = Array.from(document.querySelectorAll('.component-product-select option')).map(o => ({id: o.value, name: o.textContent, category: o.dataset.category}));
+
+    function createComponentRow(type = 'product') {
+        // Clona la primera fila como plantilla
+        const template = componentsContainer.querySelector('.component-row');
+        const clone = template.cloneNode(true);
+        // Limpia selección
+        clone.querySelector('.component-type-select').value = type;
+        clone.querySelector('.component-category-filter').value = '';
+        clone.querySelector('.component-product-select').selectedIndex = -1;
+        clone.querySelector('.component-category-select').selectedIndex = 0;
+        // Muestra/oculta selects
+        updateComponentType(clone, type);
+        // Elimina selección previa
+        Array.from(clone.querySelectorAll('option[selected]')).forEach(o => o.selected = false);
+        return clone;
+    }
+
+    function updateComponentType(row, type) {
+        const productSelect = row.querySelector('.component-product-select');
+        const categorySelect = row.querySelector('.component-category-select');
+        if (type === 'product') {
+            productSelect.style.display = '';
+            categorySelect.style.display = 'none';
+        } else {
+            productSelect.style.display = 'none';
+            categorySelect.style.display = '';
+        }
+    }
+
+    function filterProductsByCategory(row, categoryId) {
+        const productSelect = row.querySelector('.component-product-select');
+        Array.from(productSelect.options).forEach(opt => {
+            if (!categoryId || opt.dataset.category === categoryId) {
+                opt.style.display = '';
+            } else {
+                opt.style.display = 'none';
+                opt.selected = false;
+            }
+        });
+    }
+
+    // Añadir componente
+    addComponentBtn.addEventListener('click', function() {
+        const newRow = createComponentRow();
+        componentsContainer.appendChild(newRow);
+    });
+
+    // Delegación de eventos
+    componentsContainer.addEventListener('change', function(e) {
+        const row = e.target.closest('.component-row');
+        if (e.target.classList.contains('component-type-select')) {
+            updateComponentType(row, e.target.value);
+        }
+        if (e.target.classList.contains('component-category-filter')) {
+            filterProductsByCategory(row, e.target.value);
+        }
+    });
+
+    // Eliminar componente
+    componentsContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-component-btn')) {
+            const row = e.target.closest('.component-row');
+            if (componentsContainer.children.length > 1) {
+                row.remove();
+            } else {
+                alert('Debe haber al menos un componente.');
+            }
+        }
+    });
+
+    // Validación y submit AJAX
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        // Contar componentes seleccionados
+        let total = 0;
+        let components = [];
+        let position = 0;
+        componentsContainer.querySelectorAll('.component-row').forEach(row => {
+            const type = row.querySelector('.component-type-select').value;
+            if (type === 'product') {
+                const selected = Array.from(row.querySelector('.component-product-select').selectedOptions).map(opt => opt.value);
+                total += selected.length;
+                if (selected.length > 0) {
+                    components.push({type: 'product', ids: selected, position: position});
+                }
+            } else {
+                const catId = row.querySelector('.component-category-select').value;
+                if (catId) {
+                    total += 1;
+                    components.push({type: 'category', ids: [catId], position: position});
+                }
+            }
+            position++;
+        });
+        if (total < 1) {
+            alert('Debes seleccionar al menos un componente.');
+            return;
+        }
+        // Validación básica de campos
+        if (!document.getElementById('name').value) {
+            alert('Por favor ingresa el nombre del producto promocional.');
+            return;
+        }
+        if (!document.getElementById('description').value) {
+            alert('Por favor ingresa la descripción.');
+            return;
+        }
+        if (!document.getElementById('price').value) {
+            alert('Por favor ingresa el precio.');
+            return;
+        }
+        // Validación de imagen (solo si no existe ya, pero en edición NO es obligatoria)
+        const imgUpload = document.getElementById('imgUpload');
+        // No bloqueamos el envío si no hay imagen
+        // Si hay nueva imagen, la subimos, si no, se mantiene la existente
+        // Validación de campos según configuración
+        const discountEnabled = {{ discountEnabled is defined ? (discountEnabled ? 'true' : 'false') : (config.DISCOUNT_ENABLED ? 'true' : 'false') }};
+        const fidelityEnabled = {{ fidelityEnabled is defined ? (fidelityEnabled ? 'true' : 'false') : (config.FIDELITY_ENABLED ? 'true' : 'false') }};
+        const promoCode = document.getElementById('promo_code') ? document.getElementById('promo_code').value.trim() : '';
+        const loyaltyPoints = document.getElementById('loyalty_points') ? document.getElementById('loyalty_points').value.trim() : '';
+        if (discountEnabled && !fidelityEnabled && !promoCode) {
+            alert('El código promocional es obligatorio.');
+            return;
+        }
+        if (fidelityEnabled && !discountEnabled && !loyaltyPoints) {
+            alert('Los puntos de fidelización son obligatorios.');
+            return;
+        }
+        if (discountEnabled && fidelityEnabled && !promoCode && !loyaltyPoints) {
+            alert('Debes rellenar al menos el código promocional o los puntos de fidelización.');
+            return;
+        }
+        // Construir FormData
+        const formData = new FormData();
+        formData.append('name', document.getElementById('name').value);
+        formData.append('category', document.getElementById('category').value);
+        formData.append('description', document.getElementById('description').value);
+        formData.append('price', document.getElementById('price').value);
+        formData.append('promo_code', promoCode);
+        formData.append('loyalty_points', loyaltyPoints);
+        formData.append('components', JSON.stringify(components));
+        // Imagen (si hay nueva)
+        const fileInput = imgUpload.getFileInput && imgUpload.getFileInput();
+        if (fileInput && fileInput[0]) {
+            formData.append('image', fileInput[0]);
+        }
+        // Validación de código promocional único (AJAX, si se ha introducido y ha cambiado)
+        const promoCodeError = document.getElementById('promoCodeError');
+        if (promoCode) {
+            fetch(`/admin/promotional/check-code?code=${encodeURIComponent(promoCode)}&exclude={{ composed.id }}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.exists) {
+                        promoCodeError.classList.remove('hidden');
+                        return;
+                    } else {
+                        promoCodeError.classList.add('hidden');
+                        submitPromoEditForm(formData);
+                    }
+                });
+        } else {
+            submitPromoEditForm(formData);
+        }
+    });
+    function submitPromoEditForm(formData) {
+        fetch(form.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.href = '/admin/promotional';
+            } else {
+                return response.text().then(text => { throw new Error(text); });
+            }
+        })
+        .catch(err => {
+            alert('Error al guardar los cambios: ' + (err.message || ''));
+        });
+    }
+
+    // Precarga: filtra productos por categoría si corresponde
+    componentsContainer.querySelectorAll('.component-row').forEach(row => {
+        const filter = row.querySelector('.component-category-filter');
+        if (filter && filter.value) {
+            filterProductsByCategory(row, filter.value);
+        }
+    });
+})();
+</script>
 {% endblock %}

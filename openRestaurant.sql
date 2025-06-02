@@ -23,6 +23,8 @@ CREATE TABLE `Product` (
   `price` float,
   `type` int NOT NULL,
   `category` int DEFAULT NULL,
+  `code` varchar(255) UNIQUE DEFAULT NULL,
+  `points` int DEFAULT NULL,
   FOREIGN KEY (`category`) REFERENCES `Category` (`id`)
 );
 
@@ -42,13 +44,6 @@ CREATE TABLE `ComposedCategory` (
   PRIMARY KEY (`product_id`, `category_id`),
   FOREIGN KEY (`product_id`) REFERENCES `Product` (`id`),
   FOREIGN KEY (`category_id`) REFERENCES `Category` (`id`)
-);
-
-CREATE TABLE `PromotionalProduct` (
-  `id` int PRIMARY KEY NOT NULL,
-  `code` varchar(255) UNIQUE DEFAULT NULL,
-  `points` int DEFAULT NULL,
-  FOREIGN KEY (`id`) REFERENCES `Product` (`id`)
 );
 
 CREATE TABLE `Order` (
