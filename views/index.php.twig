@@ -39,13 +39,19 @@
     </button>
 
     <!-- Modal fuera de cualquier contenedor -->
-    <dialog id="productModal" class="rounded-lg shadow-lg max-w-sm w-full transition-opacity duration-300 opacity-0 pointer-events-none">
-        <form method="dialog" class="relative bg-white p-6">
-            <button id="closeModalBtn" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700" type="button">&times;</button>
-            <img id="modalImage" src="" alt="" class="w-40 h-40 object-cover rounded mx-auto mb-4">
-            <h3 id="modalName" class="text-xl font-bold text-center mb-2"></h3>
-            <div id="modalPrice" class="text-center text-primary font-bold mb-2"></div>
-            <div id="modalDescription" class="text-gray-700 text-center"></div>
+    <dialog id="productModal" class="rounded-2xl shadow-2xl max-w-sm w-full transition-opacity duration-300 opacity-0 pointer-events-none border-0 bg-transparent backdrop-blur-sm">
+        <form method="dialog" class="relative bg-white p-8 rounded-2xl shadow-xl border border-blue-100">
+            <div class="flex flex-col items-center">
+                <button id="closeModalBtn" class="mb-2 self-end text-gray-400 hover:text-blue-500 bg-white border border-gray-200 rounded-full w-9 h-9 flex items-center justify-center shadow transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300" type="button" aria-label="Cerrar modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+                <div class="w-36 h-36 rounded-xl overflow-hidden shadow mb-4 border-4 border-blue-100 bg-gray-50 flex items-center justify-center">
+                    <img id="modalImage" src="" alt="" class="w-full h-full object-cover rounded-xl transition-transform duration-300 hover:scale-105">
+                </div>
+                <h3 id="modalName" class="text-2xl font-bold text-center mb-2 text-gray-800"></h3>
+                <div id="modalPrice" class="text-center text-blue-600 font-extrabold text-xl mb-2"></div>
+                <div id="modalDescription" class="text-gray-600 text-center text-base leading-relaxed"></div>
+            </div>
         </form>
     </dialog>
 
@@ -121,7 +127,7 @@
         display: flex !important;
         align-items: center;
         justify-content: center;
-        background: rgba(0,0,0,0.5);
+        background: rgba(0,0,0,0.35);
         position: fixed;
         inset: 0;
         z-index: 50;
@@ -131,11 +137,15 @@
         max-width: 100vw;
         max-height: 100vh;
         margin: 0;
+        backdrop-filter: blur(4px);
     }
     #productModal {
         transition: opacity 0.3s;
         opacity: 0;
         pointer-events: none;
+        border: none;
+        background: transparent;
+        box-shadow: none;
     }
     #productModal.fade-in {
         opacity: 1 !important;
@@ -144,6 +154,47 @@
     #productModal.fade-out {
         opacity: 0 !important;
         pointer-events: none;
+    }
+    #productModal form {
+        box-shadow: 0 8px 32px 0 rgba(59,130,246,0.18), 0 1.5px 6px 0 rgba(0,0,0,0.04);
+        border-radius: 1.25rem;
+        border: 1.5px solid #dbeafe;
+        background: #fff;
+        padding: 2.5rem 2rem 2rem 2rem;
+        min-width: 320px;
+        max-width: 100vw;
+        position: relative;
+        animation: modalPopIn 0.25s cubic-bezier(.4,2,.6,1) 1;
+    }
+    @keyframes modalPopIn {
+        0% { transform: scale(0.95) translateY(20px); opacity: 0; }
+        100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    #closeModalBtn {
+        box-shadow: 0 2px 8px 0 rgba(59,130,246,0.10);
+        transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    }
+    #closeModalBtn:hover {
+        background: #eff6ff;
+        color: #2563eb;
+        box-shadow: 0 4px 16px 0 rgba(59,130,246,0.18);
+    }
+    #modalImage {
+        box-shadow: 0 2px 12px 0 rgba(59,130,246,0.10);
+        background: #f1f5f9;
+    }
+    #modalName {
+        letter-spacing: 0.01em;
+    }
+    #modalPrice {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #2563eb;
+    }
+    #modalDescription {
+        color: #64748b;
+        font-size: 1rem;
+        margin-top: 0.5rem;
     }
 </style>
 <script>
