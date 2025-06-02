@@ -100,6 +100,29 @@ $router->post("/register", function() {
         ]));
         return;
     }
+    // Validación de contraseña segura
+    $passwordErrors = [];
+    if (strlen($password) < 8) {
+        $passwordErrors[] = 'La contraseña debe tener al menos 8 caracteres.';
+    }
+    if (!preg_match('/[A-Z]/', $password)) {
+        $passwordErrors[] = 'La contraseña debe contener al menos una letra mayúscula.';
+    }
+    if (!preg_match('/[a-z]/', $password)) {
+        $passwordErrors[] = 'La contraseña debe contener al menos una letra minúscula.';
+    }
+    if (!preg_match('/[0-9]/', $password)) {
+        $passwordErrors[] = 'La contraseña debe contener al menos un número.';
+    }
+    if (!preg_match('/[^a-zA-Z0-9]/', $password)) {
+        $passwordErrors[] = 'La contraseña debe contener al menos un carácter especial.';
+    }
+    if (!empty($passwordErrors)) {
+        ViewController::render('auth/register', array_merge(SidebarHelpers::getBaseData(), [
+            'error' => implode(' ', $passwordErrors)
+        ]));
+        return;
+    }
     if (User::getByEmail($email)) {
         ViewController::render('auth/register', array_merge(SidebarHelpers::getBaseData(), [
             'error' => 'El correo electrónico ya está registrado.'

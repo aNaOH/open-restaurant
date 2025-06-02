@@ -78,6 +78,29 @@ $router->post("/admin", function() {
         echo json_encode(['success' => false, 'error' => 'Las contraseñas no coinciden.']);
         exit;
     }
+    // Validación de contraseña segura
+    $passwordErrors = [];
+    if (strlen($admin_password) < 8) {
+        $passwordErrors[] = 'La contraseña debe tener al menos 8 caracteres.';
+    }
+    if (!preg_match('/[A-Z]/', $admin_password)) {
+        $passwordErrors[] = 'La contraseña debe contener al menos una letra mayúscula.';
+    }
+    if (!preg_match('/[a-z]/', $admin_password)) {
+        $passwordErrors[] = 'La contraseña debe contener al menos una letra minúscula.';
+    }
+    if (!preg_match('/[0-9]/', $admin_password)) {
+        $passwordErrors[] = 'La contraseña debe contener al menos un número.';
+    }
+    if (!preg_match('/[^a-zA-Z0-9]/', $admin_password)) {
+        $passwordErrors[] = 'La contraseña debe contener al menos un carácter especial.';
+    }
+    if (!empty($passwordErrors)) {
+        header('Content-Type: application/json');
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => implode(' ', $passwordErrors)]);
+        exit;
+    }
 
     define('DBCONN', Connection::connectToDB(CONFIG->DB_HOST, CONFIG->DB_NAME, CONFIG->DB_USER, CONFIG->DB_PASS));
 

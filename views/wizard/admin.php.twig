@@ -64,6 +64,13 @@
                         Contraseña
                     </label>
                     <input type="password" id="admin_password" name="admin_password" required class="mt-1 block w-full border-blue-200 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-base px-4 py-2">
+                    <ul class="text-xs text-gray-500 mt-1 ml-2 list-disc list-inside">
+                        <li>Mínimo 8 caracteres</li>
+                        <li>Al menos una mayúscula</li>
+                        <li>Al menos una minúscula</li>
+                        <li>Al menos un número</li>
+                        <li>Al menos un carácter especial</li>
+                    </ul>
                 </div>
 
                 <div>
@@ -140,5 +147,32 @@
             }
         });
     });
+
+    // Validación visual de contraseña segura para el wizard admin
+    const adminPasswordInput = document.getElementById('admin_password');
+    const adminRequirements = [
+        { regex: /.{8,}/, selector: 'li:nth-child(1)' },
+        { regex: /[A-Z]/, selector: 'li:nth-child(2)' },
+        { regex: /[a-z]/, selector: 'li:nth-child(3)' },
+        { regex: /[0-9]/, selector: 'li:nth-child(4)' },
+        { regex: /[^a-zA-Z0-9]/, selector: 'li:nth-child(5)' }
+    ];
+    if (adminPasswordInput) {
+        adminPasswordInput.addEventListener('input', function() {
+            const value = adminPasswordInput.value;
+            adminRequirements.forEach(req => {
+                const li = adminPasswordInput.parentElement.querySelector(req.selector);
+                if (li) {
+                    if (req.regex.test(value)) {
+                        li.classList.add('text-green-600');
+                        li.classList.remove('text-gray-500');
+                    } else {
+                        li.classList.remove('text-green-600');
+                        li.classList.add('text-gray-500');
+                    }
+                }
+            });
+        });
+    }
 </script>
 {% endblock %}
