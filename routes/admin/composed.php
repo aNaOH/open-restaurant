@@ -261,4 +261,13 @@ $router->mount('/composed', function() use ($router) {
         exit;
     });
 
+    $router->post('/delete/{id}', function($id) {
+        $composed = Product::getById($id);
+        if ($composed && $composed->type === EPRODUCT_TYPE::COMPOSED) {
+            $composed->delete();
+        }
+        header('Location: /admin/composed');
+        exit;
+    });
+
 });

@@ -44,7 +44,26 @@ class Category {
 
     public function delete() {
         if ($this->id) {
-            Connection::doDelete(DBCONN, 'Category', ['id' => $this->id]);
+            // Eliminar imagen si existe
+            $imagePath = 'assets/uploads/categories/category_' . $this->id;
+            $extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            foreach ($extensions as $ext) {
+                if (file_exists($imagePath . '.' . $ext)) {
+                    unlink($imagePath . '.' . $ext);
+                }
+            }
+
+            // Cambiar la categoría de los productos a "Sin categoría"
+            $products = $this->getProducts();
+
+            foreach ($products as $product) {
+                if ($product->category instanceof Category) {
+                    $product->category = null; // Set to null or a default category
+                    $product->save();
+                }
+            }
+
+            Connection::doDelete(DBCONN, 'category', ['id' => $this->id]);
         }
     }
 

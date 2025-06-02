@@ -339,4 +339,13 @@ $router->mount('/promotional', function() use ($router) {
         exit;
     });
 
+    $router->post('/delete/{id}', function($id) {
+        $promo = Product::getById($id);
+        if ($promo && $promo->type === EPRODUCT_TYPE::PROMOTION) {
+            $promo->delete();
+        }
+        header('Location: /admin/promotional');
+        exit;
+    });
+
 });

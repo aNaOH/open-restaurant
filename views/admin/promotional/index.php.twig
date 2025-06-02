@@ -61,6 +61,10 @@
                             <td class="py-3 px-6 text-left">{{ product.price|number_format(2, '.', ',') }} €</td>
                             <td class="py-3 px-6 text-left">
                                 <a href="/admin/promotional/edit/{{ product.id }}" class="btn secondary">Editar</a>
+                                <form action="/admin/promotional/delete/{{ product.id }}" method="POST" class="inline-block delete-entity-form" data-entity="promotional">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="btn danger ml-4">Eliminar</button>
+                                </form>
                             </td>
                         </tr>
                     {% else %}
@@ -72,4 +76,42 @@
             </table>
         </div>
     </div>
+    {{ include('/components/delete_modal.php.twig') }}
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    const modal = document.getElementById('deleteConfirmModal');
+    let formToDelete = null;
+    document.querySelectorAll('form.delete-entity-form').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            formToDelete = form;
+            document.getElementById('deleteModalMessage').textContent = '¿Estás seguro de que deseas eliminar este elemento?';
+            document.getElementById('confirmDeleteBtn').disabled = false;
+            modal.showModal();
+            setTimeout(() => {
+                modal.classList.add('fade-in');
+                modal.classList.remove('fade-out');
+            }, 10);
+        });
+    });
+    document.getElementById('closeDeleteModalBtn').onclick = closeModal;
+    document.getElementById('cancelDeleteBtn').onclick = closeModal;
+    document.getElementById('confirmDeleteBtn').onclick = function() {
+        if (formToDelete) {
+            formToDelete.submit();
+        }
+        closeModal();
+    };
+    function closeModal() {
+        modal.classList.remove('fade-in');
+        modal.classList.add('fade-out');
+        setTimeout(() => {
+            modal.close();
+        }, 300);
+    }
+})();
+</script>
 {% endblock %}

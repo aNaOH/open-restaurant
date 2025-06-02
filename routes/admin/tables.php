@@ -68,4 +68,13 @@ $router->mount('/tables', function() use ($router) {
             ]));
         }
     });
+
+    $router->post('/delete/{id}', function($id) {
+        $table = Table::getById($id);
+        if ($table) {
+            $table->delete();
+        }
+        header("Location: /admin/tables");
+        exit;
+    });
 });

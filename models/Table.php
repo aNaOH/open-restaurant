@@ -25,6 +25,12 @@ class Table {
         }
     }
 
+    public function delete() {
+        if ($this->id) {
+            Connection::doDelete(DBCONN, 'table', ['id' => $this->id]);
+        }
+    }
+
     public static function fromRow($row) {
         return new self($row['id'], $row['notes']);
     }

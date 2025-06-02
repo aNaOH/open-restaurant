@@ -49,7 +49,10 @@
                             </td>
                             <td class="py-3 px-6 text-left">
                                 <a href="/admin/composed/edit/{{ composed.id }}" class="btn secondary">Editar</a>
-                                <a href="/admin/composed/delete/{{ composed.id }}" class="btn danger ml-4">Eliminar</a>
+                                <form action="/admin/composed/delete/{{ composed.id }}" method="POST" class="inline-block delete-entity-form" data-entity="composed">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="btn danger ml-4">Eliminar</button>
+                                </form>
                             </td>
                         </tr>
                     {% endfor %}
@@ -57,4 +60,80 @@
             </table>
         </div>
     </div>
+    {{ include('/components/delete_modal.php.twig') }}
+    <style>
+    dialog[open] {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0,0,0,0.5);
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        max-width: 100vw;
+        max-height: 100vh;
+        margin: 0;
+    }
+    #deleteConfirmModal {
+        transition: opacity 0.3s;
+        opacity: 0;
+        pointer-events: none;
+    }
+    #deleteConfirmModal.fade-in {
+        opacity: 1 !important;
+        pointer-events: auto;
+    }
+    #deleteConfirmModal.fade-out {
+        opacity: 0 !important;
+        pointer-events: none;
+    }
+    </style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    const modal = document.getElementById('deleteConfirmModal');
+    let formToDelete = null;
+    document.querySelectorAll('form.delete-entity-form').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            formToDelete = form;
+            document.getElementById('deleteModalMessage').textContent = '¿Estás seguro de que deseas eliminar este elemento?';
+            document.getElementById('confirmDeleteBtn').disabled = false;
+            if (typeof modal.showModal === 'function') {
+                modal.showModal();
+            } else {
+                modal.setAttribute('open', '');
+            }
+            setTimeout(() => {
+                modal.classList.add('fade-in');
+                modal.classList.remove('fade-out');
+            }, 10);
+        });
+    });
+    document.getElementById('closeDeleteModalBtn').onclick = closeModal;
+    document.getElementById('cancelDeleteBtn').onclick = closeModal;
+    document.getElementById('confirmDeleteBtn').onclick = function() {
+        if (formToDelete) {
+            formToDelete.submit();
+        }
+        closeModal();
+    };
+    function closeModal() {
+        modal.classList.remove('fade-in');
+        modal.classList.add('fade-out');
+        setTimeout(() => {
+            if (typeof modal.close === 'function') {
+                modal.close();
+            } else {
+                modal.removeAttribute('open');
+            }
+        }, 300);
+    }
+})();
+</script>
 {% endblock %}

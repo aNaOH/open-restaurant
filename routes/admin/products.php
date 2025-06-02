@@ -172,10 +172,10 @@ $router->mount('/products', function() use ($router) {
         exit;
     });
 
-    $router->get('/delete/{id}', function($id) {
+    $router->post('/delete/{id}', function($id) {
         $product = Product::getById($id);
         if ($product) {
-            Connection::doDelete(DBCONN, 'product', ['id' => $id]);
+            $product->delete();
             header('Location: /admin/products');
             exit;
         } else {

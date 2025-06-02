@@ -73,55 +73,44 @@ class Product {
         return null;
     }
 
-
-    public static function fromRow($row) {
-        // Convertir type a EPRODUCT_TYPE y category a Category si es necesario
-        $type = EPRODUCT_TYPE::from($row['type']);
-        $category = null;
-        if (isset($row['category']) && $row['category'] !== null) {
-            $category = Category::getById($row['category']);
-        }
-
-        return new self($row['id'], $row['name'], $row['description'], $row['price'], $type, $category, $row['code'], $row['points']);
-    }
-
-    public static function getById($id) {
-        $row = Connection::doSelect(DBCONN, 'Product', ['id' => $id]);
-        return $row ? self::fromRow($row[0]) : null;
-    }
-
-    /**
-     * Retrieves all Product instances from the database.
-     * @return array An array of Product objects.
-     */
-    public static function getAll() {
-        $rows = Connection::doSelect(DBCONN, 'Product');
-        return array_map([self::class, 'fromRow'], $rows);
-    }
-
-    /**
-     * Retrieves all Product instances of a given type from the database.
-     * @param EPRODUCT_TYPE|array $type or array of EPRODUCT_TYPE values.
-     * If an array is provided, it will return products that match any of the types in the array.
-     * @return array An array of Product objects.
-     */
-    public static function getAllByType(EPRODUCT_TYPE|array $type) {
-        if (is_array($type)) {
-            $rows = [];
-            foreach ($type as $t) {
-                if (!$t instanceof EPRODUCT_TYPE) {
-                    throw new InvalidArgumentException('All types in the array must be instances of EPRODUCT_TYPE.');
-                }
-                $typeValue = $t->value;
-                $rows = array_merge($rows, Connection::doSelect(DBCONN, 'Product', ['type' => $typeValue]));
-
+    public function delete() {
+        if ($this->id) {
+            // Eliminar imagen del servidor
+            $imagePath = $this->getImagePath();
+            if ($imagePath && file_exists($imagePath)) {
+                unlink($imagePath);
             }
-        } else {
-            $typeValue = $type instanceof EPRODUCT_TYPE ? $type->value : $type;
-            $rows = Connection::doSelect(DBCONN, 'Product', ['type' => $typeValue]);
+
+            // Eliminar relaciones de hijos
+            if($this->type === EPRODUCT_TYPE::COMPOSED || $this->type === EPRODUCT_TYPE::PROMOTION) {
+                $this->removeAllChildren();
+            }
+
+            // Eliminar producto de aquellos que lo referencian
+            $parentProducts = $this->getParentProducts();
+            foreach ($parentProducts as $parentProduct) {
+                $parentProduct['product']->removeChild('product', $this->id, $parentProduct['position']); // Eliminar relación de este producto en el padre
+            }
+
+            // Eliminar producto de la base de datos
+            Connection::doDelete(DBCONN, 'Product', ['id' => $this->id]);
         }
-        return array_map([self::class, 'fromRow'], $rows);
     }
+
+    public function getParentProducts(){
+        $productRows = Connection::doSelect(DBCONN, 'ComposedBy', ['child_id' => $this->id]);
+        $parentProducts = [];
+        foreach ($productRows as $row) {
+            $parentProduct = self::getById($row['product_id']);
+            if ($parentProduct) {
+                $parentProducts[] = [
+                    'product' => $parentProduct,
+                    'position' => (int)$row['position']
+                ];
+            }
+        }
+        return $parentProducts;
+    } 
 
     /**
      * Devuelve todos los componentes (productos y categorías) de un producto compuesto, ordenados por posición.
@@ -199,19 +188,6 @@ class Product {
     }
 
     /**
-     * Añade una relación de hijo categoría a este producto compuesto, con posición.
-     * @param int $categoryId
-     * @param int $position
-     */
-    public function addChildCategory($categoryId, $position = 0) {
-        Connection::doInsert(DBCONN, 'ComposedCategory', [
-            'product_id' => $this->id,
-            'category_id' => $categoryId,
-            'position' => $position
-        ]);
-    }
-
-    /**
      * Elimina un componente hijo (producto o categoría) de este producto compuesto en una posición concreta.
      * @param string $type 'product' o 'category'
      * @param int $id ID del producto o categoría
@@ -231,5 +207,54 @@ class Product {
                 'position' => $position
             ]);
         }
+    }
+
+    public static function fromRow($row) {
+        // Convertir type a EPRODUCT_TYPE y category a Category si es necesario
+        $type = EPRODUCT_TYPE::from($row['type']);
+        $category = null;
+        if (isset($row['category']) && $row['category'] !== null) {
+            $category = Category::getById($row['category']);
+        }
+
+        return new self($row['id'], $row['name'], $row['description'], $row['price'], $type, $category, $row['code'], $row['points']);
+    }
+
+    public static function getById($id) {
+        $row = Connection::doSelect(DBCONN, 'Product', ['id' => $id]);
+        return $row ? self::fromRow($row[0]) : null;
+    }
+
+    /**
+     * Retrieves all Product instances from the database.
+     * @return array An array of Product objects.
+     */
+    public static function getAll() {
+        $rows = Connection::doSelect(DBCONN, 'Product');
+        return array_map([self::class, 'fromRow'], $rows);
+    }
+
+    /**
+     * Retrieves all Product instances of a given type from the database.
+     * @param EPRODUCT_TYPE|array $type or array of EPRODUCT_TYPE values.
+     * If an array is provided, it will return products that match any of the types in the array.
+     * @return array An array of Product objects.
+     */
+    public static function getAllByType(EPRODUCT_TYPE|array $type) {
+        if (is_array($type)) {
+            $rows = [];
+            foreach ($type as $t) {
+                if (!$t instanceof EPRODUCT_TYPE) {
+                    throw new InvalidArgumentException('All types in the array must be instances of EPRODUCT_TYPE.');
+                }
+                $typeValue = $t->value;
+                $rows = array_merge($rows, Connection::doSelect(DBCONN, 'Product', ['type' => $typeValue]));
+
+            }
+        } else {
+            $typeValue = $type instanceof EPRODUCT_TYPE ? $type->value : $type;
+            $rows = Connection::doSelect(DBCONN, 'Product', ['type' => $typeValue]);
+        }
+        return array_map([self::class, 'fromRow'], $rows);
     }
 }

@@ -24,7 +24,10 @@
                             <td class="py-3 px-6 text-left">{{ category.name }}</td>
                             <td class="py-3 px-6 text-left">
                                 <a href="/admin/categories/edit/{{ category.id }}" class="btn secondary">Editar</a>
-                                <a href="/admin/categories/delete/{{ category.id }}" class="btn danger ml-4">Eliminar</a>
+                                <form action="/admin/categories/delete/{{ category.id }}" method="POST" class="inline-block delete-entity-form" data-entity="category">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="btn danger ml-4">Eliminar</button>
+                                </form>
                             </td>
                         </tr>
                     {% endfor %}
@@ -32,4 +35,42 @@
             </table>
         </div>
     </div>
+    {{ include('/components/delete_modal.php.twig') }}
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    const modal = document.getElementById('deleteConfirmModal');
+    let formToDelete = null;
+    document.querySelectorAll('form.delete-entity-form').forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            formToDelete = form;
+            document.getElementById('deleteModalMessage').textContent = '¿Estás seguro de que deseas eliminar este elemento?';
+            document.getElementById('confirmDeleteBtn').disabled = false;
+            modal.showModal();
+            setTimeout(() => {
+                modal.classList.add('fade-in');
+                modal.classList.remove('fade-out');
+            }, 10);
+        });
+    });
+    document.getElementById('closeDeleteModalBtn').onclick = closeModal;
+    document.getElementById('cancelDeleteBtn').onclick = closeModal;
+    document.getElementById('confirmDeleteBtn').onclick = function() {
+        if (formToDelete) {
+            formToDelete.submit();
+        }
+        closeModal();
+    };
+    function closeModal() {
+        modal.classList.remove('fade-in');
+        modal.classList.add('fade-out');
+        setTimeout(() => {
+            modal.close();
+        }, 300);
+    }
+})();
+</script>
 {% endblock %}

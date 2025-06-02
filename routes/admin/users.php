@@ -63,5 +63,13 @@ $router->mount('/users', function() use ($router) {
             exit;
         }
     });
+    $router->post('/delete/{id}', function($id) {
+        $user = User::getById($id);
+        if ($user) {
+            $user->delete();
+        }
+        header('Location: /admin/users');
+        exit;
+    });
     // Aquí puedes añadir más rutas (crear, editar, eliminar) si lo necesitas
 });

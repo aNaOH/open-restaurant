@@ -74,4 +74,10 @@ class User {
         $rows = Connection::doSelect(DBCONN, 'User');
         return array_map([self::class, 'fromRow'], $rows);
     }
+
+    public function delete() {
+        if ($this->id) {
+            Connection::doDelete(DBCONN, 'User', ['id' => $this->id]);
+        }
+    }
 }

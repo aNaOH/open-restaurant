@@ -159,4 +159,13 @@ $router->mount('/categories', function() use ($router) {
             ViewController::render('admin/categories/index', array_merge(SidebarHelpers::getBaseData(), ['error' => 'Categoría no encontrada.']));
         }
     });
+
+    $router->post('/delete/{id}', function($id) {
+        $category = Category::getById($id);
+        if ($category) {
+            $category->delete();
+        }
+        header("Location: /admin/categories");
+        exit;
+    });
 });
