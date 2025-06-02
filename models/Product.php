@@ -270,4 +270,17 @@ class Product {
         }
         return array_map([self::class, 'fromRow'], $rows);
     }
+
+    /**
+     * Obtiene todos los productos de una categoría específica.
+     * @param int|Category $categoryId El ID de la categoría o el objeto Category.
+     * @return array Un array de objetos Product.
+     */
+    public static function getByCategory($categoryId) {
+        if ($categoryId instanceof Category) {
+            $categoryId = $categoryId->id;
+        }
+        $rows = Connection::doSelect(DBCONN, 'Product', ['category' => $categoryId]);
+        return array_map([self::class, 'fromRow'], $rows);
+    }
 }

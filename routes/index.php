@@ -9,11 +9,13 @@ $router = new \Bramus\Router\Router();
 
 $router->get("/", function() {
     $categories = Category::getAll();
-    $products = Product::getAll();
+    // Remove from categories those that have no products
+    $categories = array_filter($categories, function($category) {
+        return count(Product::getByCategory($category->id)) > 0;
+    });
     ViewController::render('index', array_merge(SidebarHelpers::getBaseData(), [
         'restaurantName' => CONFIG->RESTAURANT_NAME,
-        'categories' => $categories,
-        'products' => $products
+        'categories' => $categories
     ]));
 });
 

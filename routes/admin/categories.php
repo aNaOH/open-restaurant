@@ -112,9 +112,7 @@ $router->mount('/categories', function() use ($router) {
                 if ($pastFilePath && file_exists($pastFilePath)) {
                     unlink($pastFilePath); // Delete the old image file
                 }
-                if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadFile)) {
-                    $category->image = $uploadFile;
-                } else {
+                if (!move_uploaded_file($_FILES['image']['tmp_name'], $uploadFile)) {
                     $jsonResponse = [
                         'status' => 'error',
                         'message' => 'Error al subir la imagen.'
