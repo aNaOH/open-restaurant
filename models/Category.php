@@ -42,6 +42,21 @@ class Category {
         return [];
     }
 
+    public function getParentProducts(){
+        $productRows = Connection::doSelect(DBCONN, 'ComposedCategory', ['child_id' => $this->id]);
+        $parentProducts = [];
+        foreach ($productRows as $row) {
+            $parentProduct = self::getById($row['product_id']);
+            if ($parentProduct) {
+                $parentProducts[] = [
+                    'product' => $parentProduct,
+                    'position' => (int)$row['position']
+                ];
+            }
+        }
+        return $parentProducts;
+    } 
+
     public function delete() {
         if ($this->id) {
             // Eliminar imagen si existe
@@ -61,6 +76,11 @@ class Category {
                     $product->category = null; // Set to null or a default category
                     $product->save();
                 }
+            }
+
+            $parentProducts = $this->getParentProducts();
+            foreach ($parentProducts as $parentProduct) {
+                $parentProduct['product']->removeChild('category', $this->id, $parentProduct['position']); // Eliminar relación de esta categoría en el padre
             }
 
             Connection::doDelete(DBCONN, 'category', ['id' => $this->id]);
