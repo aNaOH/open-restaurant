@@ -70,7 +70,7 @@ $router->mount('/composed', function() use ($router) {
                 }
             } elseif ($data['type'] === 'category') {
                 foreach ($data['ids'] as $catId) {
-                    $composed->addChildCategory($catId, $position);
+                    $composed->addCategoryChild($catId, $position);
                     $totalComponents++;
                 }
             }
