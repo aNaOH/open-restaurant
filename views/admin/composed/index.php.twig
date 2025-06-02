@@ -6,38 +6,36 @@
 {% block content %}
     <div class="flex flex-col h-full">
         <div class="flex items-center justify-end mb-4">
-            <a href="/admin/composed/add" class="btn primary">Añadir producto compuesto</a>
+            <a href="/admin/composed/add" class="btn primary flex items-center gap-2"><i data-feather="plus-square"></i> Añadir compuesto</a>
         </div>
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto bg-blue-50 border border-blue-100 rounded-2xl shadow">
             <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg">
                 <thead>
-                    <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                    <tr class="bg-blue-100 text-blue-700 uppercase text-sm leading-normal">
                         <th class="py-3 px-6 text-left">ID</th>
                         <th class="py-3 px-6 text-left">Nombre</th>
-                        <th class="py-3 px-6 text-left">Precio</th>
-                        <th class="py-3 px-6 text-left">Productos Incluidos</th>
+                        <th class="py-3 px-6 text-left">Incluye</th>
                         <th class="py-3 px-6 text-left">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-600 text-sm font-light">
                     {% for composed in composedProducts %}
-                        <tr class="border-b border-gray-200 hover:bg-gray-100">
+                        <tr class="border-b border-gray-200 hover:bg-blue-50 transition">
                             <td class="py-3 px-6 text-left">{{ composed.id }}</td>
                             <td class="py-3 px-6 text-left">{{ composed.name }}</td>
-                            <td class="py-3 px-6 text-left">{{ composed.price|number_format(2, '.', ',') }}</td>
                             <td class="py-3 px-6 text-left">
                                 {% if composed.getChildren() is not empty %}
                                     <ul class="ml-4">
                                     {% for group in composed.getChildren() %}
-                                        <li class="mb-2 list-disc" >
+                                        <li class="mb-2 list-disc">
                                             {% if group.type == "product" %}
                                                 Producto: {{ group.object.name }}
                                             {% elseif group.type == "category" %}
                                                 Categoría: {{ group.object.name }}
                                             {% elseif group.type == "group" %}
-                                                Productos: 
-                                                {% for product in group.items %}
-                                                    {{ product.object.name }}{% if not loop.last %}, {% endif %}
+                                                Productos:
+                                                {% for prod in group.items %}
+                                                    {{ prod.object.name }}{% if not loop.last %}, {% endif %}
                                                 {% endfor %}
                                             {% endif %}
                                         </li>
@@ -47,11 +45,11 @@
                                     <span class="text-gray-400">Ninguno</span>
                                 {% endif %}
                             </td>
-                            <td class="py-3 px-6 text-left">
-                                <a href="/admin/composed/edit/{{ composed.id }}" class="btn secondary">Editar</a>
+                            <td class="py-3 px-6 text-left flex gap-2">
+                                <a href="/admin/composed/edit/{{ composed.id }}" class="btn secondary flex items-center gap-1"><i data-feather="edit"></i> Editar</a>
                                 <form action="/admin/composed/delete/{{ composed.id }}" method="POST" class="inline-block delete-entity-form" data-entity="composed">
                                     <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="btn danger ml-4">Eliminar</button>
+                                    <button type="submit" class="btn danger flex items-center gap-1 ml-2"><i data-feather="trash-2"></i> Eliminar</button>
                                 </form>
                             </td>
                         </tr>

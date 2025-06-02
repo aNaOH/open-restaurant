@@ -6,23 +6,22 @@
             <title>{% block title %}{% endblock %} - OpenRestaurant</title>
         {% endblock %}
     </head>
-    <body class="bg-[#f0f0f0] w-full h-screen flex">
+    <body class="bg-[#f0f4fa] w-full min-h-screen flex">
         {{ include('/components/sidebar.php.twig') }}
-        <div class="flex-1 flex flex-col">
-            <div id="content" class="container flex-1 p-4">
-                <div class="bg-white shadow-lg p-4 rounded-lg w-full h-full">
-                    <div class="mb-4 border-b-2 border-b-black">
-                        <h1 class="text-2xl font-bold mb-4">{% block name %}{% endblock %}</h1>
+        <div class="flex-1 flex flex-col min-h-screen">
+            <div id="content" class="flex-1 p-6">
+                <div class="bg-white shadow-xl p-8 rounded-2xl w-full h-full border border-blue-100">
+                    <div class="mb-6 border-b-4 border-blue-500 pb-2 flex items-center gap-3">
+                        <i data-feather="settings" class="text-blue-500"></i>
+                        <h1 class="text-2xl font-extrabold text-blue-700">{% block name %}{% endblock %}</h1>
                     </div>
                     {% block content %}{% endblock %}
                 </div>
             </div>
-            <footer class="p-2 mb-2 text-center">
-                <p class="text-sm text-gray-600">Web potenciada por OpenRestaurant</p>
+            <footer class="p-4 text-center">
+                <p class="text-sm text-gray-500">Web potenciada por <span class="font-bold text-blue-600">OpenRestaurant</span></p>
             </footer>
         </div>
-    
-        <!-- Scripts -->
         <script src="/assets/js/jquery-3.7.1.min.js"></script>
         <script src="/assets/js/feather.min.js"></script>
         <script>

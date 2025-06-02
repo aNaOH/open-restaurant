@@ -6,12 +6,12 @@
 {% block content %}
     <div class="flex flex-col h-full">
         <div class="flex items-center justify-end mb-4">
-            <a href="/admin/users/add" class="btn primary">Añadir usuario</a>
+            <a href="/admin/users/add" class="btn primary flex items-center gap-2"><i data-feather="user-plus"></i> Añadir usuario</a>
         </div>
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto bg-blue-50 border border-blue-100 rounded-2xl shadow">
             <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg">
                 <thead>
-                    <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                    <tr class="bg-blue-100 text-blue-700 uppercase text-sm leading-normal">
                         <th class="py-3 px-6 text-left">ID</th>
                         <th class="py-3 px-6 text-left">Nombre</th>
                         <th class="py-3 px-6 text-left">Correo</th>
@@ -24,7 +24,7 @@
                 </thead>
                 <tbody class="text-gray-600 text-sm font-light">
                     {% for user in users %}
-                        <tr class="border-b border-gray-200 hover:bg-gray-100">
+                        <tr class="border-b border-gray-200 hover:bg-blue-50 transition">
                             <td class="py-3 px-6 text-left">{{ user.id }}</td>
                             <td class="py-3 px-6 text-left">{{ user.name }}</td>
                             <td class="py-3 px-6 text-left">{{ user.email }}</td>
@@ -36,11 +36,11 @@
                             {% if fidelityEnabled %}
                             <td class="py-3 px-6 text-left">{{ user.points }}</td>
                             {% endif %}
-                            <td class="py-3 px-6 text-left">
-                                <a href="/admin/users/edit/{{ user.id }}" class="btn secondary">Editar</a>
-                                <form action="/admin/users/delete/{{ user.id }}" method="POST" class="inline-block delete-entity-form" data-entity="user" data-role="{{ user.role and user.role.value == 2 ? 'admin' : '' }}">
+                            <td class="py-3 px-6 text-left flex gap-2">
+                                <a href="/admin/users/edit/{{ user.id }}" class="btn secondary flex items-center gap-1"><i data-feather="edit"></i> Editar</a>
+                                <form action="/admin/users/delete/{{ user.id }}" method="POST" class="inline-block delete-entity-form" data-entity="user"{% if user.role and user.role.value == 2 %} data-role="admin"{% endif %}>
                                     <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="btn danger">Eliminar</button>
+                                    <button type="submit" class="btn danger flex items-center gap-1 ml-2"><i data-feather="trash-2"></i> Eliminar</button>
                                 </form>
                             </td>
                         </tr>

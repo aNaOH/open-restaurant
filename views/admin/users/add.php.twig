@@ -4,19 +4,18 @@
 
 {% block name %}Crear usuario{% endblock %}
 {% block content %}
-    <div class="flex flex-col h-full">
-        <div class="flex items-center justify-end mb-4"></div>
-        <form id="newUserForm" action="/admin/users/add" method="POST">
-            <div class="mb-4">
-                <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nombre:</label>
+    <div class="max-w-lg mx-auto bg-white rounded-2xl p-8">
+        <form action="/admin/users/add" method="POST" class="flex flex-col gap-4">
+            <div>
+                <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nombre</label>
                 <input type="text" id="name" name="name" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             </div>
-            <div class="mb-4">
-                <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Correo:</label>
+            <div>
+                <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Correo electrónico</label>
                 <input type="email" id="email" name="email" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             </div>
-            <div class="mb-4">
-                <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Contraseña:</label>
+            <div>
+                <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Contraseña</label>
                 <input type="password" id="password" name="password" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                 <ul class="text-xs text-gray-500 mt-1 ml-2 list-disc list-inside">
                     <li>Mínimo 8 caracteres</li>
@@ -26,25 +25,15 @@
                     <li>Al menos un carácter especial</li>
                 </ul>
             </div>
-            <div class="mb-4">
-                <label for="password_confirm" class="block text-gray-700 text-sm font-bold mb-2">Confirmar contraseña:</label>
-                <input type="password" id="password_confirm" name="password_confirm" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-            </div>
-            <div class="mb-4">
-                <label for="role" class="block text-gray-700 text-sm font-bold mb-2">Rol:</label>
-                <select id="role" name="role" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <option value="0" selected>Cliente</option>
+            <div>
+                <label for="role" class="block text-gray-700 text-sm font-bold mb-2">Rol</label>
+                <select id="role" name="role" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <option value="0">Cliente</option>
                     <option value="1">Empleado</option>
                     <option value="2">Administrador</option>
                 </select>
             </div>
-            {% if fidelityEnabled %}
-                <div class="mb-4">
-                    <label for="points" class="block text-gray-700 text-sm font-bold mb-2">Puntos:</label>
-                    <input type="number" id="points" name="points" value="0" min="0" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                </div>
-            {% endif %}
-            <input type="submit" class="btn primary" value="Crear usuario">
+            <button type="submit" class="btn primary flex items-center gap-2"><i data-feather="user-plus"></i> Crear usuario</button>
         </form>
     </div>
 {% endblock %}

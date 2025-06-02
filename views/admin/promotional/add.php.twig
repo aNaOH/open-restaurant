@@ -4,16 +4,14 @@
 
 {% block name %}Crear producto promocional{% endblock %}
 {% block content %}
-    <div class="flex flex-col h-full">
-        <div class="flex items-center justify-end mb-4">
-        </div>
-        <form action="/admin/promotional/add" method="POST" enctype="multipart/form-data" id="promoForm">
-            <div class="mb-4">
-                <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nombre:</label>
+    <div class="max-w-lg mx-auto bg-white rounded-2xl p-8">
+        <form action="/admin/promotional/add" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4" id="promoForm">
+            <div>
+                <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nombre</label>
                 <input type="text" id="name" name="name" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             </div>
-            <div class="mb-4">
-                <label for="category" class="block text-gray-700 text-sm font-bold mb-2">Categoría:</label>
+            <div>
+                <label for="category" class="block text-gray-700 text-sm font-bold mb-2">Categoría</label>
                 <select id="category" name="category" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                     <option value="none">Sin categoría</option>
                     {% for category in categories %}
@@ -21,74 +19,20 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="mb-4">
-                <label for="imgUpload" class="block text-gray-700 text-sm font-bold mb-2">Imagen:</label>
-                <file-upload id="imgUpload" class="w-full" accept-image="true" accept-video="false" image-aspect-ratio="1:1" min-image-width="512" min-image-height="512" max-image-width="2048" max-image-height="2048"></file-upload>
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2">Componentes del producto promocional:</label>
-                <div id="componentsContainer">
-                    <div class="flex gap-2 mb-2 component-row">
-                        <select class="component-type-select shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                            <option value="product">Producto</option>
-                            <option value="category">Categoría</option>
-                        </select>
-                        <select class="component-category-filter shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                            <option value="" selected>Todas las categorías</option>
-                            {% for category in categories %}
-                                <option value="{{ category.id }}">{{ category.name }}</option>
-                            {% endfor %}
-                        </select>
-                        <select class="component-product-select shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="4" data-custom-multiselect multiple>
-                            {% for product in products %}
-                                {% if composed is defined and product.id == composed.id %}
-                                    {# No permitir seleccionar el propio producto compuesto/promocional #}
-                                {% else %}
-                                    <option value="{{ product.id }}" data-category="{{ product.category ? product.category.id : '' }}">{{ product.name }}</option>
-                                {% endif %}
-                            {% endfor %}
-                        </select>
-                        <select class="component-category-select shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" style="display:none">
-                            <option value="" disabled selected>Selecciona una categoría</option>
-                            {% for category in categories %}
-                                <option value="{{ category.id }}">{{ category.name }}</option>
-                            {% endfor %}
-                        </select>
-                        <button type="button" class="btn danger remove-component-btn" style="display:none">Eliminar</button>
-                    </div>
-                </div>
-                <button type="button" id="addComponentBtn" class="btn secondary mt-2">Añadir componente</button>
-                <span class="text-xs text-gray-500 block mt-1">Puedes añadir uno o más productos individuales o categorías completas como componentes.</span>
-            </div>
-            {% if discountEnabled or fidelityEnabled %}
-                <div class="mb-4">
-                    {% if discountEnabled and not fidelityEnabled %}
-                        <label for="promo_code" class="block text-gray-700 text-sm font-bold mb-2">Código promocional (obligatorio):</label>
-                        <input type="text" id="promo_code" name="promo_code" maxlength="32" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        <span id="promoCodeError" class="text-xs text-red-500 hidden">Este código ya existe.</span>
-                    {% elseif fidelityEnabled and not discountEnabled %}
-                        <label for="loyalty_points" class="block text-gray-700 text-sm font-bold mb-2">Puntos de fidelización (obligatorio):</label>
-                        <input type="number" id="loyalty_points" name="loyalty_points" min="0" step="1" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    {% else %}
-                        <label for="promo_code" class="block text-gray-700 text-sm font-bold mb-2">Código promocional:</label>
-                        <input type="text" id="promo_code" name="promo_code" maxlength="32" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        <span id="promoCodeError" class="text-xs text-red-500 hidden">Este código ya existe.</span>
-                        <label for="loyalty_points" class="block text-gray-700 text-sm font-bold mb-2 mt-2">Puntos de fidelización:</label>
-                        <input type="number" id="loyalty_points" name="loyalty_points" min="0" step="1" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        <span class="text-xs text-gray-500 block mt-1">Rellena al menos uno de los dos campos.</span>
-                    {% endif %}
-                </div>
-            {% endif %}
-            <div class="mb-4">
-                <label for="description" class="block text-gray-700 text-sm font-bold mb-2">Descripción:</label>
+            <div>
+                <label for="description" class="block text-gray-700 text-sm font-bold mb-2">Descripción</label>
                 <textarea id="description" name="description" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
             </div>
-            <div class="mb-4">
-                <label for="price" class="block text-gray-700 text-sm font-bold mb-2">Precio:</label>
+            <div>
+                <label for="image" class="block text-gray-700 text-sm font-bold mb-2">Imagen</label>
+                <file-upload id="imgUpload" name="image" class="w-full" accept-image="true" accept-video="false" image-aspect-ratio="1:1" min-image-width="512" min-image-height="512" max-image-width="2048" max-image-height="2048"></file-upload>
+            </div>
+            <div>
+                <label for="price" class="block text-gray-700 text-sm font-bold mb-2">Precio</label>
                 <input type="number" id="price" name="price" required step="0.01" min="0" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             </div>
             
-            <input type="submit" class="btn primary" value="Crear producto promocional">
+            <button type="submit" class="btn primary flex items-center gap-2"><i data-feather="plus-square"></i> Crear producto promocional</button>
         </form>
     </div>
 {% endblock %}

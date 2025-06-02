@@ -4,19 +4,17 @@
 
 {% block name %}Crear categoría{% endblock %}
 {% block content %}
-    <div class="flex flex-col h-full">
-        <div class="flex items-center justify-end mb-4">
-        </div>
-        <form id="newCatForm" action="#" method="POST" enctype="multipart/form-data">
-            <div class="mb-4">
-                <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nombre:</label>
+    <div class="max-w-lg mx-auto bg-white rounded-2xl p-8">
+        <form action="/admin/categories/add" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4">
+            <div>
+                <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nombre</label>
                 <input type="text" id="name" name="name" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             </div>
-            <div class="mb-4">
-                <label for="imgUpload" class="block text-gray-700 text-sm font-bold mb-2">Imagen:</label>
-                <file-upload id="imgUpload" class="w-full" accept-image="true" accept-video="false" image-aspect-ratio="1:1" min-image-width="512" min-image-height="512" max-image-width="2048" max-image-height="2048"></file-upload>
+            <div>
+                <label for="image" class="block text-gray-700 text-sm font-bold mb-2">Imagen</label>
+                <file-upload id="categoryImageUpload" name="image" class="w-full" accept-image="true" accept-video="false" image-aspect-ratio="1:1" min-image-width="256" min-image-height="256"></file-upload>
             </div>
-            <input type="submit" class="btn primary" value="Crear categoría">
+            <button type="submit" class="btn primary flex items-center gap-2"><i data-feather="plus-square"></i> Crear categoría</button>
         </form>
     </div>
 {% endblock %}

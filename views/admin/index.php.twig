@@ -5,7 +5,39 @@
 {% block name %}Inicio{% endblock %}
 {% block content %}
     <div class="flex flex-col items-center justify-center h-full">
-        <h2 class="text-3xl font-bold mb-4">Bienvenido al Panel de Administración</h2>
-        <p class="text-lg text-gray-700 mb-4">Desde aquí puedes gestionar todos los aspectos de tu restaurante.</p>
+        <h2 class="text-3xl font-extrabold text-blue-700 mb-4">Bienvenido al Panel de Administración</h2>
+        <p class="text-lg text-gray-600 mb-4">Desde aquí puedes gestionar todos los aspectos de tu restaurante.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl mt-8">
+            <a href="/admin/tables" class="bg-blue-50 border border-blue-100 rounded-xl p-6 flex items-center gap-4 shadow hover:shadow-lg hover:border-blue-400 transition">
+                <i data-feather="grid" class="w-8 h-8 text-blue-500"></i>
+                <span class="text-lg font-semibold text-blue-700">Mesas</span>
+            </a>
+            <a href="/admin/categories" class="bg-blue-50 border border-blue-100 rounded-xl p-6 flex items-center gap-4 shadow hover:shadow-lg hover:border-blue-400 transition">
+                <i data-feather="tag" class="w-8 h-8 text-blue-500"></i>
+                <span class="text-lg font-semibold text-blue-700">Categorías</span>
+            </a>
+            <a href="/admin/products" class="bg-blue-50 border border-blue-100 rounded-xl p-6 flex items-center gap-4 shadow hover:shadow-lg hover:border-blue-400 transition">
+                <i data-feather="box" class="w-8 h-8 text-blue-500"></i>
+                <span class="text-lg font-semibold text-blue-700">Productos</span>
+            </a>
+            <a href="/admin/composed" class="bg-blue-50 border border-blue-100 rounded-xl p-6 flex items-center gap-4 shadow hover:shadow-lg hover:border-blue-400 transition">
+                <i data-feather="layers" class="w-8 h-8 text-blue-500"></i>
+                <span class="text-lg font-semibold text-blue-700">Productos compuestos</span>
+            </a>
+            <a href="/admin/users" class="bg-blue-50 border border-blue-100 rounded-xl p-6 flex items-center gap-4 shadow hover:shadow-lg hover:border-blue-400 transition">
+                <i data-feather="users" class="w-8 h-8 text-blue-500"></i>
+                <span class="text-lg font-semibold text-blue-700">Usuarios</span>
+            </a>
+            <a href="/admin/config" class="bg-blue-50 border border-blue-100 rounded-xl p-6 flex items-center gap-4 shadow hover:shadow-lg hover:border-blue-400 transition">
+                <i data-feather="settings" class="w-8 h-8 text-blue-500"></i>
+                <span class="text-lg font-semibold text-blue-700">Configuración</span>
+            </a>
+            {% if promosEnabled %}
+            <a href="/admin/promotional" class="bg-blue-50 border border-blue-100 rounded-xl p-6 flex items-center gap-4 shadow hover:shadow-lg hover:border-blue-400 transition">
+                <i data-feather="star" class="w-8 h-8 text-blue-500"></i>
+                <span class="text-lg font-semibold text-blue-700">Promocionales</span>
+            </a>
+            {% endif %}
+        </div>
     </div>
 {% endblock %}

@@ -4,25 +4,17 @@
 
 {% block name %}Editar categoría {{category.name}}{% endblock %}
 {% block content %}
-    <div class="flex flex-col h-full">
-        <div class="flex items-center justify-end mb-4">
-        </div>
-        <form id="editCatForm" action="/admin/categories/edit/{{category.id}}" method="POST" enctype="multipart/form-data">
-            <div class="mb-4">
-                <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nombre:</label>
-                <input type="text" id="name" name="name" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ category.name }}">
+    <div class="max-w-lg mx-auto bg-white rounded-2xl p-8">
+        <form action="/admin/categories/edit/{{ category.id }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4">
+            <div>
+                <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nombre</label>
+                <input type="text" id="name" name="name" required value="{{ category.name }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             </div>
-            <div class="mb-4">
-                <label for="imgUpload" class="block text-gray-700 text-sm font-bold mb-2">Imagen:</label>
-                <file-upload id="imgUpload" class="w-full" accept-image="true" accept-video="false" image-aspect-ratio="1:1" min-image-width="512" min-image-height="512" max-image-width="2048" max-image-height="2048"></file-upload>
-                {% if category.image %}
-                    <div class="mt-2">
-                        <span class="text-xs text-gray-500">Imagen actual:</span><br>
-                        <img src="/{{ category.image }}" alt="Imagen actual" class="w-32 h-32 object-cover border rounded mt-1">
-                    </div>
-                {% endif %}
+            <div>
+                <label for="image" class="block text-gray-700 text-sm font-bold mb-2">Imagen</label>
+                <file-upload id="categoryImageUpload" name="image" class="w-full" accept-image="true" accept-video="false" image-aspect-ratio="1:1" min-image-width="256" min-image-height="256" existing-image="{{ category.getImagePath() }}"></file-upload>
             </div>
-            <input type="submit" class="btn primary" value="Guardar cambios">
+            <button type="submit" class="btn primary flex items-center gap-2"><i data-feather="save"></i> Guardar cambios</button>
         </form>
     </div>
 {% endblock %}

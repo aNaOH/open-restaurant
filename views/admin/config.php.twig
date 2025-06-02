@@ -4,66 +4,71 @@
 
 {% block name %}Configuración{% endblock %}
 {% block content %}
-    <div class="flex flex-col gap-2 h-full">
-        
-        <h2 class="text-xl font-bold">Datos del restaurante</h2>
-        <form action="/admin/config/restaurant" method="POST" class="flex flex-col gap-4 mb-8">
-            <div class="flex flex-col mb-4">
-                <div class="mb-2">
-                    <label for="restaurant_name" class="block text-gray-700 text-sm font-bold mb-2">Nombre del restaurante</label>
-                    <input type="text" id="restaurant_name" name="restaurant_name" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ restaurant_name|default('') }}">
+    <div class="flex flex-col gap-6 h-full">
+        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-6 shadow">
+            <h2 class="text-xl font-extrabold text-blue-700 mb-4 flex items-center gap-2"><i data-feather="settings"></i> Datos del restaurante</h2>
+            <form action="/admin/config/restaurant" method="POST" class="flex flex-col gap-4 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="restaurant_name" class="block text-gray-700 text-sm font-bold mb-2">Nombre del restaurante</label>
+                        <input type="text" id="restaurant_name" name="restaurant_name" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ restaurant_name|default('') }}">
+                    </div>
+                    <div>
+                        <label for="restaurant_email" class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                        <input type="email" id="restaurant_email" name="restaurant_email" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ restaurant_email|default('') }}">
+                    </div>
+                    <div>
+                        <label for="restaurant_address" class="block text-gray-700 text-sm font-bold mb-2">Dirección</label>
+                        <input type="text" id="restaurant_address" name="restaurant_address" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ restaurant_address|default('') }}">
+                    </div>
+                    <div>
+                        <label for="restaurant_phone" class="block text-gray-700 text-sm font-bold mb-2">Teléfono</label>
+                        <input type="text" id="restaurant_phone" name="restaurant_phone" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ restaurant_phone|default('') }}">
+                    </div>
                 </div>
-                <div class="mb-2">
-                    <label for="restaurant_address" class="block text-gray-700 text-sm font-bold mb-2">Dirección</label>
-                    <input type="text" id="restaurant_address" name="restaurant_address" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ restaurant_address|default('') }}">
-                </div>
-                <div class="mb-2">
-                    <label for="restaurant_phone" class="block text-gray-700 text-sm font-bold mb-2">Teléfono</label>
-                    <input type="text" id="restaurant_phone" name="restaurant_phone" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ restaurant_phone|default('') }}">
-                </div>
-                <div class="mb-2">
-                    <label for="restaurant_email" class="block text-gray-700 text-sm font-bold mb-2">Email</label>
-                    <input type="email" id="restaurant_email" name="restaurant_email" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ restaurant_email|default('') }}">
-                </div>
-            </div>
-            <input type="submit" class="btn primary" value="Guardar datos del restaurante">
-        </form>
-        <h2 class="text-xl font-bold">Logo del restaurante</h2>
-        <form action="/admin/config/logo" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4 mb-8">
-            <div class="mb-4">
-                <file-upload id="restaurant_logo" name="restaurant_logo" class="w-full" accept-image="true" accept-video="false" min-image-width="128" min-image-height="128"></file-upload>
-            </div>
-            <input type="submit" class="btn primary" value="Subir logo">
-        </form>
-        <h2 class="text-xl font-bold">Características</h2>
-        <form action="/admin/config/features" method="POST" class="flex flex-col gap-4">
-            <div class="flex flex-col mb-4">
-                <h2 class="text-lg font-semibold">Códigos promocionales</h2>
-                <p class="mb-4">¿Quieres permitir que los clientes utilicen códigos promocionales?</p>
+                <input type="submit" class="btn primary mt-4" value="Guardar datos del restaurante">
+            </form>
+        </div>
+        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-6 shadow">
+            <h2 class="text-xl font-extrabold text-blue-700 mb-4 flex items-center gap-2"><i data-feather="image"></i> Logo del restaurante</h2>
+            <form action="/admin/config/logo" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4 mb-8">
                 <div class="mb-4">
-                    <label for="promo_codes" class="inline-flex items-center">
-                        <input type="checkbox" id="promo_codes" name="promo_codes" class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded" {% if discount_enabled %}checked{% endif %}>
-                        <span class="ml-2 text-gray-700">Sí, quiero permitir códigos promocionales</span>
-                    </label>
+                    <file-upload id="restaurant_logo" name="restaurant_logo" class="w-full" accept-image="true" accept-video="false" min-image-width="128" min-image-height="128"></file-upload>
                 </div>
-            </div>
-            <div class="flex flex-col mb-4">
-                <h2 class="text-lg font-semibold">Programa de fidelización</h2>
-                <p class="mb-4">¿Quieres permitir que los clientes utilicen un programa de fidelización? Esto permitirá que los clientes puedan crear una cuenta en tu aplicación de OpenRestaurant. Por defecto 1€ equivale a 100 puntos.</p>
-                <div id="fidelity-warning" class="mb-4 hidden bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4"></div>
-                <div class="mb-4">
-                    <label for="loyalty_program" class="inline-flex items-center">
-                        <input type="checkbox" id="loyalty_program" name="loyalty_program" class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded" {% if fidelity_enabled %}checked{% endif %}>
-                        <span class="ml-2 text-gray-700">Sí, quiero permitir un programa de fidelización</span>
-                    </label>
+                <input type="submit" class="btn primary" value="Subir logo">
+            </form>
+        </div>
+        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-6 shadow">
+            <h2 class="text-xl font-extrabold text-blue-700 mb-4 flex items-center gap-2"><i data-feather="gift"></i> Características</h2>
+            <form action="/admin/config/features" method="POST" class="flex flex-col gap-4">
+                <div class="flex flex-col mb-4">
+                    <h2 class="text-lg font-semibold">Códigos promocionales</h2>
+                    <p class="mb-4">¿Quieres permitir que los clientes utilicen códigos promocionales?</p>
+                    <div class="mb-4">
+                        <label for="promo_codes" class="inline-flex items-center">
+                            <input type="checkbox" id="promo_codes" name="promo_codes" class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded" {% if discount_enabled %}checked{% endif %}>
+                            <span class="ml-2 text-gray-700">Sí, quiero permitir códigos promocionales</span>
+                        </label>
+                    </div>
                 </div>
-                <div class="mb-4">
-                    <label for="points_per_unit" class="block text-gray-700 text-sm font-bold mb-2">Puntos por € gastado.</label>
-                    <input type="number" id="points_per_unit" name="points_per_unit" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ points_per_unit|default(100) }}">
+                <div class="flex flex-col mb-4">
+                    <h2 class="text-lg font-semibold">Programa de fidelización</h2>
+                    <p class="mb-4">¿Quieres permitir que los clientes utilicen un programa de fidelización? Esto permitirá que los clientes puedan crear una cuenta en tu aplicación de OpenRestaurant. Por defecto 1€ equivale a 100 puntos.</p>
+                    <div id="fidelity-warning" class="mb-4 hidden bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4"></div>
+                    <div class="mb-4">
+                        <label for="loyalty_program" class="inline-flex items-center">
+                            <input type="checkbox" id="loyalty_program" name="loyalty_program" class="form-checkbox h-5 w-5 text-blue-600 border-gray-300 rounded" {% if fidelity_enabled %}checked{% endif %}>
+                            <span class="ml-2 text-gray-700">Sí, quiero permitir un programa de fidelización</span>
+                        </label>
+                    </div>
+                    <div class="mb-4">
+                        <label for="points_per_unit" class="block text-gray-700 text-sm font-bold mb-2">Puntos por € gastado.</label>
+                        <input type="number" id="points_per_unit" name="points_per_unit" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ points_per_unit|default(100) }}">
+                    </div>
                 </div>
-            </div>
-            <input type="submit" class="btn primary" value="Guardar cambios">
-        </form>
+                <input type="submit" class="btn primary" value="Guardar cambios">
+            </form>
+        </div>
     </div>
 {% endblock %}
 {% block scripts %}

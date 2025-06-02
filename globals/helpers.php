@@ -56,6 +56,7 @@ class SidebarHelpers {
             'fidelityEnabled' => $fidelityEnabled,
             'promosEnabled' => $promosEnabled,
             'user' => isset($user) ? $user : null,
+            'restaurantName' => CONFIG->RESTAURANT_NAME
         ];
     }
 }
