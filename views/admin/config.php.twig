@@ -31,7 +31,7 @@
         <h2 class="text-xl font-bold">Logo del restaurante</h2>
         <form action="/admin/config/logo" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4 mb-8">
             <div class="mb-4">
-                <file-upload id="restaurant_logo" name="restaurant_logo" class="w-full" accept-image="true" accept-video="false" image-aspect-ratio="1:1" min-image-width="128" min-image-height="128" max-image-width="2048" max-image-height="2048" existing-image="/content/logo.jpg"></file-upload>
+                <file-upload id="restaurant_logo" name="restaurant_logo" class="w-full" accept-image="true" accept-video="false" min-image-width="128" min-image-height="128"></file-upload>
             </div>
             <input type="submit" class="btn primary" value="Subir logo">
         </form>
