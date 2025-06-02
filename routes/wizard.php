@@ -142,8 +142,8 @@ $router->post("/config", function() {
 
 $router->post("/features", function() {
 
-    $discount_enabled = isset($_POST['promo_codes']) ? true : false;
-    $fidelity_enabled = isset($_POST['loyalty_program']) ? true : false;
+    $discount_enabled = isset($_POST['codeEnabled']) ? true : false;
+    $fidelity_enabled = isset($_POST['fidelityEnabled']) ? true : false;
 
     $config = new Config();
     $config->DISCOUNT_ENABLED = $discount_enabled;

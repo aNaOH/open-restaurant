@@ -22,7 +22,23 @@ $router->get("/login", function() {
         header("Location: /");
         exit;
     }
-    ViewController::render('login');
+    ViewController::render('auth/login', SidebarHelpers::getBaseData());
+});
+
+$router->get("/register", function() {
+    if(AuthHelpers::isLoggedIn()) {
+        header("Location: /");
+        exit;
+    }
+    ViewController::render('auth/register', SidebarHelpers::getBaseData());
+});
+
+$router->get("/logout", function() {
+    if(AuthHelpers::isLoggedIn()) {
+        session_destroy();
+    }
+    header("Location: /");
+    exit;
 });
 
 $router->post("/login", function() {
@@ -31,7 +47,9 @@ $router->post("/login", function() {
         $password = $_POST['password'];
 
         if (empty($email) || empty($password)) {
-            ViewController::render('login', ['error' => 'Introduce usuario y contraseña.']);
+            ViewController::render('auth/login', array_merge(SidebarHelpers::getBaseData(), [
+                'error' => 'Por favor, completa todos los campos.'
+            ]));
             return;
         }
 
@@ -40,15 +58,64 @@ $router->post("/login", function() {
             $_SESSION['user'] = [
                 'id' => $user->id,
                 'email' => $user->email,
-                'name' => $user->name
+                'name' => $user->name,
+                'points' => $user->points,
+                'role' => $user->role
             ];
             header("Location: /");
             exit;
         } else {
-            ViewController::render('login', ['error' => 'Usuario o contraseña incorrectos.']);
+            ViewController::render('auth/login', array_merge(SidebarHelpers::getBaseData(), [
+                'error' => 'Usuario o contraseña incorrectos.'
+            ]));
         }
     } else {
-        ViewController::render('login', ['error' => 'Introduce correo y contraseña.']);
+        ViewController::render('auth/login', array_merge(SidebarHelpers::getBaseData(), [
+            'error' => 'Por favor, completa todos los campos.'
+        ]));
+    }
+});
+
+$router->post("/register", function() {
+    $name = $_POST['name'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $password = $_POST['password'] ?? '';
+    $confirm_password = $_POST['confirm_password'] ?? '';
+
+    if (empty($name) || empty($email) || empty($password) || empty($confirm_password)) {
+        ViewController::render('auth/register', array_merge(SidebarHelpers::getBaseData(), [
+            'error' => 'Por favor, completa todos los campos.'
+        ]));
+        return;
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        ViewController::render('auth/register', array_merge(SidebarHelpers::getBaseData(), [
+            'error' => 'El correo electrónico no es válido.'
+        ]));
+        return;
+    }
+    if ($password !== $confirm_password) {
+        ViewController::render('auth/register', array_merge(SidebarHelpers::getBaseData(), [
+            'error' => 'Las contraseñas no coinciden.'
+        ]));
+        return;
+    }
+    if (User::getByEmail($email)) {
+        ViewController::render('auth/register', array_merge(SidebarHelpers::getBaseData(), [
+            'error' => 'El correo electrónico ya está registrado.'
+        ]));
+        return;
+    }
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    $user = new User(null, $email, $name, $hashedPassword, EUSER_ROLE::USER);
+    if ($user) {
+        $user->save();
+        header("Location: /");
+        exit;
+    } else {
+        ViewController::render('auth/register', array_merge(SidebarHelpers::getBaseData(), [
+            'error' => 'No se pudo crear la cuenta. Intenta de nuevo.'
+        ]));
     }
 });
 

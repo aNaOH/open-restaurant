@@ -53,7 +53,7 @@ $router->mount('/users', function() use ($router) {
             if (!empty($_POST['password'])) {
                 $user->password = password_hash($_POST['password'], PASSWORD_DEFAULT);
             }
-            $user->role = $_POST['role'] ?? $user->role;
+            $user->role = isset($_POST['role']) ? EUSER_ROLE::from(intval($_POST['role'])) : $user->role;
             $user->points = $_POST['points'] ?? $user->points;
             $user->save();
             header('Location: /admin/users');
