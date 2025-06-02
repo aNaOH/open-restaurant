@@ -24,6 +24,29 @@ $router->mount('/users', function() use ($router) {
                 ]));
                 return;
             }
+            // Validación de contraseña segura
+            $passwordErrors = [];
+            if (strlen($password) < 8) {
+                $passwordErrors[] = 'La contraseña debe tener al menos 8 caracteres.';
+            }
+            if (!preg_match('/[A-Z]/', $password)) {
+                $passwordErrors[] = 'La contraseña debe contener al menos una letra mayúscula.';
+            }
+            if (!preg_match('/[a-z]/', $password)) {
+                $passwordErrors[] = 'La contraseña debe contener al menos una letra minúscula.';
+            }
+            if (!preg_match('/[0-9]/', $password)) {
+                $passwordErrors[] = 'La contraseña debe contener al menos un número.';
+            }
+            if (!preg_match('/[^a-zA-Z0-9]/', $password)) {
+                $passwordErrors[] = 'La contraseña debe contener al menos un carácter especial.';
+            }
+            if (!empty($passwordErrors)) {
+                ViewController::render('admin/users/add', array_merge(SidebarHelpers::getBaseData(), [
+                    'error' => implode(' ', $passwordErrors)
+                ]));
+                return;
+            }
             $user = new User(null, $email, $name, password_hash($password, PASSWORD_DEFAULT), $role, $points);
             $user->save();
             header('Location: /admin/users');
@@ -51,7 +74,40 @@ $router->mount('/users', function() use ($router) {
             $user->name = $_POST['name'] ?? $user->name;
             $user->email = $_POST['email'] ?? $user->email;
             if (!empty($_POST['password'])) {
-                $user->password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+                $password = $_POST['password'];
+                $password_confirm = $_POST['password_confirm'] ?? '';
+                if ($password !== $password_confirm) {
+                    ViewController::render('admin/users/edit', array_merge(SidebarHelpers::getBaseData(), [
+                        'user' => $user,
+                        'error' => 'Las contraseñas no coinciden.'
+                    ]));
+                    return;
+                }
+                // Validación de contraseña segura
+                $passwordErrors = [];
+                if (strlen($password) < 8) {
+                    $passwordErrors[] = 'La contraseña debe tener al menos 8 caracteres.';
+                }
+                if (!preg_match('/[A-Z]/', $password)) {
+                    $passwordErrors[] = 'La contraseña debe contener al menos una letra mayúscula.';
+                }
+                if (!preg_match('/[a-z]/', $password)) {
+                    $passwordErrors[] = 'La contraseña debe contener al menos una letra minúscula.';
+                }
+                if (!preg_match('/[0-9]/', $password)) {
+                    $passwordErrors[] = 'La contraseña debe contener al menos un número.';
+                }
+                if (!preg_match('/[^a-zA-Z0-9]/', $password)) {
+                    $passwordErrors[] = 'La contraseña debe contener al menos un carácter especial.';
+                }
+                if (!empty($passwordErrors)) {
+                    ViewController::render('admin/users/edit', array_merge(SidebarHelpers::getBaseData(), [
+                        'user' => $user,
+                        'error' => implode(' ', $passwordErrors)
+                    ]));
+                    return;
+                }
+                $user->password = password_hash($password, PASSWORD_DEFAULT);
             }
             $user->role = isset($_POST['role']) ? EUSER_ROLE::from(intval($_POST['role'])) : $user->role;
             $user->points = $_POST['points'] ?? $user->points;

@@ -18,6 +18,13 @@
             <div class="mb-4">
                 <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Contraseña:</label>
                 <input type="password" id="password" name="password" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <ul class="text-xs text-gray-500 mt-1 ml-2 list-disc list-inside">
+                    <li>Mínimo 8 caracteres</li>
+                    <li>Al menos una mayúscula</li>
+                    <li>Al menos una minúscula</li>
+                    <li>Al menos un número</li>
+                    <li>Al menos un carácter especial</li>
+                </ul>
             </div>
             <div class="mb-4">
                 <label for="password_confirm" class="block text-gray-700 text-sm font-bold mb-2">Confirmar contraseña:</label>
@@ -55,6 +62,44 @@
             event.preventDefault();
             return;
         }
+        // Validación visual de contraseña segura
+        let errors = [];
+        if (pass.length < 8) errors.push('Mínimo 8 caracteres');
+        if (!/[A-Z]/.test(pass)) errors.push('Al menos una mayúscula');
+        if (!/[a-z]/.test(pass)) errors.push('Al menos una minúscula');
+        if (!/[0-9]/.test(pass)) errors.push('Al menos un número');
+        if (!/[^a-zA-Z0-9]/.test(pass)) errors.push('Al menos un carácter especial');
+        if (errors.length > 0) {
+            alert('La contraseña no cumple los requisitos: ' + errors.join(', '));
+            event.preventDefault();
+            return;
+        }
     });
+    // Validación visual en tiempo real
+    const passwordInput = document.getElementById('password');
+    const requirements = [
+        { regex: /.{8,}/, selector: 'li:nth-child(1)' },
+        { regex: /[A-Z]/, selector: 'li:nth-child(2)' },
+        { regex: /[a-z]/, selector: 'li:nth-child(3)' },
+        { regex: /[0-9]/, selector: 'li:nth-child(4)' },
+        { regex: /[^a-zA-Z0-9]/, selector: 'li:nth-child(5)' }
+    ];
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            const value = passwordInput.value;
+            requirements.forEach(req => {
+                const li = passwordInput.parentElement.querySelector(req.selector);
+                if (li) {
+                    if (req.regex.test(value)) {
+                        li.classList.add('text-green-600');
+                        li.classList.remove('text-gray-500');
+                    } else {
+                        li.classList.remove('text-green-600');
+                        li.classList.add('text-gray-500');
+                    }
+                }
+            });
+        });
+    }
 </script>
 {% endblock %}

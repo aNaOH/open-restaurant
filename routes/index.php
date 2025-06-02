@@ -22,7 +22,9 @@ $router->get("/login", function() {
         header("Location: /");
         exit;
     }
-    ViewController::render('auth/login', SidebarHelpers::getBaseData());
+    ViewController::render('auth/login', array_merge(SidebarHelpers::getBaseData(), [
+        'restaurantName' => CONFIG->RESTAURANT_NAME
+    ]));
 });
 
 $router->get("/register", function() {
@@ -30,7 +32,9 @@ $router->get("/register", function() {
         header("Location: /");
         exit;
     }
-    ViewController::render('auth/register', SidebarHelpers::getBaseData());
+    ViewController::render('auth/register', array_merge(SidebarHelpers::getBaseData(), [
+        'restaurantName' => CONFIG->RESTAURANT_NAME
+    ]));
 });
 
 $router->get("/logout", function() {
@@ -48,7 +52,8 @@ $router->post("/login", function() {
 
         if (empty($email) || empty($password)) {
             ViewController::render('auth/login', array_merge(SidebarHelpers::getBaseData(), [
-                'error' => 'Por favor, completa todos los campos.'
+                'error' => 'Por favor, completa todos los campos.',
+                'restaurantName' => CONFIG->RESTAURANT_NAME
             ]));
             return;
         }
@@ -66,12 +71,14 @@ $router->post("/login", function() {
             exit;
         } else {
             ViewController::render('auth/login', array_merge(SidebarHelpers::getBaseData(), [
-                'error' => 'Usuario o contraseña incorrectos.'
+                'error' => 'Usuario o contraseña incorrectos.',
+                'restaurantName' => CONFIG->RESTAURANT_NAME
             ]));
         }
     } else {
         ViewController::render('auth/login', array_merge(SidebarHelpers::getBaseData(), [
-            'error' => 'Por favor, completa todos los campos.'
+            'error' => 'Por favor, completa todos los campos.',
+            'restaurantName' => CONFIG->RESTAURANT_NAME
         ]));
     }
 });
@@ -84,19 +91,22 @@ $router->post("/register", function() {
 
     if (empty($name) || empty($email) || empty($password) || empty($confirm_password)) {
         ViewController::render('auth/register', array_merge(SidebarHelpers::getBaseData(), [
-            'error' => 'Por favor, completa todos los campos.'
+            'error' => 'Por favor, completa todos los campos.',
+            'restaurantName' => CONFIG->RESTAURANT_NAME
         ]));
         return;
     }
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         ViewController::render('auth/register', array_merge(SidebarHelpers::getBaseData(), [
-            'error' => 'El correo electrónico no es válido.'
+            'error' => 'El correo electrónico no es válido.',
+            'restaurantName' => CONFIG->RESTAURANT_NAME
         ]));
         return;
     }
     if ($password !== $confirm_password) {
         ViewController::render('auth/register', array_merge(SidebarHelpers::getBaseData(), [
-            'error' => 'Las contraseñas no coinciden.'
+            'error' => 'Las contraseñas no coinciden.',
+            'restaurantName' => CONFIG->RESTAURANT_NAME
         ]));
         return;
     }
@@ -119,13 +129,15 @@ $router->post("/register", function() {
     }
     if (!empty($passwordErrors)) {
         ViewController::render('auth/register', array_merge(SidebarHelpers::getBaseData(), [
-            'error' => implode(' ', $passwordErrors)
+            'error' => implode(' ', $passwordErrors),
+            'restaurantName' => CONFIG->RESTAURANT_NAME
         ]));
         return;
     }
     if (User::getByEmail($email)) {
         ViewController::render('auth/register', array_merge(SidebarHelpers::getBaseData(), [
-            'error' => 'El correo electrónico ya está registrado.'
+            'error' => 'El correo electrónico ya está registrado.',
+            'restaurantName' => CONFIG->RESTAURANT_NAME
         ]));
         return;
     }
@@ -137,7 +149,8 @@ $router->post("/register", function() {
         exit;
     } else {
         ViewController::render('auth/register', array_merge(SidebarHelpers::getBaseData(), [
-            'error' => 'No se pudo crear la cuenta. Intenta de nuevo.'
+            'error' => 'No se pudo crear la cuenta. Intenta de nuevo.',
+            'restaurantName' => CONFIG->RESTAURANT_NAME
         ]));
     }
 });
