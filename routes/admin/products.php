@@ -143,13 +143,11 @@ $router->mount('/products', function() use ($router) {
             }
             $extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
             $uploadFile = $uploadDir . "product_" . $product->id . '.' . $extension;
-            $pastFilePath = $product->image;
+            $pastFilePath = $product->getImagePath();
             if ($pastFilePath && file_exists($pastFilePath)) {
                 unlink($pastFilePath); // Elimina la imagen anterior
             }
-            if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadFile)) {
-                $product->image = $uploadFile;
-            } else {
+            if (!move_uploaded_file($_FILES['image']['tmp_name'], $uploadFile)) {
                 $jsonResponse = [
                     'status' => 'error',
                     'message' => 'Error al subir la imagen.'
@@ -158,7 +156,7 @@ $router->mount('/products', function() use ($router) {
                 http_response_code(400);
                 echo json_encode($jsonResponse);
                 exit;
-            }
+            } 
         }
 
         $product->save();

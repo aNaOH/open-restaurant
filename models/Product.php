@@ -126,15 +126,25 @@ class Product {
                 ];
             }
         }
-        ksort($byPosition, SORT_NUMERIC);
+        
+        // Ordenar por posición y agrupar en arrays si hay varios elementos en la misma posición
+        ksort($byPosition);
         $result = [];
-        foreach ($byPosition as $group) {
-            if (count($group) === 1) {
-                $result[] = $group[0];
+        foreach ($byPosition as $position => $items) {
+            if (count($items) === 1) {
+                // Si solo hay un elemento, lo devolvemos directamente
+                $result[] = $items[0];
             } else {
-                $result[] = $group;
+                // Si hay varios, los agrupamos en un array
+                $result[] = [
+                    'type' => 'group',
+                    'items' => $items,
+                    'position' => (int)$position
+                ];
             }
         }
+        
+
         return $result;
     }
 

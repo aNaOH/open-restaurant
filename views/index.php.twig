@@ -12,7 +12,7 @@
         {% endif %}
 
         <div class="flex flex-col justify-center items-center h-screen">
-            <img src="/content/logo" alt="Logo" class="w-32 mb-4">
+            <img src="/logo" alt="Logo de {{restaurantName}}" class="w-32 mb-4">
             <h1 class="text-2xl text-gray-800">Bienvenido a <span class="font-bold">{{restaurantName}}</span></h1>
             <form action="/order/begin" method="POST" class="mt-4 flex items-center gap-2">
                 <input type="text" name="table" id="table" placeholder="Número de mesa" class="border border-gray-300 rounded px-4 py-2" required>

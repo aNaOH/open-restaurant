@@ -26,11 +26,22 @@
                             <td class="py-3 px-6 text-left">{{ composed.name }}</td>
                             <td class="py-3 px-6 text-left">{{ composed.price|number_format(2, '.', ',') }}</td>
                             <td class="py-3 px-6 text-left">
-                                {% if composed.includedProducts is not empty %}
-                                    <ul class="list-disc ml-4">
-                                        {% for prod in composed.includedProducts %}
-                                            <li>{{ prod.name }}</li>
-                                        {% endfor %}
+                                {% if composed.getChildren() is not empty %}
+                                    <ul class="ml-4">
+                                    {% for group in composed.getChildren() %}
+                                        <li class="mb-2 list-disc" >
+                                            {% if group.type == "product" %}
+                                                Producto: {{ group.object.name }}
+                                            {% elseif group.type == "category" %}
+                                                Categoría: {{ group.object.name }}
+                                            {% elseif group.type == "group" %}
+                                                Productos: 
+                                                {% for product in group.items %}
+                                                    {{ product.object.name }}{% if not loop.last %}, {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        </li>
+                                    {% endfor %}
                                     </ul>
                                 {% else %}
                                     <span class="text-gray-400">Ninguno</span>

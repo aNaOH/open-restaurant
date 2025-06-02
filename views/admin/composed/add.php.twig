@@ -39,7 +39,7 @@
                                 <option value="{{ category.id }}">{{ category.name }}</option>
                             {% endfor %}
                         </select>
-                        <select class="component-product-select shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="4" data-custom-multiselect>
+                        <select class="component-product-select shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="4" data-custom-multiselect multiple>
                             {% for product in products %}
                                 <option value="{{ product.id }}" data-category="{{ product.category ? product.category.id : '' }}">{{ product.name }}</option>
                             {% endfor %}
@@ -63,7 +63,7 @@
                                 <option value="{{ category.id }}">{{ category.name }}</option>
                             {% endfor %}
                         </select>
-                        <select class="component-product-select shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="4" data-custom-multiselect>
+                        <select class="component-product-select shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" size="4" data-custom-multiselect multiple>
                             {% for product in products %}
                                 <option value="{{ product.id }}" data-category="{{ product.category ? product.category.id : '' }}">{{ product.name }}</option>
                             {% endfor %}
@@ -113,7 +113,8 @@
             const newRow = firstRow.cloneNode(true);
             newRow.querySelector('.component-type-select').value = 'product';
             newRow.querySelector('.component-product-select').style.display = '';
-            newRow.querySelector('.component-product-select').selectedIndex = 0;
+            // Limpiar selección múltiple correctamente
+            Array.from(newRow.querySelector('.component-product-select').options).forEach(opt => opt.selected = false);
             newRow.querySelector('.component-category-select').style.display = 'none';
             newRow.querySelector('.component-category-select').selectedIndex = 0;
             newRow.querySelector('.component-category-filter').style.display = '';
@@ -143,6 +144,11 @@
                     row.querySelector('.component-category-select').style.display = '';
                     row.querySelector('.component-category-filter').style.display = 'none';
                 }
+            }
+            if (e.target.classList.contains('component-product-select')) {
+                // Permitir selección múltiple con Ctrl/Cmd/Shift
+                // No es necesario código extra, pero forzamos el focus
+                e.target.focus();
             }
             if (e.target.classList.contains('component-category-filter')) {
                 const row = e.target.closest('.component-row');

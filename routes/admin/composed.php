@@ -11,11 +11,16 @@ $router->mount('/composed', function() use ($router) {
     });
 
     $router->post('/add', function() {
+        // Decodificar componentes si vienen como string JSON (AJAX)
+        $components = $_POST['components'];
+        if (is_string($components)) {
+            $components = json_decode($components, true);
+        }
         // Validación de campos obligatorios
         if (!isset($_POST['name']) || trim($_POST['name']) === '' ||
             !isset($_POST['description']) || trim($_POST['description']) === '' ||
             !isset($_POST['price']) || $_POST['price'] === '' ||
-            !isset($_POST['components']) || !is_array($_POST['components']) || count($_POST['components']) < 1
+            !is_array($components) || count($components) < 1
         ) {
             $jsonResponse = [
                 'status' => 'error',
@@ -28,8 +33,8 @@ $router->mount('/composed', function() use ($router) {
         }
         // Validar que el total de productos/categorías seleccionados sea al menos dos
         $totalComponents = 0;
-        foreach ($_POST['components'] as $component) {
-            $data = json_decode($component, true);
+        foreach ($components as $component) {
+            $data = is_array($component) ? $component : json_decode($component, true);
             if ($data && isset($data['type'], $data['ids']) && is_array($data['ids'])) {
                 $totalComponents += count($data['ids']);
             }
@@ -56,9 +61,8 @@ $router->mount('/composed', function() use ($router) {
         // Procesar componentes (productos y categorías) con posición
         $totalComponents = 0;
         $position = 0;
-        foreach ($_POST['components'] as $component) {
-            $data = json_decode($component, true);
-            // Permitir varios productos/categorías en la misma posición (selección múltiple)
+        foreach ($components as $component) {
+            $data = is_array($component) ? $component : json_decode($component, true);
             if ($data['type'] === 'product') {
                 foreach ($data['ids'] as $prodId) {
                     $composed->addChild($prodId, $position);
@@ -139,17 +143,122 @@ $router->mount('/composed', function() use ($router) {
     $router->get('/', function() {
         // Obtener todos los productos compuestos
         $composedProducts = Product::getAllByType(EPRODUCT_TYPE::COMPOSED);
-        $categories = Category::getAll();
-        // Para cada producto compuesto, obtener los componentes agrupados por posición
-        foreach ($composedProducts as $i => $composed) {
-            $composedProducts[$i] = (object) array_merge((array)$composed, [
-                'components' => $composed->getChildren()
-            ]);
-        }
+        
         ViewController::render('admin/composed/index', array_merge(SidebarHelpers::getBaseData(), [
-            'composedProducts' => $composedProducts,
-            'categories' => $categories
+            'composedProducts' => $composedProducts
         ]));
+    });
+
+    $router->get('/edit/{id}', function($id) {
+        $composed = Product::getById($id);
+        if (!$composed || $composed->type !== EPRODUCT_TYPE::COMPOSED) {
+            ViewController::renderError('Producto compuesto no encontrado.');
+            return;
+        }
+        $categories = Category::getAll();
+        $products = Product::getAll();
+        // Procesar componentes y categoría para el formulario
+        $components = $composed->getChildren();
+        $category = is_object($composed->category) ? $composed->category : ($composed->category ? Category::getById($composed->category) : null);
+        ViewController::render('admin/composed/edit', array_merge(SidebarHelpers::getBaseData(), [
+            'composed' => $composed,
+            'components' => $components,
+            'categories' => $categories,
+            'products' => $products,
+            'category' => $category
+        ]));
+    });
+
+    $router->post('/edit/{id}', function($id) {
+        $composed = Product::getById($id);
+        if (!$composed || $composed->type !== EPRODUCT_TYPE::COMPOSED) {
+            $jsonResponse = [
+                'status' => 'error',
+                'message' => 'Producto compuesto no encontrado.'
+            ];
+            header('Content-Type: application/json');
+            http_response_code(404);
+            echo json_encode($jsonResponse);
+            exit;
+        }
+        // Decodificar componentes si vienen como string JSON (AJAX)
+        $components = $_POST['components'];
+        if (is_string($components)) {
+            $components = json_decode($components, true);
+        }
+        // Validación de campos obligatorios
+        if (!isset($_POST['name']) || trim($_POST['name']) === '' ||
+            !isset($_POST['description']) || trim($_POST['description']) === '' ||
+            !isset($_POST['price']) || $_POST['price'] === '' ||
+            !is_array($components) || count($components) < 1
+        ) {
+            $jsonResponse = [
+                'status' => 'error',
+                'message' => 'Faltan datos obligatorios.'
+            ];
+            header('Content-Type: application/json');
+            http_response_code(400);
+            echo json_encode($jsonResponse);
+            exit;
+        }
+        // Validar que el total de productos/categorías seleccionados sea al menos dos
+        $totalComponents = 0;
+        foreach ($components as $component) {
+            $data = is_array($component) ? $component : json_decode($component, true);
+            if ($data && isset($data['type'], $data['ids']) && is_array($data['ids'])) {
+                $totalComponents += count($data['ids']);
+            }
+        }
+        if ($totalComponents < 2) {
+            $jsonResponse = [
+                'status' => 'error',
+                'message' => 'Debes seleccionar al menos dos productos o categorías en total para los componentes.'
+            ];
+            header('Content-Type: application/json');
+            http_response_code(400);
+            echo json_encode($jsonResponse);
+            exit;
+        }
+        // Actualizar datos básicos
+        $composed->name = $_POST['name'];
+        $composed->description = $_POST['description'];
+        $composed->price = $_POST['price'];
+        $composed->category = (isset($_POST['category']) && $_POST['category'] !== 'none') ? $_POST['category'] : null;
+        $composed->save();
+        // Eliminar componentes anteriores
+        $composed->removeAllChildren();
+        // Guardar nuevos componentes
+        $position = 0;
+        foreach ($components as $component) {
+            $data = is_array($component) ? $component : json_decode($component, true);
+            if ($data['type'] === 'product') {
+                foreach ($data['ids'] as $prodId) {
+                    $composed->addChild($prodId, $position);
+                }
+            } elseif ($data['type'] === 'category') {
+                foreach ($data['ids'] as $catId) {
+                    $composed->addChildCategory($catId, $position);
+                }
+            }
+            $position++;
+        }
+        // Manejo de imagen (opcional, solo si se sube una nueva)
+        if (isset($_FILES['image']) && $_FILES['image']['error'] == UPLOAD_ERR_OK) {
+            $uploadDir = 'assets/uploads/products/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+            $extension = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+            $uploadFile = $uploadDir . "product_" . $composed->id . '.' . $extension;
+            move_uploaded_file($_FILES['image']['tmp_name'], $uploadFile);
+        }
+        $jsonResponse = [
+            'status' => 'success',
+            'message' => 'Producto compuesto actualizado correctamente.'
+        ];
+        header('Content-Type: application/json');
+        echo json_encode($jsonResponse);
+        exit;
     });
 
 });
