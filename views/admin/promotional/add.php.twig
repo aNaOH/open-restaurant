@@ -31,6 +31,44 @@
                 <label for="price" class="block text-gray-700 text-sm font-bold mb-2">Precio</label>
                 <input type="number" id="price" name="price" required step="0.01" min="0" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             </div>
+            <div>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Componentes</label>
+                <div id="componentsContainer" class="flex flex-col gap-2">
+                    <div class="component-row flex gap-2 items-center">
+                        <select class="component-type-select border rounded px-2 py-1" style="min-width:110px">
+                            <option value="product">Producto</option>
+                            <option value="category">Categoría</option>
+                        </select>
+                        <select class="component-category-filter border rounded px-2 py-1" style="min-width:110px">
+                            <option value="">Todas</option>
+                            {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <select class="component-product-select border rounded px-2 py-1" multiple style="min-width:160px">
+                            {% if composed is defined and composed.id is defined %}
+                                {% for product in products %}
+                                    {% if product.id != composed.id %}
+                                        <option value="{{ product.id }}" data-category="{{ product.category.id }}">{{ product.name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                {% for product in products %}
+                                    <option value="{{ product.id }}" data-category="{{ product.category.id }}">{{ product.name }}</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                        <select class="component-category-select border rounded px-2 py-1" style="min-width:160px; display:none">
+                            <option value="">Selecciona categoría</option>
+                            {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" class="remove-component-btn text-red-600 hover:text-red-800 text-xl font-bold px-2" title="Quitar componente" style="display:none">&times;</button>
+                    </div>
+                </div>
+                <button type="button" id="addComponentBtn" class="mt-2 btn secondary flex items-center gap-1"><i data-feather="plus"></i> Añadir componente</button>
+            </div>
             
             <button type="submit" class="btn primary flex items-center gap-2"><i data-feather="plus-square"></i> Crear producto promocional</button>
         </form>
@@ -86,11 +124,6 @@
                     row.querySelector('.component-category-select').style.display = '';
                     row.querySelector('.component-category-filter').style.display = 'none';
                 }
-            }
-            if (e.target.classList.contains('component-product-select')) {
-                // Permitir selección múltiple con Ctrl/Cmd/Shift
-                // No es necesario código extra, pero forzamos el focus
-                e.target.focus();
             }
             if (e.target.classList.contains('component-category-filter')) {
                 const row = e.target.closest('.component-row');

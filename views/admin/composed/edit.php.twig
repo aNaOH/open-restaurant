@@ -11,8 +11,107 @@
                 <input type="text" id="name" name="name" required value="{{ composed.name }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             </div>
             <div>
-                <label for="components" class="block text-gray-700 text-sm font-bold mb-2">Componentes</label>
-                <textarea id="components" name="components" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">{{ composed.components }}</textarea>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Componentes</label>
+                <div id="componentsContainer" class="flex flex-col gap-2">
+                    {% set compList = composed.getChildren() %}
+                    {% if compList|length > 0 %}
+                        {% for comp in compList %}
+                            {% if comp.type == 'group' %}
+                                <div class="component-row flex gap-2 items-center">
+                                    <select class="component-type-select border rounded px-2 py-1" style="min-width:110px">
+                                        <option value="product"{% if comp.items[0].type == 'product' %} selected{% endif %}>Producto</option>
+                                        <option value="category"{% if comp.items[0].type == 'category' %} selected{% endif %}>Categoría</option>
+                                    </select>
+                                    <select class="component-category-filter border rounded px-2 py-1" style="min-width:110px;{% if comp.items[0].type != 'product' %}display:none{% endif %}">
+                                        <option value="">Todas</option>
+                                        {% for category in categories %}
+                                            <option value="{{ category.id }}">{{ category.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <select class="component-product-select border rounded px-2 py-1" multiple style="min-width:160px;{% if comp.items[0].type != 'product' %}display:none{% endif %}">
+                                        {% set selected_products = [] %}
+                                        {% for item in comp.items %}
+                                            {% if item.type == 'product' %}
+                                                {% set selected_products = selected_products|merge([item.object.id]) %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% for product in products %}
+                                            {% if product.id != composed.id %}
+                                                <option value="{{ product.id }}" data-category="{{ product.category.id }}"{% if product.id in selected_products %} selected{% endif %}>{{ product.name }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                    <select class="component-category-select border rounded px-2 py-1" style="min-width:160px;{% if comp.items[0].type != 'category' %}display:none{% endif %}">
+                                        <option value="">Selecciona categoría</option>
+                                        {% set selected_categories = [] %}
+                                        {% for item in comp.items %}
+                                            {% if item.type == 'category' %}
+                                                {% set selected_categories = selected_categories|merge([item.object.id]) %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% for category in categories %}
+                                            <option value="{{ category.id }}"{% if category.id in selected_categories %} selected{% endif %}>{{ category.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="button" class="remove-component-btn text-red-600 hover:text-red-800 text-xl font-bold px-2" title="Quitar componente">&times;</button>
+                                </div>
+                            {% else %}
+                                <div class="component-row flex gap-2 items-center">
+                                    <select class="component-type-select border rounded px-2 py-1" style="min-width:110px">
+                                        <option value="product"{% if comp.type == 'product' %} selected{% endif %}>Producto</option>
+                                        <option value="category"{% if comp.type == 'category' %} selected{% endif %}>Categoría</option>
+                                    </select>
+                                    <select class="component-category-filter border rounded px-2 py-1" style="min-width:110px;{% if comp.type != 'product' %}display:none{% endif %}">
+                                        <option value="">Todas</option>
+                                        {% for category in categories %}
+                                            <option value="{{ category.id }}">{{ category.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <select class="component-product-select border rounded px-2 py-1" multiple style="min-width:160px;{% if comp.type != 'product' %}display:none{% endif %}">
+                                        {% for product in products %}
+                                            {% if product.id != composed.id %}
+                                                <option value="{{ product.id }}" data-category="{{ product.category.id }}"{% if comp.type == 'product' and product.id == comp.object.id %} selected{% endif %}>{{ product.name }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                    <select class="component-category-select border rounded px-2 py-1" style="min-width:160px;{% if comp.type != 'category' %}display:none{% endif %}">
+                                        <option value="">Selecciona categoría</option>
+                                        {% for category in categories %}
+                                            <option value="{{ category.id }}"{% if comp.type == 'category' and category.id == comp.object.id %} selected{% endif %}>{{ category.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="button" class="remove-component-btn text-red-600 hover:text-red-800 text-xl font-bold px-2" title="Quitar componente">&times;</button>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="component-row flex gap-2 items-center">
+                            <select class="component-type-select border rounded px-2 py-1" style="min-width:110px">
+                                <option value="product">Producto</option>
+                                <option value="category">Categoría</option>
+                            </select>
+                            <select class="component-category-filter border rounded px-2 py-1" style="min-width:110px">
+                                <option value="">Todas</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <select class="component-product-select border rounded px-2 py-1" multiple style="min-width:160px">
+                                {% for product in products %}
+                                    <option value="{{ product.id }}" data-category="{{ product.category.id }}">{{ product.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <select class="component-category-select border rounded px-2 py-1" style="min-width:160px; display:none">
+                                <option value="">Selecciona categoría</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="button" class="remove-component-btn text-red-600 hover:text-red-800 text-xl font-bold px-2" title="Quitar componente">&times;</button>
+                        </div>
+                    {% endif %}
+                </div>
+                <button type="button" id="addComponentBtn" class="mt-2 btn secondary flex items-center gap-1"><i data-feather="plus"></i> Añadir componente</button>
             </div>
             <button type="submit" class="btn primary flex items-center gap-2"><i data-feather="save"></i> Guardar cambios</button>
         </form>
@@ -124,72 +223,62 @@
     // AJAX para el submit del formulario
     form.addEventListener('submit', function(e) {
         e.preventDefault();
-        // Contar componentes seleccionados
-        let total = 0;
+        // Contar productos seleccionados (no categorías)
+        let totalProducts = 0;
         let components = [];
         let position = 0;
         componentsContainer.querySelectorAll('.component-row').forEach(row => {
             const type = row.querySelector('.component-type-select').value;
             if (type === 'product') {
                 const selected = Array.from(row.querySelector('.component-product-select').selectedOptions).map(opt => opt.value);
-                total += selected.length;
+                totalProducts += selected.length;
                 if (selected.length > 0) {
-                    components.push({type: 'product', ids: selected, position: position});
+                    components.push({
+                        type: 'product',
+                        ids: selected,
+                        position: position++
+                    });
                 }
-            } else {
-                const catId = row.querySelector('.component-category-select').value;
-                if (catId) {
-                    total += 1;
-                    components.push({type: 'category', ids: [catId], position: position});
+            } else if (type === 'category') {
+                const selectedCategory = row.querySelector('.component-category-select').value;
+                if (selectedCategory) {
+                    components.push({
+                        type: 'category',
+                        ids: [selectedCategory],
+                        position: position++
+                    });
                 }
             }
-            position++;
         });
-        if (total < 2) {
-            alert('Debes seleccionar al menos dos componentes en total.');
-            return;
+
+        // Validar que haya al menos un producto seleccionado
+        if (totalProducts === 0) {
+            return alert('Debe seleccionar al menos un producto.');
         }
-        // Validación básica de campos
-        if (!document.getElementById('name').value) {
-            alert('Por favor ingresa el nombre del producto compuesto.');
-            return;
-        }
-        if (!document.getElementById('description').value) {
-            alert('Por favor ingresa la descripción.');
-            return;
-        }
-        if (!document.getElementById('price').value) {
-            alert('Por favor ingresa el precio.');
-            return;
-        }
-        // Construir FormData
-        const formData = new FormData();
-        formData.append('name', document.getElementById('name').value);
-        formData.append('category', document.getElementById('category').value);
-        formData.append('description', document.getElementById('description').value);
-        formData.append('price', document.getElementById('price').value);
-        // Componentes serializados
-        formData.append('components', JSON.stringify(components));
-        // Imagen (si hay nueva)
-        const fileInput = document.getElementById('imgUpload').getFileInput && document.getElementById('imgUpload').getFileInput();
-        if (fileInput && fileInput[0]) {
-            formData.append('image', fileInput[0]);
-        }
-        // AJAX
+
+        // Enviar formulario via AJAX
         fetch(form.action, {
             method: 'POST',
-            body: formData
+            body: JSON.stringify({
+                name: form.name.value,
+                components: components
+            }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
         })
         .then(response => response.json())
         .then(data => {
-            if (data.status === 'success') {
-                window.location.href = '/admin/composed'; // Descomenta si quieres redirigir
+            if (data.success) {
+                // Redirigir o mostrar mensaje de éxito
+                window.location.href = '/admin/composed';
             } else {
-                alert('Error: ' + (data.message || 'Error desconocido.'));
+                alert('Error al guardar los cambios. Intente nuevamente.');
             }
         })
-        .catch(err => {
-            alert('Error al guardar los cambios: ' + (err.message || ''));
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ocurrió un error inesperado. Intente nuevamente.');
         });
     });
 })();

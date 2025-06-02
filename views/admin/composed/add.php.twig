@@ -11,8 +11,34 @@
                 <input type="text" id="name" name="name" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             </div>
             <div>
-                <label for="components" class="block text-gray-700 text-sm font-bold mb-2">Componentes</label>
-                <textarea id="components" name="components" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Componentes</label>
+                <div id="componentsContainer" class="flex flex-col gap-2">
+                    <div class="component-row flex gap-2 items-center">
+                        <select class="component-type-select border rounded px-2 py-1" style="min-width:110px">
+                            <option value="product">Producto</option>
+                            <option value="category">Categoría</option>
+                        </select>
+                        <select class="component-category-filter border rounded px-2 py-1" style="min-width:110px">
+                            <option value="">Todas</option>
+                            {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <select class="component-product-select border rounded px-2 py-1" multiple style="min-width:160px">
+                            {% for product in products %}
+                                <option value="{{ product.id }}" data-category="{{ product.category.id }}">{{ product.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <select class="component-category-select border rounded px-2 py-1" style="min-width:160px; display:none">
+                            <option value="">Selecciona categoría</option>
+                            {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" class="remove-component-btn text-red-600 hover:text-red-800 text-xl font-bold px-2" title="Quitar componente" style="display:none">&times;</button>
+                    </div>
+                </div>
+                <button type="button" id="addComponentBtn" class="mt-2 btn secondary flex items-center gap-1"><i data-feather="plus"></i> Añadir componente</button>
             </div>
             <button type="submit" class="btn primary flex items-center gap-2"><i data-feather="plus-square"></i> Crear compuesto</button>
         </form>
@@ -21,141 +47,133 @@
 {% block scripts %}
 <script src="/assets/js/components/fileUpload.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // --- COMPONENTES DINÁMICOS ---
-        const componentsContainer = document.getElementById('componentsContainer');
-        const addComponentBtn = document.getElementById('addComponentBtn');
-        function updateRemoveComponentButtons() {
+document.addEventListener('DOMContentLoaded', function() {
+    const componentsContainer = document.getElementById('componentsContainer');
+    const addComponentBtn = document.getElementById('addComponentBtn');
+    function updateRemoveComponentButtons() {
+        const rows = componentsContainer.querySelectorAll('.component-row');
+        rows.forEach((row, idx) => {
+            const btn = row.querySelector('.remove-component-btn');
+            btn.style.display = (rows.length > 2) ? '' : 'none';
+        });
+    }
+    addComponentBtn.addEventListener('click', function() {
+        const firstRow = componentsContainer.querySelector('.component-row');
+        const newRow = firstRow.cloneNode(true);
+        newRow.querySelector('.component-type-select').value = 'product';
+        newRow.querySelector('.component-product-select').style.display = '';
+        Array.from(newRow.querySelector('.component-product-select').options).forEach(opt => opt.selected = false);
+        newRow.querySelector('.component-category-select').style.display = 'none';
+        newRow.querySelector('.component-category-select').selectedIndex = 0;
+        newRow.querySelector('.component-category-filter').style.display = '';
+        newRow.querySelector('.component-category-filter').selectedIndex = 0;
+        newRow.querySelector('.remove-component-btn').style.display = '';
+        componentsContainer.appendChild(newRow);
+        updateRemoveComponentButtons();
+    });
+    componentsContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-component-btn')) {
             const rows = componentsContainer.querySelectorAll('.component-row');
-            // Solo mostrar el botón de eliminar si hay más de dos componentes
-            rows.forEach((row, idx) => {
-                const btn = row.querySelector('.remove-component-btn');
-                btn.style.display = (rows.length > 2) ? '' : 'none';
+            if (rows.length > 2) {
+                e.target.closest('.component-row').remove();
+                updateRemoveComponentButtons();
+            }
+        }
+    });
+    componentsContainer.addEventListener('change', function(e) {
+        if (e.target.classList.contains('component-type-select')) {
+            const row = e.target.closest('.component-row');
+            if (e.target.value === 'product') {
+                row.querySelector('.component-product-select').style.display = '';
+                row.querySelector('.component-category-select').style.display = 'none';
+                row.querySelector('.component-category-filter').style.display = '';
+            } else {
+                row.querySelector('.component-product-select').style.display = 'none';
+                row.querySelector('.component-category-select').style.display = '';
+                row.querySelector('.component-category-filter').style.display = 'none';
+            }
+        }
+        if (e.target.classList.contains('component-category-filter')) {
+            const row = e.target.closest('.component-row');
+            const filterValue = e.target.value;
+            const productSelect = row.querySelector('.component-product-select');
+            Array.from(productSelect.options).forEach(opt => {
+                if (!filterValue || opt.dataset.category === filterValue) {
+                    opt.style.display = '';
+                } else {
+                    opt.style.display = 'none';
+                    opt.selected = false;
+                }
             });
         }
-        addComponentBtn.addEventListener('click', function() {
-            const firstRow = componentsContainer.querySelector('.component-row');
-            const newRow = firstRow.cloneNode(true);
-            newRow.querySelector('.component-type-select').value = 'product';
-            newRow.querySelector('.component-product-select').style.display = '';
-            // Limpiar selección múltiple correctamente
-            Array.from(newRow.querySelector('.component-product-select').options).forEach(opt => opt.selected = false);
-            newRow.querySelector('.component-category-select').style.display = 'none';
-            newRow.querySelector('.component-category-select').selectedIndex = 0;
-            newRow.querySelector('.component-category-filter').style.display = '';
-            newRow.querySelector('.component-category-filter').selectedIndex = 0;
-            newRow.querySelector('.remove-component-btn').style.display = '';
-            componentsContainer.appendChild(newRow);
-            updateRemoveComponentButtons();
-        });
-        componentsContainer.addEventListener('click', function(e) {
-            if (e.target.classList.contains('remove-component-btn')) {
-                const rows = componentsContainer.querySelectorAll('.component-row');
-                if (rows.length > 1) {
-                    e.target.closest('.component-row').remove();
-                    updateRemoveComponentButtons();
-                }
-            }
-        });
-        componentsContainer.addEventListener('change', function(e) {
-            if (e.target.classList.contains('component-type-select')) {
-                const row = e.target.closest('.component-row');
-                if (e.target.value === 'product') {
-                    row.querySelector('.component-product-select').style.display = '';
-                    row.querySelector('.component-category-select').style.display = 'none';
-                    row.querySelector('.component-category-filter').style.display = '';
-                } else {
-                    row.querySelector('.component-product-select').style.display = 'none';
-                    row.querySelector('.component-category-select').style.display = '';
-                    row.querySelector('.component-category-filter').style.display = 'none';
-                }
-            }
-            if (e.target.classList.contains('component-product-select')) {
-                // Permitir selección múltiple con Ctrl/Cmd/Shift
-                // No es necesario código extra, pero forzamos el focus
-                e.target.focus();
-            }
-            if (e.target.classList.contains('component-category-filter')) {
-                const row = e.target.closest('.component-row');
-                const filterValue = e.target.value;
+    });
+    updateRemoveComponentButtons();
+    // --- FILE UPLOAD LOGIC & SUBMIT ---
+    const form = document.querySelector('form[action="/admin/composed/add"]');
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(form);
+        // Imagen desde file-upload
+        const imgUpload = document.getElementById('imgUpload');
+        if (imgUpload && imgUpload.getFileInput && imgUpload.getFileInput()[0]) {
+            formData.append('image', imgUpload.getFileInput()[0]);
+        }
+        // Componentes: productos o categorías
+        formData.delete('components[]');
+        const rows = componentsContainer.querySelectorAll('.component-row');
+        let valid = true;
+        let totalComponents = 0;
+        rows.forEach(row => {
+            const type = row.querySelector('.component-type-select').value;
+            let ids = [];
+            if (type === 'product') {
                 const productSelect = row.querySelector('.component-product-select');
-                Array.from(productSelect.options).forEach(opt => {
-                    if (!filterValue || opt.dataset.category === filterValue) {
-                        opt.style.display = '';
-                    } else {
-                        opt.style.display = 'none';
-                        opt.selected = false;
-                    }
-                });
+                const selectedOptions = Array.from(productSelect.options).filter(opt => opt.selected && opt.style.display !== 'none');
+                if (selectedOptions.length) {
+                    ids = selectedOptions.map(opt => opt.value);
+                    totalComponents += ids.length;
+                } else {
+                    valid = false;
+                }
+            } else {
+                const categorySelect = row.querySelector('.component-category-select');
+                const selectedCategory = categorySelect.value;
+                if (selectedCategory) {
+                    ids.push(selectedCategory);
+                    totalComponents++;
+                } else {
+                    valid = false;
+                }
+            }
+            if (ids.length) {
+                formData.append('components[]', JSON.stringify({ type, ids }));
             }
         });
-        updateRemoveComponentButtons();
-        // --- FILE UPLOAD LOGIC & SUBMIT ---
-        const form = document.querySelector('form[action="/admin/composed/add"]');
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
-            const formData = new FormData(form);
-            // Imagen desde file-upload
-            const imgUpload = document.getElementById('imgUpload');
-            if (imgUpload && imgUpload.getFileInput && imgUpload.getFileInput()[0]) {
-                formData.append('image', imgUpload.getFileInput()[0]);
+        if (!valid || totalComponents < 2) {
+            alert('Debes seleccionar al menos dos productos o categorías en total para los componentes.');
+            return;
+        }
+        // Envío del formulario
+        fetch(form.action, {
+            method: form.method,
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
             }
-            // Componentes: productos o categorías
-            formData.delete('components[]');
-            const rows = componentsContainer.querySelectorAll('.component-row');
-            let valid = true;
-            let totalComponents = 0;
-            rows.forEach(row => {
-                const type = row.querySelector('.component-type-select').value;
-                let ids = [];
-                if (type === 'product') {
-                    const productSelect = row.querySelector('.component-product-select');
-                    const selectedOptions = Array.from(productSelect.options).filter(opt => opt.selected && opt.style.display !== 'none');
-                    if (selectedOptions.length) {
-                        ids = selectedOptions.map(opt => opt.value);
-                        totalComponents += ids.length;
-                    } else {
-                        valid = false;
-                    }
-                } else {
-                    const categorySelect = row.querySelector('.component-category-select');
-                    const selectedCategory = categorySelect.value;
-                    if (selectedCategory) {
-                        ids.push(selectedCategory);
-                        totalComponents++;
-                    } else {
-                        valid = false;
-                    }
-                }
-                if (ids.length) {
-                    formData.append('components[]', JSON.stringify({ type, ids }));
-                }
-            });
-            if (!valid || totalComponents < 2) {
-                alert('Debes seleccionar al menos dos productos o categorías en total para los componentes.');
-                return;
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                window.location.href = '/admin/composed';
+            } else {
+                alert('Error al crear el producto compuesto: ' + (data.message || 'Error desconocido'));
             }
-            // Envío del formulario
-            fetch(form.action, {
-                method: form.method,
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    window.location.href = '/admin/composed';
-                } else {
-                    alert('Error al crear el producto compuesto: ' + (data.message || 'Error desconocido'));
-                }
-            })
-            .catch(error => {
-                console.error('Error en la solicitud:', error);
-                alert('Error en la solicitud. Por favor, inténtalo de nuevo más tarde.');
-            });
+        })
+        .catch(error => {
+            console.error('Error en la solicitud:', error);
+            alert('Error en la solicitud. Por favor, inténtalo de nuevo más tarde.');
         });
     });
+});
 </script>
 {% endblock %}
