@@ -1,23 +1,40 @@
 {% if fidelityEnabled or user %}
-    <div class="w-full m-4 bg-white shadow-md rounded-lg p-4 flex items-center justify-between">
+    <div class="w-full mt-4 mb-6 bg-white shadow-lg rounded-xl px-6 py-4 flex items-center justify-between border border-blue-100">
         {% if user %}
-            <div class="flex items-center">
-                <span class="text-gray-800 font-semibold">{{ user.name }}</span>
-                <span class="text-gray-800 font-semibold ml-2">{{ user.points }} puntos</span>
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <i data-feather="user" class="text-blue-500"></i>
+                    <span class="text-gray-800 font-semibold">{{ user.name }}</span>
+                </div>
+                <div class="flex items-center gap-2 bg-blue-50 rounded px-2 py-1 ml-2">
+                    <i data-feather="star" class="text-yellow-400"></i>
+                    <span class="text-blue-700 font-semibold">{{ user.points }} puntos</span>
+                </div>
             </div>
-
-            {% if user.role and user.role.value == 2 %}
-                <a href="/admin" class="btn secondary">Panel de administración</a>
-                    
-            {% endif %}
-
-            {% if user.role and user.role.value == 1 or user.role.value == 2 %}
-                <a href="/employee" class="btn secondary">Pedidos</a>
-            {% endif %}
-
-            <a href="/logout" class="btn danger">Cerrar sesión</a>
+            <div class="flex items-center gap-2">
+                {% if user.role and user.role.value == 2 %}
+                    <a href="/admin" class="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-blue-100 text-blue-700 font-semibold hover:bg-blue-200 transition">
+                        <i data-feather="settings"></i>
+                        Panel de administración
+                    </a>
+                {% endif %}
+                {% if user.role and (user.role.value == 1 or user.role.value == 2) %}
+                    <a href="/employee" class="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-green-100 text-green-700 font-semibold hover:bg-green-200 transition">
+                        <i data-feather="clipboard"></i>
+                        Pedidos
+                    </a>
+                {% endif %}
+                <a href="/logout" class="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-red-100 text-red-700 font-semibold hover:bg-red-200 transition">
+                    <i data-feather="log-out"></i>
+                    Cerrar sesión
+                </a>
+            </div>
         {% else %}
-            <a href="/login" class="btn primary">Iniciar sesión</a>
+            <a href="/login" class="inline-flex items-center gap-1 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition shadow">
+                <i data-feather="log-in"></i>
+                Iniciar sesión
+            </a>
         {% endif %}
     </div>
 {% endif %}
+<script>if(window.feather){window.feather.replace();}</script>

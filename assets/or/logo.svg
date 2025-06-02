@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="162.91635mm"
+   height="68.508659mm"
+   viewBox="0 0 162.91635 68.508659"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   sodipodi:docname="logo.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="mm"
+     inkscape:zoom="0.98528339"
+     inkscape:cx="274.03283"
+     inkscape:cy="158.83755"
+     inkscape:window-width="1920"
+     inkscape:window-height="1009"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Capa 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-25.484229,-14.87223)">
+    <g
+       id="g3"
+       transform="translate(-6.2605516,-20.955578)"
+       style="fill:#ffffff;fill-opacity:1">
+      <path
+         id="rect2"
+         style="fill:#ffffff;stroke-width:0.264583;fill-opacity:1"
+         d="m 71.804611,81.089321 c -2.9557,1.22449 -6.25451,2.03075 -9.77357,2.43964 l 7.43985,20.634169 c 0,0 9.35884,0.1502 9.57982,0 0.22098,-0.1502 0.47395,-0.49579 0.48741,-1.23145 0.0135,-0.73567 -7.73351,-21.842359 -7.73351,-21.842359 z"
+         sodipodi:nodetypes="ccczzc" />
+      <path
+         id="path1"
+         style="fill:#ffffff;stroke-width:0.264583;fill-opacity:1"
+         d="m 56.449733,35.827808 c -13.644303,1.61e-4 -24.705076,11.061166 -24.704952,24.705469 1.6e-4,13.644104 11.06085,20.005424 24.704952,20.005584 13.644298,1.3e-4 24.705308,-6.36128 24.705468,-20.005584 1.2e-4,-13.644506 -11.06096,-24.705594 -24.705468,-24.705469 z m 0,6.982003 c 9.788428,-7.8e-5 17.723548,7.935033 17.723468,17.723466 -2.1e-4,9.788233 -7.93524,14.500614 -17.723468,14.500534 -9.78803,-2.1e-4 -17.722742,-4.712504 -17.722949,-14.500534 -7.6e-5,-9.78823 7.934719,-17.723257 17.722949,-17.723466 z"
+         sodipodi:nodetypes="cccccccccc" />
+      <path
+         id="rect1"
+         style="fill:#ffffff;stroke-width:0.264583;fill-opacity:1"
+         d="m 32.803371,76.183671 c 0,0 0,26.352149 0,26.590559 0,0.23841 0.0429,1.56224 1.280646,1.56224 1.237751,0 8.403001,0 8.403001,0 V 81.220571 c -3.078083,-1.23265 -5.79448,-2.90742 -8.021733,-5.0369 z"
+         sodipodi:nodetypes="czzcccc" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25.4px;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke-width:0.264583"
+       x="76.333"
+       y="52.787498"
+       id="text3"><tspan
+         sodipodi:role="line"
+         id="tspan3"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:25.4px;font-family:'Trebuchet MS';-inkscape-font-specification:'Trebuchet MS Bold';fill:#ffffff;stroke-width:0.264583;fill-opacity:1"
+         x="76.333"
+         y="52.787498">pen</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25.4px;font-family:Arial;-inkscape-font-specification:Arial;text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke-width:0.264583"
+       x="76.333"
+       y="82.949997"
+       id="text4"><tspan
+         sodipodi:role="line"
+         id="tspan4"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:25.4px;font-family:'Trebuchet MS';-inkscape-font-specification:'Trebuchet MS Bold';fill:#ffffff;stroke-width:0.264583;fill-opacity:1"
+         x="76.333"
+         y="82.949997">estaurant</tspan></text>
+  </g>
+</svg>

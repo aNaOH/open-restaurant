@@ -10,16 +10,16 @@ class User {
 
     public function __construct(
         ?int $id = null,
-        string $email = null,
-        string $name = null,
-        string $password = null,
+        ?string $email = null,
+        ?string $name = null,
+        ?string $password = null,
         EUSER_ROLE|int|null $role = null,
         int $points = 0
     ) {
         $this->id = $id;
-        $this->email = $email;
-        $this->name = $name;
-        $this->password = $password;
+        $this->email = $email ?? '';
+        $this->name = $name ?? '';
+        $this->password = $password ?? '';
         $this->role = $role instanceof EUSER_ROLE ? $role : ($role !== null ? EUSER_ROLE::from($role) : null);
         $this->points = $points;
     }

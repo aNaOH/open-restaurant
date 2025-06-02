@@ -25,7 +25,8 @@
 {% endblock %}
 
 {% block content %}
-    <form action="/features" method="post" class="space-y-5">
+    <form id="featuresForm" action="/features" method="post" class="space-y-5">
+        <div id="formError" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"></div>
         <div class="flex flex-col items-center mb-6">
             <span class="bg-blue-100 rounded-full p-3 mb-2">
                 <i data-feather="gift" class="w-8 h-8 text-blue-600"></i>
@@ -54,4 +55,46 @@
             </button>
         </div>
     </form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function showFormError(message) {
+        const errorDiv = document.getElementById('formError');
+        errorDiv.textContent = message;
+        errorDiv.classList.remove('hidden');
+    }
+    function clearFormError() {
+        const errorDiv = document.getElementById('formError');
+        errorDiv.textContent = '';
+        errorDiv.classList.add('hidden');
+    }
+    document.getElementById('featuresForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        clearFormError();
+        const formData = new FormData(event.target);
+        $.ajax({
+            url: '/features',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    window.location.href = response.redirect || '/';
+                } else {
+                    showFormError(response.error || 'Error desconocido.');
+                }
+            },
+            error: function(xhr) {
+                let msg = 'Error al guardar los datos.';
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    msg = xhr.responseJSON.error;
+                }
+                showFormError(msg);
+            }
+        });
+    });
+</script>
 {% endblock %}
