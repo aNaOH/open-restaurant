@@ -1,10 +1,10 @@
 <?php
 
 class Table {
-    public $id;
-    public $notes;
+    public int $id;
+    public ?string $notes;
 
-    public function __construct($id, $notes = null) {
+    public function __construct(int $id, ?string $notes = null) {
         $this->id = $id;
         $this->notes = $notes;
     }

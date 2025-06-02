@@ -12,3 +12,9 @@ enum EPRODUCT_TYPE : int {
     case COMPOSED = 1;
     case PROMOTION = 2;
 }
+
+enum EUSER_ROLE : int {
+    case ADMIN = 0;
+    case USER = 1;
+    case EMPLOYEE = 2;
+}

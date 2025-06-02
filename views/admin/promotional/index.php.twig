@@ -15,8 +15,12 @@
                         <th class="py-3 px-6 text-left">ID</th>
                         <th class="py-3 px-6 text-left">Nombre</th>
                         <th class="py-3 px-6 text-left">Incluye</th>
+                        {% if discountEnabled %}
                         <th class="py-3 px-6 text-left">Código promocional</th>
+                        {% endif %}
+                        {% if fidelityEnabled %}
                         <th class="py-3 px-6 text-left">Puntos</th>
+                        {% endif %}
                         <th class="py-3 px-6 text-left">Precio</th>
                         <th class="py-3 px-6 text-left">Acciones</th>
                     </tr>
@@ -48,8 +52,12 @@
                                     <span class="text-gray-400">Sin componente</span>
                                 {% endif %}
                             </td>
+                            {% if discountEnabled %}
                             <td class="py-3 px-6 text-left">{{ product.code ?: '-' }}</td>
+                            {% endif %}
+                            {% if fidelityEnabled %}
                             <td class="py-3 px-6 text-left">{{ product.points ?: '-' }}</td>
+                            {% endif %}
                             <td class="py-3 px-6 text-left">{{ product.price|number_format(2, '.', ',') }} €</td>
                             <td class="py-3 px-6 text-left">
                                 <a href="/admin/promotional/edit/{{ product.id }}" class="btn secondary">Editar</a>
@@ -57,7 +65,7 @@
                         </tr>
                     {% else %}
                         <tr>
-                            <td colspan="7" class="text-center text-gray-500 py-4">No hay productos promocionales registrados.</td>
+                            <td colspan="{{ 5 + (discountEnabled ? 1 : 0) + (fidelityEnabled ? 1 : 0) }}" class="text-center text-gray-500 py-4">No hay productos promocionales registrados.</td>
                         </tr>
                     {% endfor %}
                 </tbody>

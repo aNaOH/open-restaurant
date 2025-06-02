@@ -1,16 +1,25 @@
 <?php
 
 class Product {
-    public $id;
-    public $name;
-    public $description;
-    public $price;
+    public ?int $id;
+    public string $name;
+    public string $description;
+    public float $price;
     public EPRODUCT_TYPE $type;
-    public $category;
-    public $code;
-    public $points;
+    public Category|int|null $category;
+    public ?string $code;
+    public ?int $points;
 
-    public function __construct($id = null, $name = null, $description = null, $price = null, $type = null, $category = null, $code = null, $points = null) {
+    public function __construct(
+        ?int $id = null,
+        string $name = null,
+        string $description = null,
+        float $price = null,
+        EPRODUCT_TYPE|int|null $type = null,
+        Category|int|null $category = null,
+        ?string $code = null,
+        ?int $points = null
+    ) {
         $this->id = $id;
         $this->name = $name;
         $this->description = $description;

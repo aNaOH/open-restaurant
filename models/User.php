@@ -1,17 +1,26 @@
 <?php
 
 class User {
-    public $id;
-    public $email;
-    public $name;
-    public $password;
-    public $points;
+    public ?int $id;
+    public string $email;
+    public string $name;
+    public string $password;
+    public EUSER_ROLE $role;
+    public int $points;
 
-    public function __construct($id = null, $email = null, $name = null, $password = null, $points = 0) {
+    public function __construct(
+        ?int $id = null,
+        string $email = null,
+        string $name = null,
+        string $password = null,
+        EUSER_ROLE|int|null $role = null,
+        int $points = 0
+    ) {
         $this->id = $id;
         $this->email = $email;
         $this->name = $name;
         $this->password = $password;
+        $this->role = $role instanceof EUSER_ROLE ? $role : ($role !== null ? EUSER_ROLE::from($role) : null);
         $this->points = $points;
     }
 
@@ -20,6 +29,7 @@ class User {
             'email' => $this->email,
             'name' => $this->name,
             'password' => $this->password,
+            'role' => $this->role instanceof EUSER_ROLE ? $this->role->value : $this->role,
             'points' => $this->points
         ];
         if ($this->id) {
@@ -30,7 +40,15 @@ class User {
     }
 
     public static function fromRow($row) {
-        return new self($row['id'], $row['email'], $row['name'], $row['password'], $row['points']);
+        $role = isset($row['role']) ? (is_int($row['role']) ? EUSER_ROLE::from($row['role']) : $row['role']) : null;
+        return new self(
+            $row['id'],
+            $row['email'],
+            $row['name'],
+            $row['password'],
+            $role,
+            isset($row['points']) ? $row['points'] : 0
+        );
     }
 
     public static function getById($id) {

@@ -5,7 +5,9 @@ $router->mount('/promotional', function() use ($router) {
         // Listar productos promocionales (compuestos con code o points)
         $promotionalProducts = Product::getAllByType(EPRODUCT_TYPE::PROMOTION); // true,true: solo con code o points
         ViewController::render('admin/promotional/index', array_merge(SidebarHelpers::getBaseData(), [
-            'promotionalProducts' => $promotionalProducts
+            'promotionalProducts' => $promotionalProducts,
+            'discountEnabled' => CONFIG->DISCOUNT_ENABLED,
+            'fidelityEnabled' => CONFIG->FIDELITY_ENABLED
         ]));
     });
 
