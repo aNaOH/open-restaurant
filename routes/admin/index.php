@@ -48,11 +48,6 @@ $router->mount('/admin', function() use ($router) {
         $config->DISCOUNT_ENABLED = $promoCodes;
         $config->FIDELITY_ENABLED = $loyaltyProgram;
         $config->POINTS_PER_UNIT = $pointsPerUnit;
-        // Guardar datos del restaurante
-        $config->RESTAURANT_NAME = isset($_POST['restaurant_name']) ? $_POST['restaurant_name'] : '';
-        $config->RESTAURANT_ADDRESS = isset($_POST['restaurant_address']) ? $_POST['restaurant_address'] : '';
-        $config->RESTAURANT_PHONE = isset($_POST['restaurant_phone']) ? $_POST['restaurant_phone'] : '';
-        $config->RESTAURANT_EMAIL = isset($_POST['restaurant_email']) ? $_POST['restaurant_email'] : '';
         $config->save();
         // Redirigir o mostrar mensaje
         header('Location: /admin/config');
