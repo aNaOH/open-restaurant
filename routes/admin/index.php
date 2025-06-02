@@ -33,4 +33,5 @@ $router->mount('/admin', function() use ($router) {
     include_once 'routes/admin/tables.php';
     include_once 'routes/admin/categories.php';
     include_once 'routes/admin/products.php';
+    include_once 'routes/admin/composed.php';
 });

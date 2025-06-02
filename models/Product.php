@@ -83,4 +83,114 @@ class Product {
         $rows = Connection::doSelect(DBCONN, 'Product');
         return array_map([self::class, 'fromRow'], $rows);
     }
+
+    /**
+     * Retrieves all Product instances of a given type from the database.
+     * @param EPRODUCT_TYPE $type
+     * @return array An array of Product objects.
+     */
+    public static function getAllByType(EPRODUCT_TYPE $type) {
+        $rows = Connection::doSelect(DBCONN, 'Product', ['type' => $type->value]);
+        return array_map([self::class, 'fromRow'], $rows);
+    }
+
+    /**
+     * Devuelve todos los componentes (productos y categorías) de un producto compuesto, ordenados por posición.
+     * Si hay varios productos/categorías en la misma posición (por selección múltiple), agrupa en arrays de opciones.
+     * Cada elemento es:
+     *   - ['type' => 'product'|'category', 'object' => Product|Category, 'position' => int] (si solo hay uno en esa posición)
+     *   - o un array de esos elementos (si hay varios en la misma posición)
+     * @return array Lista de componentes ordenados y agrupados por posición
+     */
+    public function getChildren() {
+        $productRows = Connection::doSelect(DBCONN, 'ComposedBy', ['product_id' => $this->id]);
+        $categoryRows = Connection::doSelect(DBCONN, 'ComposedCategory', ['product_id' => $this->id]);
+        $byPosition = [];
+        foreach ($productRows as $row) {
+            $prod = self::getById($row['child_id']);
+            if ($prod) {
+                $byPosition[$row['position']][] = [
+                    'type' => 'product',
+                    'object' => $prod,
+                    'position' => (int)$row['position']
+                ];
+            }
+        }
+        foreach ($categoryRows as $row) {
+            $cat = Category::getById($row['category_id']);
+            if ($cat) {
+                $byPosition[$row['position']][] = [
+                    'type' => 'category',
+                    'object' => $cat,
+                    'position' => (int)$row['position']
+                ];
+            }
+        }
+        ksort($byPosition, SORT_NUMERIC);
+        $result = [];
+        foreach ($byPosition as $group) {
+            if (count($group) === 1) {
+                $result[] = $group[0];
+            } else {
+                $result[] = $group;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Elimina todas las relaciones de hijos para este producto compuesto.
+     */
+    public function removeAllChildren() {
+        Connection::doDelete(DBCONN, 'ComposedBy', ['product_id' => $this->id]);
+        Connection::doDelete(DBCONN, 'ComposedCategory', ['product_id' => $this->id]);
+    }
+
+    /**
+     * Añade una relación de hijo producto a este producto compuesto, con posición.
+     * @param int $childId
+     * @param int $position
+     */
+    public function addChild($childId, $position = 0) {
+        Connection::doInsert(DBCONN, 'ComposedBy', [
+            'product_id' => $this->id,
+            'child_id' => $childId,
+            'position' => $position
+        ]);
+    }
+
+    /**
+     * Añade una relación de hijo categoría a este producto compuesto, con posición.
+     * @param int $categoryId
+     * @param int $position
+     */
+    public function addChildCategory($categoryId, $position = 0) {
+        Connection::doInsert(DBCONN, 'ComposedCategory', [
+            'product_id' => $this->id,
+            'category_id' => $categoryId,
+            'position' => $position
+        ]);
+    }
+
+    /**
+     * Elimina un componente hijo (producto o categoría) de este producto compuesto en una posición concreta.
+     * @param string $type 'product' o 'category'
+     * @param int $id ID del producto o categoría
+     * @param int $position Posición del componente
+     */
+    public function removeChild($type, $id, $position) {
+        if ($type === 'product') {
+            Connection::doDelete(DBCONN, 'ComposedBy', [
+                'product_id' => $this->id,
+                'child_id' => $id,
+                'position' => $position
+            ]);
+        } elseif ($type === 'category') {
+            Connection::doDelete(DBCONN, 'ComposedCategory', [
+                'product_id' => $this->id,
+                'category_id' => $id,
+                'position' => $position
+            ]);
+        }
+    }
 }

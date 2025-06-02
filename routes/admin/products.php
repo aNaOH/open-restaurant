@@ -118,7 +118,21 @@ $router->mount('/products', function() use ($router) {
         $product->name = $_POST['name'];
         $product->description = $_POST['description'];
         $product->price = $_POST['price'];
-        $product->category_id = $_POST['category'] !== 'none' ? $_POST['category'] : null;
+        if($_POST['category'] !== 'none') {
+            $product->category = Category::getById($_POST['category']);
+            if (!$product->category) {
+                $jsonResponse = [
+                    'status' => 'error',
+                    'message' => 'Categoría no válida.'
+                ];
+                header('Content-Type: application/json');
+                http_response_code(400);
+                echo json_encode($jsonResponse);
+                exit;
+            }
+        } else {
+            $product->category = null;
+        }
         $product->type = EPRODUCT_TYPE::STANDARD;
 
         // Manejo de imagen

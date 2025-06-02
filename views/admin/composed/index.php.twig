@@ -1,12 +1,12 @@
 {% extends "/templates/admin.php.twig" %}
 
-{% block title %}Categorías{% endblock %}
+{% block title %}Productos Compuestos{% endblock %}
 
-{% block name %}Categorías{% endblock %}
+{% block name %}Productos Compuestos{% endblock %}
 {% block content %}
     <div class="flex flex-col h-full">
         <div class="flex items-center justify-end mb-4">
-            <a href="/admin/categories/add" class="btn primary">Añadir categoría</a>
+            <a href="/admin/composed/add" class="btn primary">Añadir producto compuesto</a>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg">
@@ -14,17 +14,31 @@
                     <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
                         <th class="py-3 px-6 text-left">ID</th>
                         <th class="py-3 px-6 text-left">Nombre</th>
+                        <th class="py-3 px-6 text-left">Precio</th>
+                        <th class="py-3 px-6 text-left">Productos Incluidos</th>
                         <th class="py-3 px-6 text-left">Acciones</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-600 text-sm font-light">
-                    {% for category in categories %}
+                    {% for composed in composedProducts %}
                         <tr class="border-b border-gray-200 hover:bg-gray-100">
-                            <td class="py-3 px-6 text-left">{{ category.id }}</td>
-                            <td class="py-3 px-6 text-left">{{ category.name }}</td>
+                            <td class="py-3 px-6 text-left">{{ composed.id }}</td>
+                            <td class="py-3 px-6 text-left">{{ composed.name }}</td>
+                            <td class="py-3 px-6 text-left">{{ composed.price|number_format(2, '.', ',') }}</td>
                             <td class="py-3 px-6 text-left">
-                                <a href="/admin/categories/edit/{{ category.id }}" class="btn secondary">Editar</a>
-                                <a href="/admin/categories/delete/{{ category.id }}" class="btn danger ml-4">Eliminar</a>
+                                {% if composed.includedProducts is not empty %}
+                                    <ul class="list-disc ml-4">
+                                        {% for prod in composed.includedProducts %}
+                                            <li>{{ prod.name }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <span class="text-gray-400">Ninguno</span>
+                                {% endif %}
+                            </td>
+                            <td class="py-3 px-6 text-left">
+                                <a href="/admin/composed/edit/{{ composed.id }}" class="btn secondary">Editar</a>
+                                <a href="/admin/composed/delete/{{ composed.id }}" class="btn danger ml-4">Eliminar</a>
                             </td>
                         </tr>
                     {% endfor %}

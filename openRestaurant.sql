@@ -29,9 +29,19 @@ CREATE TABLE `Product` (
 CREATE TABLE `ComposedBy` (
   `product_id` int NOT NULL,
   `child_id` int NOT NULL,
+  `position` int NOT NULL DEFAULT 0,
   PRIMARY KEY (`product_id`, `child_id`),
   FOREIGN KEY (`product_id`) REFERENCES `Product` (`id`),
   FOREIGN KEY (`child_id`) REFERENCES `Product` (`id`)
+);
+
+CREATE TABLE `ComposedCategory` (
+  `product_id` int NOT NULL,
+  `category_id` int NOT NULL,
+  `position` int NOT NULL DEFAULT 0,
+  PRIMARY KEY (`product_id`, `category_id`),
+  FOREIGN KEY (`product_id`) REFERENCES `Product` (`id`),
+  FOREIGN KEY (`category_id`) REFERENCES `Category` (`id`)
 );
 
 CREATE TABLE `PromotionalProduct` (
