@@ -3,22 +3,37 @@
 class AuthHelpers {
 
     public static function isLoggedIn() {
-        return isset($_SESSION['admin']);
+
+        if(!isset($_SESSION['user'])) {
+            return false;
+        }
+
+        $session = $_SESSION['user'];
+        if(!isset($session['email']) || !isset($session['id']) || !isset($session['name'])) {
+            session_destroy();
+            return false;
+        }
+    
+        //Check if user exists in the database
+        $user = User::getById($session['id']);
+        if(!$user) {
+            session_destroy();
+            return false;
+        }
+
+        return true;
     }
 
     public static function isAdmin() {
         if(!self::isLoggedIn()) {
             return false;
         }
+
+        $session = $_SESSION['user'];
+        $user = User::getById($session['id']);
     
-        $session = $_SESSION['admin'];
-        if(!isset($session['username']) || !isset($session['password'])) {
-            session_destroy();
-            return false;
-        }
-    
-        if($session['username'] != CONFIG->ADMIN_USER || $session['password'] != CONFIG->ADMIN_PASS) {
-            session_destroy();
+        //Check if user is admin
+        if($user->role != EUSER_ROLE::ADMIN) {
             return false;
         }
 
@@ -30,19 +45,17 @@ class SidebarHelpers {
 
     public static function getBaseData(){
         
-        if(!AuthHelpers::isAdmin()) {
-            return [
-                'showUsers' => false,
-                'showPromotional' => false,
-            ];
+        $fidelityEnabled = CONFIG->FIDELITY_ENABLED;
+        $promosEnabled = (CONFIG->FIDELITY_ENABLED || CONFIG->DISCOUNT_ENABLED);
+
+        if(AuthHelpers::isLoggedIn()) {
+            $user = User::getById($_SESSION['user']['id']);
         }
 
-        $showUsers = CONFIG->FIDELITY_ENABLED;
-        $showPromotional = (CONFIG->FIDELITY_ENABLED || CONFIG->DISCOUNT_ENABLED);
-
         return [
-            'showUsers' => $showUsers,
-            'showPromotional' => $showPromotional,
+            'fidelityEnabled' => $fidelityEnabled,
+            'promosEnabled' => $promosEnabled,
+            'user' => isset($user) ? $user : null,
         ];
     }
 }

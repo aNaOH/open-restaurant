@@ -3,42 +3,52 @@
 include_once 'models/Table.php';
 include_once 'models/Category.php';
 include_once 'models/Product.php';
+include_once 'models/User.php';
 
 $router = new \Bramus\Router\Router();
 
 $router->get("/", function() {
     $categories = Category::getAll();
     $products = Product::getAll();
-    ViewController::render('index', [
+    ViewController::render('index', array_merge(SidebarHelpers::getBaseData(), [
         'restaurantName' => CONFIG->RESTAURANT_NAME,
-        'showLogin' => CONFIG->FIDELITY_ENABLED,
         'categories' => $categories,
         'products' => $products
-    ]);
+    ]));
 });
 
 $router->get("/login", function() {
-    if (isset($_SESSION['admin'])) {
-        header("Location: /admin");
+    if(AuthHelpers::isLoggedIn()) {
+        header("Location: /");
         exit;
     }
     ViewController::render('login');
 });
 
 $router->post("/login", function() {
-    if (isset($_POST['username']) && isset($_POST['password'])) {
-        if ($_POST['username'] == CONFIG->ADMIN_USER && password_verify($_POST['password'], CONFIG->ADMIN_PASS)) {
-            $_SESSION['admin'] = [
-                'username' => CONFIG->ADMIN_USER,
-                'password' => CONFIG->ADMIN_PASS,
+    if (isset($_POST['email']) && isset($_POST['password'])) {
+        $email = $_POST['email'];
+        $password = $_POST['password'];
+
+        if (empty($email) || empty($password)) {
+            ViewController::render('login', ['error' => 'Introduce usuario y contraseña.']);
+            return;
+        }
+
+        $user = User::getByEmail($email);
+        if ($user && password_verify($password, $user->password)) {
+            $_SESSION['user'] = [
+                'id' => $user->id,
+                'email' => $user->email,
+                'name' => $user->name
             ];
-            header("Location: /admin");
+            header("Location: /");
             exit;
         } else {
-            ViewController::render('login', ['error' => 'Usuario o contraseña incorrecto.']);
+            ViewController::render('login', ['error' => 'Usuario o contraseña incorrectos.']);
         }
     } else {
-        ViewController::render('login', ['error' => 'Introduce usuario y contraseña.']);
+        ViewController::render('login', ['error' => 'Introduce correo y contraseña.']);
     }
 });
 

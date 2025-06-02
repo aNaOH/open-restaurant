@@ -1,21 +1,8 @@
 <?php
 
 $router->before('GET|POST', '/admin', function() {
-    if (!isset($_SESSION['admin'])) {
-        header("Location: /login");
-        exit;
-    }
-
-    $session = $_SESSION['admin'];
-    if(!isset($session['username']) || !isset($session['password'])) {
-        session_destroy();
-        header("Location: /login");
-        exit;
-    }
-
-    if($session['username'] != CONFIG->ADMIN_USER || $session['password'] != CONFIG->ADMIN_PASS) {
-        session_destroy();
-        header("Location: /login");
+    if(!AuthHelpers::isAdmin()) {
+        header('Location: /login');
         exit;
     }
 });
@@ -49,6 +36,25 @@ $router->mount('/admin', function() use ($router) {
         $config->FIDELITY_ENABLED = $loyaltyProgram;
         $config->POINTS_PER_UNIT = $pointsPerUnit;
         $config->save();
+
+        if (!$loyaltyProgram) {
+            // Elimina todos los usuarios que no sean administradores ni empleados
+            // Asumimos que EUSER_ROLE::ADMIN = 0 y EUSER_ROLE::EMPLOYEE = 1
+            Connection::doDelete(DBCONN, 'User', [
+                'role' => [
+                    'param' => 'role',
+                    'value' => 0,
+                    'operator' => '='
+                ]
+            ]);
+        }
+        if (!$loyaltyProgram && !$promoCodes) {
+            // Elimina todos los productos promocionales
+            // Asumimos que EPRODUCT_TYPE::PROMOTION = 2
+            Connection::doDelete(DBCONN, 'Product', [
+                'type' => 2
+            ]);
+        }
         // Redirigir o mostrar mensaje
         header('Location: /admin/config');
         exit;
@@ -102,31 +108,12 @@ $router->mount('/admin', function() use ($router) {
         }
         exit;
     });
-    
-    // --- BORRADO DE USUARIOS Y PRODUCTOS PROMOCIONALES SEGÚN LA CONFIGURACIÓN ---
-        if (!$loyaltyProgram) {
-            // Elimina todos los usuarios que no sean administradores ni empleados
-            // Asumimos que EUSER_ROLE::ADMIN = 0 y EUSER_ROLE::EMPLOYEE = 1
-            Connection::doDelete(DBCONN, 'User', [
-                'role' => [
-                    'param' => 'role',
-                    'value' => 0,
-                    'operator' => '='
-                ]
-            ]);
-        }
-        if (!$loyaltyProgram && !$promoCodes) {
-            // Elimina todos los productos promocionales
-            // Asumimos que EPRODUCT_TYPE::PROMOTION = 2
-            Connection::doDelete(DBCONN, 'Product', [
-                'type' => 2
-            ]);
-        }
-        // ...existing code...
+
 
     include_once 'routes/admin/tables.php';
     include_once 'routes/admin/categories.php';
     include_once 'routes/admin/products.php';
     include_once 'routes/admin/composed.php';
     include_once 'routes/admin/promotional.php';
+    include_once 'routes/admin/users.php';
 });

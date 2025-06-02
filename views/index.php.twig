@@ -5,11 +5,7 @@
 {% block content %}
     <div class="flex flex-col h-full w-full justify-between">
 
-        {% if showLogin %}
-            <div class="w-full m-4 bg-white shadow-md rounded-lg p-4 flex items-center justify-between">
-                <a href="/login" class="text-blue-500 hover:underline">Iniciar sesión</a>
-            </div>
-        {% endif %}
+        {% include "/components/header.php.twig" %}
 
         <div class="flex flex-col justify-center items-center h-screen">
             <img src="/logo" alt="Logo de {{restaurantName}}" class="w-32 mb-4">

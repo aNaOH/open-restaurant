@@ -1,0 +1,23 @@
+{% if fidelityEnabled or user %}
+    <div class="w-full m-4 bg-white shadow-md rounded-lg p-4 flex items-center justify-between">
+        {% if user %}
+            <div class="flex items-center">
+                <span class="text-gray-800 font-semibold">{{ user.name }}</span>
+                <span class="text-gray-800 font-semibold ml-2">{{ user.points }} puntos</span>
+            </div>
+
+            {% if user.role and user.role.value == 2 %}
+                <a href="/admin" class="btn secondary">Panel de administración</a>
+                    
+            {% endif %}
+
+            {% if user.role and user.role.value == 1 or user.role.value == 2 %}
+                <a href="/employee" class="btn secondary">Pedidos</a>
+            {% endif %}
+
+            <a href="/logout" class="btn danger">Cerrar sesión</a>
+        {% else %}
+            <a href="/login" class="btn primary">Iniciar sesión</a>
+        {% endif %}
+    </div>
+{% endif %}

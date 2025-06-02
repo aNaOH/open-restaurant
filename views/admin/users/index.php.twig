@@ -6,7 +6,8 @@
 {% block content %}
     <div class="flex flex-col h-full">
         <div class="flex items-center justify-end mb-4">
-            <a href="/admin/categories/add" class="btn primary">Añadir categoría</a>
+            <!-- Aquí podrías añadir un botón para crear usuarios si lo deseas -->
+            <a href="/admin/users/add" class="btn primary">Añadir usuario</a>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg">
@@ -15,6 +16,8 @@
                         <th class="py-3 px-6 text-left">ID</th>
                         <th class="py-3 px-6 text-left">Nombre</th>
                         <th class="py-3 px-6 text-left">Correo</th>
+                        <th class="py-3 px-6 text-left">Rol</th>
+                        <th class="py-3 px-6 text-left">Puntos</th>
                         <th class="py-3 px-6 text-left">Acciones</th>
                     </tr>
                 </thead>
@@ -25,7 +28,17 @@
                             <td class="py-3 px-6 text-left">{{ user.name }}</td>
                             <td class="py-3 px-6 text-left">{{ user.email }}</td>
                             <td class="py-3 px-6 text-left">
-                                <a href="/admin/categories/delete/{{ user.id }}" class="text-red-500 hover:underline ml-4">Eliminar</a>
+                                {% if user.role and user.role.value == 0 %}Cliente{% endif %}
+                                {% if user.role and user.role.value == 1 %}Empleado{% endif %}
+                                {% if user.role and user.role.value == 2 %}Administrador{% endif %}
+                            </td>
+                            <td class="py-3 px-6 text-left">{{ user.points }}</td>
+                            <td class="py-3 px-6 text-left">
+                                <a href="/admin/users/edit/{{ user.id }}" class="btn secondary">Editar</a>
+                                <form action="/admin/users/delete/{{ user.id }}" method="POST" class="inline-block">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="btn danger">Eliminar</button>
+                                </form>
                             </td>
                         </tr>
                     {% endfor %}

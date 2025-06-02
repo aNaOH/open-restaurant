@@ -57,6 +57,16 @@ class User {
     }
 
     /**
+     * Retrieves a User instance by email.
+     * @param string $email The email of the user.
+     * @return User|null The User object if found, null otherwise.
+     */
+    public static function getByEmail($email) {
+        $rows = Connection::doSelect(DBCONN, 'User', ['email' => $email]);
+        return $rows ? self::fromRow($rows[0]) : null;
+    }
+
+    /**
      * Retrieves all User instances from the database.
      * @return array An array of User objects.
      */

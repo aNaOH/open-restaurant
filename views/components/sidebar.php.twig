@@ -6,12 +6,10 @@
         <li><a href="/admin/categories" class="text-blue-500 hover:underline">Categorías</a></li>
         <li><a href="/admin/products" class="text-blue-500 hover:underline">Productos</a></li>
         <li><a href="/admin/composed" class="text-blue-500 hover:underline">Productos compuestos</a></li>
-        {% if showPromotional %}
+        {% if promosEnabled %}
             <li><a href="/admin/promotional" class="text-blue-500 hover:underline">Productos promocionales</a></li>
         {% endif %}
-        {% if showUsers %}
-            <li><a href="/admin/users" class="text-blue-500 hover:underline">Usuarios</a></li>
-        {% endif %}
+        <li><a href="/admin/users" class="text-blue-500 hover:underline">Usuarios</a></li>
         <li><a href="/admin/config" class="text-blue-500 hover:underline">Configuración</a></li>
     </ul>
 </div>

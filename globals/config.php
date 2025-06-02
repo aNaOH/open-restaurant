@@ -6,10 +6,6 @@ class Config {
     public $DB_USER = '';
     public $DB_PASS = '';
 
-    public $ADMIN_USER = '';
-    public $ADMIN_PASS = '';
-    public $ADMIN_EMAIL = '';
-
     public $RESTAURANT_NAME = '';
     public $RESTAURANT_ADDRESS = '';
     public $RESTAURANT_PHONE = '';
@@ -45,11 +41,6 @@ class Config {
             $this->DB_USER = $config['database']['user'];
             $this->DB_PASS = $config['database']['pass'];
 
-            if(isset($config['admin'])) {
-                $this->ADMIN_USER = isset($config['admin']['user']) ? $config['admin']['user'] : 'admin';
-                $this->ADMIN_PASS = isset($config['admin']['pass']) ? $config['admin']['pass'] : 'admin';
-            }
-
             if(isset($config['restaurant'])) {
                 $this->RESTAURANT_NAME = isset($config['restaurant']['name']) ? $config['restaurant']['name'] : 'Restaurant Name';
                 $this->RESTAURANT_ADDRESS = isset($config['restaurant']['address']) ? $config['restaurant']['address'] : 'Restaurant Address';
@@ -73,11 +64,6 @@ class Config {
                 'name' => $this->DB_NAME,
                 'user' => $this->DB_USER,
                 'pass' => $this->DB_PASS
-            ],
-            'admin' => [
-                'user' => $this->ADMIN_USER,
-                'pass' => $this->ADMIN_PASS,
-                'email' => $this->ADMIN_EMAIL
             ],
             'restaurant' => [
                 'name' => $this->RESTAURANT_NAME,
