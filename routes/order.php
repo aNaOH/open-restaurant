@@ -97,7 +97,8 @@ $router->mount('/order', function() use ($router) {
         
         // Render the cart page with the current order
         ViewController::render('order/cart', [
-            'order' => $order
+            'order' => $order,
+            'stripe_public_key' => CONFIG->STRIPE_PUBLIC_KEY
         ]);
     });
 
@@ -307,19 +308,6 @@ $router->mount('/order', function() use ($router) {
         exit;
     });
 
-    $router->get('/checkout', function() {
-        global $config;
-        $order = OrderHelpers::getOrder();
-        if ($order === null) {
-            header('Location: /');
-            exit;
-        }
-        ViewController::render('order/checkout', [
-            'order' => $order,
-            'stripe_public_key' => $config->STRIPE_PUBLIC_KEY
-        ]);
-    });
-
     $router->post('/create-stripe', function() {
         header('Content-Type: application/json');
 
@@ -345,17 +333,22 @@ $router->mount('/order', function() use ($router) {
             http_response_code(400);
             echo json_encode(['error' => 'El total debe ser mayor a cero.']);
             exit;
-        }
-
+        }        // Leer el email del body si viene (JSON)
+        $input = json_decode(file_get_contents('php://input'), true);
+        $email = isset($input['email']) ? trim($input['email']) : null;
         try {
-            $paymentIntent = \Stripe\PaymentIntent::create([
+            $params = [
                 'amount' => intval($total * 100), // Stripe usa centavos
                 'currency' => 'eur', // Cambia a tu moneda
                 'metadata' => [
                     'order_id' => session_id(),
                     'table' => $order['table'] ?? ''
                 ]
-            ]);
+            ];
+            if ($email) {
+                $params['receipt_email'] = $email;
+            }
+            $paymentIntent = \Stripe\PaymentIntent::create($params);
             echo json_encode(['client_secret' => $paymentIntent->client_secret]);
         } catch (Exception $e) {
             http_response_code(500);
