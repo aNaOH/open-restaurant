@@ -1,7 +1,18 @@
+# Ignorar archivos y carpetas de dependencias y caché
 composer.phar
 /vendor/
 /node_modules/
 /cache/
-assets/style.css
+
+# Ignorar archivos de configuración y salidas generadas
+/assets/style.css
 config.json
 /assets/uploads/
+
+# Ignorar archivos de uploads y contenido generado
+uploads/
+assets/uploads/
+
+# Ignorar archivos temporales del sistema
+.DS_Store
+Thumbs.db
