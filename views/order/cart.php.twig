@@ -328,6 +328,17 @@
                 if (cartActions) {
                     cartActions.innerHTML = '<a href="/" class="px-5 py-2 rounded-full font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all">Volver al inicio</a>';
                 }
+                // Guardar pedido en la base de datos
+                fetch('/order/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        order: {{ order|json_encode|raw }},
+                        email: email,
+                        stripe_id: paymentIntent.id,
+                        total: {{ total_dinero|number_format(2, '.', ',') }}
+                    })
+                });
                 // Descargar recibo PDF
                 if (downloadReceiptBtn) {
                     downloadReceiptBtn.onclick = function() {

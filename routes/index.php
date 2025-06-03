@@ -4,6 +4,7 @@ include_once 'models/Table.php';
 include_once 'models/Category.php';
 include_once 'models/Product.php';
 include_once 'models/User.php';
+include_once 'models/Order.php';
 
 $router = new \Bramus\Router\Router();
 

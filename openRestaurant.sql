@@ -47,21 +47,25 @@ CREATE TABLE `ComposedCategory` (
   FOREIGN KEY (`category_id`) REFERENCES `Category` (`id`)
 );
 
-CREATE TABLE `Order` (
+CREATE TABLE `Orders` (
   `id` int PRIMARY KEY AUTO_INCREMENT NOT NULL,
   `date` date NOT NULL,
   `time` timestamp NOT NULL,
-  `table` varchar(255) NOT NULL,
+  `table_id` varchar(255) NOT NULL,
   `user` int DEFAULT NULL,
-  FOREIGN KEY (`table`) REFERENCES `Table` (`id`),
+  `stripe_id` varchar(255) DEFAULT NULL,
+  FOREIGN KEY (`table_id`) REFERENCES `Table` (`id`),
   FOREIGN KEY (`user`) REFERENCES `User` (`id`)
 );
 
 CREATE TABLE `OrderContains` (
-  `order` int NOT NULL,
+  `order_id` int NOT NULL,
   `product` int NOT NULL,
   `price` float NOT NULL,
-  PRIMARY KEY (`order`, `product`),
-  FOREIGN KEY (`order`) REFERENCES `Order` (`id`),
+  `done` boolean NOT NULL DEFAULT false,
+  `quantity` int NOT NULL DEFAULT 1,
+  `metadata` text DEFAULT NULL,
+  PRIMARY KEY (`order_id`, `product`),
+  FOREIGN KEY (`order_id`) REFERENCES `Orders` (`id`),
   FOREIGN KEY (`product`) REFERENCES `Product` (`id`)
 );

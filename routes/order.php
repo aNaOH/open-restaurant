@@ -309,12 +309,14 @@ $router->mount('/order', function() use ($router) {
     });
 
     $router->post('/create-stripe', function() {
-        header('Content-Type: application/json');
+        
+        // Leer el email del body si viene (JSON)
+        $input = json_decode(file_get_contents('php://input'), true);
+        $email = isset($input['email']) ? trim($input['email']) : null;
 
         // Configura tu clave secreta de Stripe desde la configuración
         \Stripe\Stripe::setApiKey(CONFIG->STRIPE_SECRET_KEY);
 
-        // Obtén el pedido actual (ajusta según tu lógica de sesión)
         $order = isset($_SESSION['order']) ? $_SESSION['order'] : null;
         if (!$order || !isset($order['items']) || count($order['items']) === 0) {
             http_response_code(400);
@@ -322,7 +324,6 @@ $router->mount('/order', function() use ($router) {
             exit;
         }
 
-        // Calcula el total (ajusta si tienes lógica de descuentos/promos)
         $total = 0;
         foreach ($order['items'] as $item) {
             $price = isset($item['product_snapshot']['price']) ? $item['product_snapshot']['price'] : 0;
@@ -333,9 +334,8 @@ $router->mount('/order', function() use ($router) {
             http_response_code(400);
             echo json_encode(['error' => 'El total debe ser mayor a cero.']);
             exit;
-        }        // Leer el email del body si viene (JSON)
-        $input = json_decode(file_get_contents('php://input'), true);
-        $email = isset($input['email']) ? trim($input['email']) : null;
+        }
+
         try {
             $params = [
                 'amount' => intval($total * 100), // Stripe usa centavos
@@ -354,7 +354,57 @@ $router->mount('/order', function() use ($router) {
             http_response_code(500);
             echo json_encode(['error' => $e->getMessage()]);
         }
-
         exit;
+    });
+
+    // Guardar pedido en la base de datos tras pago Stripe
+    $router->post('/save', function() {
+        header('Content-Type: application/json');
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        $orderData = $input['order'] ?? null;
+        $email = $input['email'] ?? null;
+        $stripe_id = $input['stripe_id'] ?? null;
+        $total = $input['total'] ?? null;
+
+        if (!$orderData || !$email || !$stripe_id || !$total) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Datos incompletos para guardar el pedido.']);
+            exit;
+        }
+
+        $table_id = $orderData['table'] ?? null;
+        $items = $orderData['items'] ?? [];
+        if (!$table_id || count($items) === 0) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Pedido vacío o sin mesa.']);
+            exit;
+        }
+
+        // Crear el pedido principal usando el modelo refactorizado
+        $order = new Order();
+        $order->table_id = $table_id;
+        $order->user = null; // Si tienes user_id, ponlo aquí
+        $order->stripe_id = $stripe_id;
+        $order->date = date('Y-m-d');
+        $order->time = date('Y-m-d H:i:s');
+        $order->save();
+
+        if (!$order->id) {
+            http_response_code(500);
+            echo json_encode(['error' => 'No se pudo crear el pedido.']);
+            exit;
+        }
+
+        // Guardar los productos del pedido
+        foreach ($items as $item) {
+            $product_id = $item['product_id'];
+            $quantity = $item['quantity'];
+            $price = $item['product_snapshot']['price'] ?? 0;
+            $metadata = $item['metadata'] ?? null;
+            Order::addProduct($order->id, $product_id, $price, $quantity, $metadata);
+        }
+
+        echo json_encode(['status' => 'ok', 'order_id' => $order->id]);
     });
 });
