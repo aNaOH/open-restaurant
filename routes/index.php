@@ -14,7 +14,8 @@ $router->get("/", function() {
         return count(Product::getByCategory($category->id)) > 0;
     });
     $data = [
-        'categories' => $categories
+        'categories' => $categories,
+        'order' => OrderHelpers::getOrder()
     ];
     ViewController::render('index', $data);
 });

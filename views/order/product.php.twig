@@ -9,190 +9,125 @@
             <button onclick="window.history.back()" type="button" class="mb-4 flex items-center gap-2 px-4 py-2 rounded-full cursor-pointer font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-100 shadow-none transition-all duration-200">
                 <i data-feather="arrow-left" class="w-5 h-5"></i> Volver
             </button>
-            <div class="flex flex-col md:flex-row gap-8 items-center">
+            <div class="flex flex-col items-center">
                 {% if product.getImagePath() %}
-                    <img src="/{{ product.getImagePath() }}" alt="{{ product.name }}" class="w-36 h-36 object-cover rounded-xl border-4 border-blue-100 bg-gray-50">
+                    <img src="/{{ product.getImagePath() }}" alt="{{ product.name }}" class="w-36 h-36 object-cover rounded-xl border-4 border-blue-100 bg-gray-50 mb-4">
                 {% endif %}
-                <div class="flex-1 w-full">
-                    <h1 class="text-3xl font-extrabold text-gray-800 mb-2 tracking-tight">{{ product.name }}</h1>
-                    <div class="text-blue-600 font-extrabold text-xl mb-2">
-                        {% if product.price == 0 %}
-                            Gratis
-                        {% else %}
-                            ${{ product.price }}
-                        {% endif %}
-                    </div>
-                    {% if product.type.value == 0 %}
-                        <div class="text-gray-600 mb-4 leading-relaxed">{{ product.description }}</div>
-                        <form method="post" action="/order/add/{{ product.id }}" class="flex items-center gap-4 mt-2">
-                            <label for="quantity" class="font-semibold text-gray-700">Cantidad:</label>
-                            <input type="number" id="quantity" name="quantity" value="1" min="1" class="border border-blue-200 rounded-lg px-4 py-2 w-24 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200" required>
-                            <textarea name="notes" placeholder="Notas para este producto (opcional)" rows="2" class="flex-1 border border-blue-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200 resize-none" style="min-width:180px;max-width:320px;" autocomplete="off"></textarea>
-                            <button type="submit" class="flex items-center gap-2 px-5 py-2 rounded-full font-semibold text-white bg-blue-500 shadow hover:bg-cyan-500 transition-all duration-200 cursor-pointer">
-                                <i data-feather="shopping-cart" class="w-5 h-5"></i> Añadir al carrito
-                            </button>
-                        </form>
-                    {% elseif product.type.value == 1 %}
-                        <div class="text-gray-600 mb-4 leading-relaxed">{{ product.description }}</div>
-                        <form method="post" action="/order/add/{{ product.id }}" class="flex flex-col gap-4 mt-2">
-                            <div class="flex flex-col gap-4">
-                                {% set children = product.getChildren() %}
-                                {% for comp in children %}
-                                    {% if comp.type == 'group' %}
-                                        <div class="flex flex-col gap-2">
-                                            <label class="font-semibold text-gray-700">Elige una opción:</label>
-                                            <div class="flex flex-wrap gap-2">
-                                                {% for item in comp.items %}
-                                                    {% if item.type == 'product' %}
-                                                        <label class="option-card flex flex-col items-center gap-2 cursor-pointer bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg border border-blue-100 min-w-[140px] max-w-[180px]">
-                                                            <input type="radio" name="group_{{ loop.parent.loop.index0 }}" value="product_{{ item.object.id }}" class="accent-blue-500 mb-1" required>
-                                                            <img src="/{{ item.object.getImagePath() }}" alt="{{ item.object.name }}" class="w-16 h-16 object-cover rounded-xl border border-blue-100 bg-gray-50">
-                                                            <span class="font-semibold text-gray-800 text-center">{{ item.object.name }}</span>
-                                                        </label>
-                                                    {% elseif item.type == 'category' %}
-                                                        {% set catProducts = item.object.getProducts() %}
-                                                        <div class="flex flex-col gap-1">
-                                                            <span class="font-semibold text-gray-700">Elige de la categoría: {{ item.object.name }}</span>
-                                                            <div class="flex flex-wrap gap-2">
-                                                                {% for prod in catProducts %}
-                                                                    <label class="option-card flex flex-col items-center gap-2 cursor-pointer bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg border border-blue-100 min-w-[140px] max-w-[180px]">
-                                                                        <input type="radio" name="group_{{ loop.parent.loop.parent.loop.index0 }}" value="product_{{ prod.id }}" class="accent-blue-500 mb-1" required>
-                                                                        <img src="/{{ prod.getImagePath() }}" alt="{{ prod.name }}" class="w-16 h-16 object-cover rounded-xl border border-blue-100 bg-gray-50">
-                                                                        <span class="font-semibold text-gray-800 text-center">{{ prod.name }}</span>
-                                                                    </label>
-                                                                {% endfor %}
-                                                            </div>
-                                                        </div>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-                                    {% else %}
-                                        {% if comp.type == 'product' %}
-                                            <div class="flex items-center gap-2">
-                                                <input type="hidden" name="product_{{ comp.object.id }}" value="1">
-                                                <span class="font-semibold text-gray-700">Incluye: {{ comp.object.name }}</span>
-                                            </div>
-                                        {% elseif comp.type == 'category' %}
-                                            {% set catProducts = comp.object.getProducts() %}
-                                            <div class="flex flex-col gap-1">
-                                                <span class="font-semibold text-gray-700">Incluye uno de la categoría: {{ comp.object.name }}</span>
-                                                <div class="flex flex-wrap gap-2">
-                                                    {% for prod in catProducts %}
-                                                        <label class="option-card flex flex-col items-center gap-2 cursor-pointer bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg border border-blue-100 min-w-[140px] max-w-[180px]">
-                                                            <input type="radio" name="category_{{ comp.object.id }}" value="product_{{ prod.id }}" class="accent-blue-500 mb-1" required>
-                                                            <img src="/{{ prod.getImagePath() }}" alt="{{ prod.name }}" class="w-16 h-16 object-cover rounded-xl border border-blue-100 bg-gray-50">
-                                                            <span class="font-semibold text-gray-800 text-center">{{ prod.name }}</span>
-                                                        </label>
-                                                    {% endfor %}
-                                                </div>
-                                            </div>
-                                        {% endif %}
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                            <textarea name="notes" placeholder="Notas para este producto (opcional)" rows="2" class="border border-blue-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200 resize-none" style="min-width:180px;max-width:320px;" autocomplete="off"></textarea>
-                            <div class="flex items-center gap-4 mt-2">
-                                <label for="quantity" class="font-semibold text-gray-700">Cantidad:</label>
-                                <input type="number" id="quantity" name="quantity" value="1" min="1" class="border border-blue-200 rounded-lg px-4 py-2 w-24 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200" required>
-                                <button type="submit" class="flex items-center gap-2 px-5 py-2 rounded-full font-semibold text-white bg-blue-500 shadow hover:bg-cyan-500 transition-all duration-200 cursor-pointer">
-                                    <i data-feather="shopping-cart" class="w-5 h-5"></i> Añadir al carrito
-                                </button>
-                            </div>
-                        </form>
-                    {% elseif product.type.value == 2 %}
-                        <div class="text-gray-600 mb-4 leading-relaxed">{{ product.description }}</div>
-                        <form method="post" action="/order/add/{{ product.id }}" class="flex flex-col gap-4 mt-2">
-                            {% if promo is defined and promo %}
-                                <input type="hidden" name="promo" value="{{ promo }}">
-                            {% endif %}
-                            <div class="flex flex-col gap-4">
-                                {% set children = product.getChildren() %}
-                                {% for comp in children %}
-                                    {% if comp.type == 'group' %}
-                                        <div class="flex flex-col gap-2">
-                                            <label class="font-semibold text-gray-700">Elige una opción:</label>
-                                            <div class="flex flex-wrap gap-2">
-                                                {% for item in comp.items %}
-                                                    {% if item.type == 'product' %}
-                                                        <label class="option-card flex flex-col items-center gap-2 cursor-pointer bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg border border-blue-100 min-w-[140px] max-w-[180px]">
-                                                            <input type="radio" name="group_{{ loop.parent.loop.index0 }}" value="product_{{ item.object.id }}" class="accent-blue-500 mb-1" required>
-                                                            <img src="/{{ item.object.getImagePath() }}" alt="{{ item.object.name }}" class="w-16 h-16 object-cover rounded-xl border border-blue-100 bg-gray-50">
-                                                            <span class="font-semibold text-gray-800 text-center">{{ item.object.name }}</span>
-                                                        </label>
-                                                    {% elseif item.type == 'category' %}
-                                                        {% set catProducts = item.object.getProducts() %}
-                                                        <div class="flex flex-col gap-1">
-                                                            <span class="font-semibold text-gray-700">Elige de la categoría: {{ item.object.name }}</span>
-                                                            <div class="flex flex-wrap gap-2">
-                                                                {% for prod in catProducts %}
-                                                                    <label class="option-card flex flex-col items-center gap-2 cursor-pointer bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg border border-blue-100 min-w-[140px] max-w-[180px]">
-                                                                        <input type="radio" name="group_{{ loop.parent.loop.parent.loop.index0 }}" value="product_{{ prod.id }}" class="accent-blue-500 mb-1" required>
-                                                                        <img src="/{{ prod.getImagePath() }}" alt="{{ prod.name }}" class="w-16 h-16 object-cover rounded-xl border border-blue-100 bg-gray-50">
-                                                                        <span class="font-semibold text-gray-800 text-center">{{ prod.name }}</span>
-                                                                    </label>
-                                                                {% endfor %}
-                                                            </div>
-                                                        </div>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-                                    {% else %}
-                                        {% if comp.type == 'product' %}
-                                            <div class="flex items-center gap-2">
-                                                <input type="hidden" name="product_{{ comp.object.id }}" value="1">
-                                                <span class="font-semibold text-gray-700">Incluye: {{ comp.object.name }}</span>
-                                            </div>
-                                        {% elseif comp.type == 'category' %}
-                                            {% set catProducts = comp.object.getProducts() %}
-                                            <div class="flex flex-col gap-1">
-                                                <span class="font-semibold text-gray-700">Incluye uno de la categoría: {{ comp.object.name }}</span>
-                                                <div class="flex flex-wrap gap-2">
-                                                    {% for prod in catProducts %}
-                                                        <label class="option-card flex flex-col items-center gap-2 cursor-pointer bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg border border-blue-100 min-w-[140px] max-w-[180px]">
-                                                            <input type="radio" name="category_{{ comp.object.id }}" value="product_{{ prod.id }}" class="accent-blue-500 mb-1" required>
-                                                            <img src="/{{ prod.getImagePath() }}" alt="{{ prod.name }}" class="w-16 h-16 object-cover rounded-xl border border-blue-100 bg-gray-50">
-                                                            <span class="font-semibold text-gray-800 text-center">{{ prod.name }}</span>
-                                                        </label>
-                                                    {% endfor %}
-                                                </div>
-                                            </div>
-                                        {% endif %}
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                            <textarea name="notes" placeholder="Notas para este producto (opcional)" rows="2" class="border border-blue-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200 resize-none mt-2 mb-2" autocomplete="off"></textarea>
-                            <div class="flex items-center gap-4 mt-2">
-                                <button type="submit" class="flex items-center gap-2 px-5 py-2 rounded-full font-semibold text-white bg-blue-500 shadow hover:bg-cyan-500 transition-all duration-200 cursor-pointer">
-                                    <i data-feather="shopping-cart" class="w-5 h-5"></i> Añadir al carrito
-                                </button>
-                                {% if product.points and (promo is not defined or not promo) %}
-                                    <span class="ml-2 text-yellow-700 font-bold flex items-center gap-1"><i data-feather="star" class="w-5 h-5 text-yellow-500"></i> {{ product.points }} puntos</span>
-                                {% endif %}
-                            </div>
-                        </form>
-                        <button id="cancelPromoBtn" type="button" class="mt-4 flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-100 shadow-none transition-all duration-200 w-full" style="display: none;">
-                            <i data-feather="x" class="w-5 h-5"></i> Cancelar
-                        </button>
-                        <script>
-                            document.addEventListener('DOMContentLoaded', function() {
-                                const cancelBtn = document.getElementById('cancelPromoBtn');
-                                {% if promo is defined and promo %}
-                                    cancelBtn.style.display = 'flex';
-                                    document.querySelector('button[onclick*="window.history.back"]').style.display = 'none';
-                                    cancelBtn.addEventListener('click', function() {
-                                        fetch('/order/cancel-promo', { method: 'POST', headers: { "X-Requested-With": "XMLHttpRequest" } })
-                                            .then(() => window.location.href = '/');
-                                    });
-                                {% endif %}
-                            });
-                        </script>
+                <h1 class="text-3xl font-extrabold text-gray-800 mb-2 tracking-tight text-center">{{ product.name }}</h1>
+                <div class="text-blue-600 font-extrabold text-xl mb-2 text-center">
+                    {% if product.price == 0 %}
+                        Gratis
                     {% else %}
-                        <div class="text-gray-400 italic mt-4">Próximamente disponible para este tipo de producto.</div>
+                        ${{ product.price }}
                     {% endif %}
                 </div>
+                <div class="text-gray-600 mb-4 leading-relaxed text-center">{{ product.description }}</div>
             </div>
+            {% if product.type.value == 0 %}
+                <form method="post" action="/order/add/{{ product.id }}" class="flex flex-col gap-4 mt-2">
+                    <textarea name="notes" placeholder="Notas para este producto (opcional)" rows="2" class="border border-blue-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200 resize-none" style="min-width:180px;max-width:320px;" autocomplete="off"></textarea>
+                    <div class="flex items-center gap-4">
+                        <label for="quantity" class="font-semibold text-gray-700">Cantidad:</label>
+                        <input type="number" id="quantity" name="quantity" value="1" min="1" class="border border-blue-200 rounded-lg px-4 py-2 w-24 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200" required>
+                        <button type="submit" class="flex items-center gap-2 px-5 py-2 rounded-full font-semibold text-white bg-blue-500 shadow hover:bg-cyan-500 transition-all duration-200 cursor-pointer">
+                            <i data-feather="shopping-cart" class="w-5 h-5"></i> Añadir al carrito
+                        </button>
+                    </div>
+                </form>
+            {% elseif product.type.value == 1 or product.type.value == 2 %}
+                <form method="post" action="/order/add/{{ product.id }}" class="flex flex-col gap-4 mt-2">
+                    {% if promo is defined and promo %}
+                        <input type="hidden" name="promo" value="{{ promo }}">
+                    {% endif %}
+                    <div class="flex flex-col gap-4">
+                        {% set children = product.getChildren() %}
+                        {% for comp in children %}
+                            {% if comp.type == 'group' %}
+                                <div class="flex flex-col gap-2">
+                                    <label class="font-semibold text-gray-700">Elige una opción:</label>
+                                    <div class="flex flex-wrap gap-2">
+                                        {% for item in comp.items %}
+                                            {% if item.type == 'product' %}
+                                                <label class="option-card flex flex-col items-center gap-2 cursor-pointer bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg border border-blue-100 min-w-[140px] max-w-[180px]">
+                                                    <input type="radio" name="group_{{ loop.parent.loop.index0 }}" value="product_{{ item.object.id }}" class="accent-blue-500 mb-1" required>
+                                                    <img src="/{{ item.object.getImagePath() }}" alt="{{ item.object.name }}" class="w-16 h-16 object-cover rounded-xl border border-blue-100 bg-gray-50">
+                                                    <span class="font-semibold text-gray-800 text-center">{{ item.object.name }}</span>
+                                                </label>
+                                            {% elseif item.type == 'category' %}
+                                                {% set catProducts = item.object.getProducts() %}
+                                                <div class="flex flex-col gap-1">
+                                                    <span class="font-semibold text-gray-700">Elige de la categoría: {{ item.object.name }}</span>
+                                                    <div class="flex flex-wrap gap-2">
+                                                        {% for prod in catProducts %}
+                                                            <label class="option-card flex flex-col items-center gap-2 cursor-pointer bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg border border-blue-100 min-w-[140px] max-w-[180px]">
+                                                                <input type="radio" name="group_{{ loop.parent.loop.parent.loop.index0 }}" value="product_{{ prod.id }}" class="accent-blue-500 mb-1" required>
+                                                                <img src="/{{ prod.getImagePath() }}" alt="{{ prod.name }}" class="w-16 h-16 object-cover rounded-xl border border-blue-100 bg-gray-50">
+                                                                <span class="font-semibold text-gray-800 text-center">{{ prod.name }}</span>
+                                                            </label>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% else %}
+                                {% if comp.type == 'product' %}
+                                    <div class="flex items-center gap-2">
+                                        <input type="hidden" name="product_{{ comp.object.id }}" value="1">
+                                        <span class="font-semibold text-gray-700">Incluye: {{ comp.object.name }}</span>
+                                    </div>
+                                {% elseif comp.type == 'category' %}
+                                    {% set catProducts = comp.object.getProducts() %}
+                                    <div class="flex flex-col gap-1">
+                                        <span class="font-semibold text-gray-700">Incluye uno de la categoría: {{ comp.object.name }}</span>
+                                        <div class="flex flex-wrap gap-2">
+                                            {% for prod in catProducts %}
+                                                <label class="option-card flex flex-col items-center gap-2 cursor-pointer bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg border border-blue-100 min-w-[140px] max-w-[180px]">
+                                                    <input type="radio" name="category_{{ comp.object.id }}" value="product_{{ prod.id }}" class="accent-blue-500 mb-1" required>
+                                                    <img src="/{{ prod.getImagePath() }}" alt="{{ prod.name }}" class="w-16 h-16 object-cover rounded-xl border border-blue-100 bg-gray-50">
+                                                    <span class="font-semibold text-gray-800 text-center">{{ prod.name }}</span>
+                                                </label>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <textarea name="notes" placeholder="Notas para este producto (opcional)" rows="2" class="border border-blue-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200 resize-none mt-2 mb-2" autocomplete="off"></textarea>
+                    <div class="flex items-center gap-4 mt-2">
+                        {% if promo is defined and promo %}
+                            <button id="cancelPromoBtn" type="button" class="flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-100 shadow-none transition-all duration-200 cursor-pointer" style="">
+                                <i data-feather="x" class="w-5 h-5"></i> Cancelar
+                            </button>
+                        {% endif %}
+                        <button type="submit" class="flex items-center gap-2 px-5 py-2 rounded-full font-semibold text-white bg-blue-500 shadow hover:bg-cyan-500 transition-all duration-200 cursor-pointer">
+                            <i data-feather="shopping-cart" class="w-5 h-5"></i> Añadir al carrito
+                        </button>
+                        {% if product.points and (promo is not defined or not promo) %}
+                            <span class="ml-2 text-yellow-700 font-bold flex items-center gap-1"><i data-feather="star" class="w-5 h-5 text-yellow-500"></i> {{ product.points }} puntos</span>
+                        {% endif %}
+                    </div>
+                </form>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const cancelBtn = document.getElementById('cancelPromoBtn');
+                        {% if promo is defined and promo %}
+                            if(cancelBtn) {
+                                cancelBtn.style.display = 'flex';
+                                document.querySelector('button[onclick*="window.history.back"]').style.display = 'none';
+                                cancelBtn.addEventListener('click', function() {
+                                    fetch('/order/cancel-promo', { method: 'POST', headers: { "X-Requested-With": "XMLHttpRequest" } })
+                                        .then(() => window.location.href = '/order');
+                                });
+                            }
+                        {% endif %}
+                    });
+                </script>
+            {% else %}
+                <div class="text-gray-400 italic mt-4">Próximamente disponible para este tipo de producto.</div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
@@ -273,14 +208,19 @@
                     btn.innerHTML = '<i data-feather="shopping-cart" class="w-5 h-5"></i> Añadir al carrito';
                     if(data && data.status === 'ok') {
                         btn.innerHTML = '<i data-feather="check" class="w-5 h-5"></i> Añadido!';
-                        setTimeout(() => window.history.back(), 900);
+                        setTimeout(() => {
+                            if (window.history.length > 1) {
+                                window.location = document.referrer || '/order';
+                            } else {
+                                window.location = '/order';
+                            }
+                        }, 900);
                     } else {
                         alert(data && data.message ? data.message : 'Error al añadir al carrito');
                     }
                 })
                 .catch(() => {
                     btn.disabled = false;
-                    btn.innerHTML = '<i data-feather="shopping-cart" class="w-5 h-5"></i> Añadir al carrito';
                     alert('Error de red');
                 });
             });

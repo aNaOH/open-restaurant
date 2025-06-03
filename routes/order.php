@@ -34,19 +34,7 @@ $router->mount('/order', function() use ($router) {
             return count(Product::getByCategory($category->id)) > 0;
         });
 
-        // Decode promo product snapshots before passing to Twig
-        if (isset($order['promos']) && is_array($order['promos'])) {
-            foreach ($order['promos'] as $code => $promoJson) {
-                if (is_string($promoJson)) {
-                    $decoded = json_decode($promoJson, true);
-                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                        $order['promos'][$code] = $decoded;
-                    } else {
-                        unset($order['promos'][$code]); // Remove invalid JSON
-                    }
-                }
-            }
-        }
+        echo json_encode($order);
 
         // Render the order page with the current order
         ViewController::render('order/index', [
@@ -196,8 +184,15 @@ $router->mount('/order', function() use ($router) {
     });
 
     $router->post('/cancel-promo', function() {
-        $input = json_decode(file_get_contents('php://input'), true);
-        $code = isset($input['code']) ? trim($input['code']) : '';
+        // Permitir recibir el código tanto por JSON como por POST tradicional
+        $input = file_get_contents('php://input');
+        $data = json_decode($input, true);
+        $code = null;
+        if ($data && isset($data['code'])) {
+            $code = trim($data['code']);
+        } elseif (isset($_POST['code'])) {
+            $code = trim($_POST['code']);
+        }
         if (!$code) {
             echo json_encode(['status' => 'error', 'message' => 'Código no proporcionado.']);
             exit;
@@ -207,6 +202,85 @@ $router->mount('/order', function() use ($router) {
             exit;
         }
         echo json_encode(['status' => 'ok']);
+        exit;
+    });
+
+    $router->post('/add/{id}', function($id) {
+        $order = OrderHelpers::getOrder();
+        if ($order === null) {
+            echo json_encode(['status' => 'error', 'message' => 'No hay pedido activo.']);
+            exit;
+        }
+        $product = Product::getById($id);
+        if ($product === null) {
+            echo json_encode(['status' => 'error', 'message' => 'Producto no encontrado.']);
+            exit;
+        }
+        $quantity = isset($_POST['quantity']) ? max(1, intval($_POST['quantity'])) : 1;
+        $notes = isset($_POST['notes']) ? trim($_POST['notes']) : '';
+
+        // Recopilar componentes seleccionados como array de snapshots
+        $components = [];
+        foreach ($_POST as $key => $value) {
+            if (preg_match('/^(group|category|product)_/', $key)) {
+                if (preg_match('/^product_(\d+)$/', $key, $m)) {
+                    $component = Product::getById((int)$m[1]);
+                    if ($component) {
+                        $components[] = [ 'id' => $component->id, 'name' => $component->name ];
+                    }
+                } elseif (preg_match('/^group_\d+$/', $key) || preg_match('/^category_\d+$/', $key)) {
+                    if (preg_match('/^product_(\d+)$/', $value, $m2)) {
+                        $component = Product::getById((int)$m2[1]);
+                        if ($component) {
+                            $components[] = [ 'id' => $component->id, 'name' => $component->name ];
+                        }
+                    }
+                }
+            }
+        }
+
+        $metadata = [
+            'components' => $components,
+            'notes' => $notes
+        ];
+        // Si viene por código promocional, añadirlo a los metadatos
+        if (isset($_POST['promo']) && $_POST['promo']) {
+            $metadata['promo'] = $_POST['promo'];
+        }
+        $ok = OrderHelpers::addItemToOrder($product->id, $metadata, $quantity);
+        if ($ok) {
+            echo json_encode(['status' => 'ok']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'No se pudo añadir el producto al carrito.']);
+        }
+        exit;
+    });
+
+    $router->post('/remove', function() {
+        $input = json_decode(file_get_contents('php://input'), true);
+        $productId = isset($input['product_id']) ? intval($input['product_id']) : null;
+        $metadata = isset($input['metadata']) ? $input['metadata'] : null;
+        if ($productId === null || $metadata === null) {
+            echo json_encode(['status' => 'error', 'message' => 'Datos incompletos.']);
+            exit;
+        }
+        // Decodificar metadata si es string JSON
+        if (is_string($metadata)) {
+            $decoded = json_decode($metadata, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $metadata = $decoded;
+            }
+        }
+        // Si el producto tiene código promocional en los metadatos, quitar el código de la orden
+        if (isset($metadata['promo']) && $metadata['promo']) {
+            OrderHelpers::removePromoFromOrder($metadata['promo']);
+        }
+        $ok = OrderHelpers::removeItemFromOrder($productId, $metadata);
+        if ($ok) {
+            echo json_encode(['status' => 'ok']);
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'No se pudo quitar el producto del carrito.']);
+        }
         exit;
     });
 });

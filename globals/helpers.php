@@ -128,7 +128,7 @@ class OrderHelpers {
                 return true;
             }
         }
-        // If not found, add new item (guardar snapshot JSON del producto)
+        // If not found, add new item
         $product = Product::getById($productId);
         $order['items'][] = [
             'product_id' => $productId,
@@ -193,7 +193,7 @@ class OrderHelpers {
         if(!$product || $product->type != EPRODUCT_TYPE::PROMOTION) {
             return false; // Invalid promo code
         }
-        // Guardar snapshot JSON del producto en vez de solo el código
+        // Guardar snapshot del producto en vez de solo el código
         $order['promos'][$promoCode] = [
             'id' => $product->id,
             'name' => $product->name,

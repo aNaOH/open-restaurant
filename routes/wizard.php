@@ -177,7 +177,7 @@ $router->post("/features", function() {
     $config->save();
 
     header('Content-Type: application/json');
-    echo json_encode(['success' => true, 'redirect' => '/']);
+    echo json_encode(['success' => true, 'redirect' => '/login']);
     exit;
 });
 
