@@ -281,13 +281,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- CARGA INICIAL DE COMPONENTES SELECCIONADOS ---
     {% if components is defined and components|length > 0 %}
     // Limpiar el contenedor y cargar los componentes guardados
-    componentsContainer.innerHTML = '';
-    const componentsData = [
+    componentsContainer.innerHTML = '';    const componentsData = [
         {% for comp in components %}
             {% if comp.type == 'group' %}
-                {% for item in comp.items %}
-                    {type: '{{ item.type }}', ids: ['{{ item.object.id }}']},
-                {% endfor %}
+                {type: '{{ comp.items[0].type }}', ids: [{% for item in comp.items %}'{{ item.object.id }}'{% if not loop.last %}, {% endif %}{% endfor %}]},
             {% else %}
                 {type: '{{ comp.type }}', ids: ['{{ comp.object.id }}']},
             {% endif %}
