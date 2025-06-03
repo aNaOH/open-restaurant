@@ -5,7 +5,8 @@
     "require": {
         "bramus/router": "^1.6",
         "twig/twig": "^3.21",
-        "stripe/stripe-php": "^17.3"
+        "stripe/stripe-php": "^17.3",
+        "endroid/qr-code": "^6.0"
     },
     "autoload": {
         "classmap": [
