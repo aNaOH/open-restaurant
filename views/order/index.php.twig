@@ -149,6 +149,22 @@
         {% endif %}
     </div>
 
+    <div class="w-full flex justify-center mt-4">
+        <button type="button" id="openCancelOrderModalBtn" class="btn flex items-center gap-2 px-6 py-2 rounded-full font-semibold text-white bg-red-500 shadow hover:bg-red-600 transition-all duration-200">
+            <i data-feather="x-circle" class="w-5 h-5"></i> Cancelar pedido
+        </button>
+    </div>
+    <!-- Modal cancelar pedido -->
+    <dialog id="cancelOrderModal" class="rounded-2xl shadow-2xl max-w-sm w-full border-0 bg-transparent backdrop-blur-sm">
+        <form id="cancelOrderFormDialog" method="GET" action="/order/stop" class="relative bg-white p-8 rounded-2xl shadow-xl border border-blue-100 flex flex-col items-center">
+            <h3 class="text-xl font-bold text-center mb-4 text-gray-800">¿Seguro que quieres cancelar el pedido?</h3>
+            <div class="flex gap-3 mt-2">
+                <button id="closeCancelOrderModalBtn" type="button" class="px-5 py-2 rounded-full font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-all duration-200">No, volver</button>
+                <button type="submit" class="px-5 py-2 rounded-full font-semibold text-white bg-red-500 hover:bg-red-600 transition-all duration-200">Sí, cancelar</button>
+            </div>
+        </form>
+    </dialog>
+
 {% endblock %}
 
 {% block scripts %}
@@ -156,6 +172,22 @@
         .category-card[data-active="true"] {
             background-color: #DBEAFE; /* bg-blue-100 */
             border-color: #60A5FA;    /* border-blue-400 */
+        }
+        dialog[open] {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.35);
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            max-width: 100vw;
+            max-height: 100vh;
+            margin: 0;
+            backdrop-filter: blur(4px);
         }
     </style>
     <script>
@@ -269,5 +301,41 @@
             });
         });
         {% endif %}
+        // Modal cancelar pedido
+        const cancelOrderModal = document.getElementById('cancelOrderModal');
+        const openCancelOrderModalBtn = document.getElementById('openCancelOrderModalBtn');
+        const closeCancelOrderModalBtn = document.getElementById('closeCancelOrderModalBtn');
+        if (openCancelOrderModalBtn && cancelOrderModal) {
+            openCancelOrderModalBtn.addEventListener('click', function() {
+                cancelOrderModal.showModal();
+                setTimeout(() => {
+                    cancelOrderModal.classList.add('fade-in');
+                    cancelOrderModal.classList.remove('fade-out');
+                }, 10);
+            });
+        }
+        if (closeCancelOrderModalBtn && cancelOrderModal) {
+            closeCancelOrderModalBtn.addEventListener('click', function() {
+                cancelOrderModal.classList.remove('fade-in');
+                cancelOrderModal.classList.add('fade-out');
+                setTimeout(() => {
+                    cancelOrderModal.close();
+                }, 300);
+            });
+        }
+        if (cancelOrderModal) {
+            cancelOrderModal.addEventListener('click', function(e) {
+                if (e.target === cancelOrderModal) {
+                    cancelOrderModal.classList.remove('fade-in');
+                    cancelOrderModal.classList.add('fade-out');
+                    setTimeout(() => {
+                        cancelOrderModal.close();
+                    }, 300);
+                }
+            });
+            cancelOrderModal.addEventListener('close', function() {
+                cancelOrderModal.classList.remove('fade-in', 'fade-out');
+            });
+        }
     </script>
 {% endblock %}

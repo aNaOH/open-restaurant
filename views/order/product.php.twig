@@ -118,8 +118,31 @@
                                 cancelBtn.style.display = 'flex';
                                 document.querySelector('button[onclick*="window.history.back"]').style.display = 'none';
                                 cancelBtn.addEventListener('click', function() {
-                                    fetch('/order/cancel-promo', { method: 'POST', headers: { "X-Requested-With": "XMLHttpRequest" } })
-                                        .then(() => window.location.href = '/order');
+                                    cancelBtn.disabled = true;
+                                    cancelBtn.innerHTML = '<span class="loader mr-2"></span> Cancelando...';
+                                    fetch('/order/cancel-promo', {
+                                        method: 'POST',
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                            "X-Requested-With": "XMLHttpRequest"
+                                        },
+                                        body: JSON.stringify({ code: '{{ promo }}' })
+                                    })
+                                    .then(res => res.json())
+                                    .then(data => {
+                                        if(data && data.status === 'ok') {
+                                            window.location.href = '/order';
+                                        } else {
+                                            alert(data && data.message ? data.message : 'Error al cancelar la promoción');
+                                            cancelBtn.disabled = false;
+                                            cancelBtn.innerHTML = '<i data-feather="x" class="w-5 h-5"></i> Cancelar';
+                                        }
+                                    })
+                                    .catch(() => {
+                                        alert('Error de red');
+                                        cancelBtn.disabled = false;
+                                        cancelBtn.innerHTML = '<i data-feather="x" class="w-5 h-5"></i> Cancelar';
+                                    });
                                 });
                             }
                         {% endif %}
@@ -202,18 +225,14 @@
                     method: 'POST',
                     body: new FormData(form)
                 })
-                .then(res => res.json ? res.json() : res)
+                .then(res => res.json())
                 .then(data => {
                     btn.disabled = false;
                     btn.innerHTML = '<i data-feather="shopping-cart" class="w-5 h-5"></i> Añadir al carrito';
                     if(data && data.status === 'ok') {
                         btn.innerHTML = '<i data-feather="check" class="w-5 h-5"></i> Añadido!';
                         setTimeout(() => {
-                            if (window.history.length > 1) {
-                                window.location = document.referrer || '/order';
-                            } else {
-                                window.location = '/order';
-                            }
+                            window.location.href = '/order';
                         }, 900);
                     } else {
                         alert(data && data.message ? data.message : 'Error al añadir al carrito');

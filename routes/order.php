@@ -34,8 +34,6 @@ $router->mount('/order', function() use ($router) {
             return count(Product::getByCategory($category->id)) > 0;
         });
 
-        echo json_encode($order);
-
         // Render the order page with the current order
         ViewController::render('order/index', [
             'order' => $order,
