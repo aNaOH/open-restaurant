@@ -283,4 +283,25 @@ class Product {
         $rows = Connection::doSelect(DBCONN, 'Product', ['category' => $categoryId]);
         return array_map([self::class, 'fromRow'], $rows);
     }
+
+    /**
+     * Busca un producto promocional por código de promoción.
+     * @param string $code
+     * @return Product|null
+     */
+    public static function getByPromoCode($code) {
+        $rows = Connection::doSelect(DBCONN, 'Product', ['code' => $code, 'type' => EPRODUCT_TYPE::PROMOTION->value]);
+        return $rows && count($rows) > 0 ? self::fromRow($rows[0]) : null;
+    }
+
+    /**
+     * Busca un producto por su código promocional exacto (campo 'code').
+     * @param string $code
+     * @return Product|null
+     */
+    public static function getByCode($code) {
+        if (!$code) return null;
+        $rows = Connection::doSelect(DBCONN, 'Product', ['code' => $code]);
+        return $rows && count($rows) > 0 ? self::fromRow($rows[0]) : null;
+    }
 }

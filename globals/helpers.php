@@ -101,6 +101,14 @@ class OrderHelpers {
             return null;
         }
 
+        // Asegura que 'promos' siempre esté presente y sea un array asociativo
+        if (!isset($order['promos']) || !is_array($order['promos'])) {
+            $order['promos'] = [];
+        }
+
+        // Actualiza la sesión si fue necesario
+        $_SESSION['order'] = $order;
+
         return $order;
     }
 
@@ -157,5 +165,64 @@ class OrderHelpers {
         if(self::getOrder() !== null) {
             unset($_SESSION['order']);
         }
+    }
+
+    public static function addPromoToOrder($promoCode) {
+        if(!isset($_SESSION['order'])) {
+            return false;
+        }
+        $order = $_SESSION['order'];
+        if(!$order || !isset($order['promos']) || !is_array($order['promos'])) {
+            $order['promos'] = [];
+        }
+        // Check if the promo already exists in the order (clave asociativa)
+        if(array_key_exists($promoCode, $order['promos'])) {
+            return false;
+        }
+        // Check if the promo code is valid
+        $product = Product::getByCode($promoCode);
+        if(!$product || $product->type != EPRODUCT_TYPE::PROMOTION) {
+            return false; // Invalid promo code
+        }
+        // Solo guardar el código, no el objeto
+        $order['promos'][$promoCode] = true;
+        $_SESSION['order'] = $order;
+        return true;
+    }
+
+    public static function removePromoFromOrder($promoCode) {
+        if(!isset($_SESSION['order'])) {
+            return false;
+        }
+        $order = $_SESSION['order'];
+        if(!$order || !isset($order['promos'])) {
+            return false;
+        }
+        // Check if the promo exists in the order (clave asociativa)
+        if(array_key_exists($promoCode, $order['promos'])) {
+            unset($order['promos'][$promoCode]);
+            $_SESSION['order'] = $order;
+            return true;
+        }
+        return false;
+    }
+
+    public static function hasProductInOrder($productId) {
+        if (!isset($_SESSION['order']) || !isset($_SESSION['order']['items'])) {
+            return false;
+        }
+        foreach ($_SESSION['order']['items'] as $item) {
+            if ($item['product_id'] == $productId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static function hasPromoInOrder($promoCode) {
+        if (!isset($_SESSION['order']) || !isset($_SESSION['order']['promos'])) {
+            return false;
+        }
+        return array_key_exists($promoCode, $_SESSION['order']['promos']);
     }
 }

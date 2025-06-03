@@ -25,6 +25,20 @@
                 </div>
             </button>
         {% endfor %}
+        {% if promosEnabled %}
+            <button id="btn-category-promo" class="category-card group bg-white rounded-2xl shadow-md p-4 flex flex-col items-center border border-gray-100 hover:shadow-xl hover:border-blue-400 transition-all duration-200 max-w-[210px] min-w-[150px] flex-1 cursor-pointer">
+                <span class="relative w-32 h-32 flex items-center justify-center overflow-hidden rounded-xl mb-2">
+                    <span class="flex items-center justify-center w-full h-full text-blue-500">
+                        <i data-feather="percent" class="w-16 h-16"></i>
+                    </span>
+                </span>
+                <div class="mt-1 text-center w-full">
+                    <div class="font-semibold text-gray-800 flex items-center gap-1 justify-center text-lg group-hover:text-primary transition-colors">
+                        Códigos promocionales
+                    </div>
+                </div>
+            </button>
+        {% endif %}
     </div>
 
     <div class="w-full mt-2 flex flex-col items-center justify-center border-t-2 border-blue-200 pt-2">
@@ -50,6 +64,58 @@
                 </div>
             {% endif %}
         {% endfor %}
+        {% if promosEnabled %}
+            <div class="category-products mb-8 w-full" id="category-promo" style="display:none;">
+                <div class="flex flex-col items-center justify-center gap-4 p-8">
+                    <form id="promoCodeForm" class="w-full max-w-sm flex flex-col gap-4 items-center">
+                        <label for="promoCodeInput" class="font-semibold text-gray-700 text-lg">Introduce tu código promocional</label>
+                        <input type="text" id="promoCodeInput" name="promo_code" class="border border-blue-200 rounded-lg px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200 text-center text-lg" placeholder="Código promocional" autocomplete="off" required>
+                        <button type="submit" class="btn primary flex items-center gap-2 px-6 py-2 rounded-full font-semibold text-white bg-blue-500 shadow hover:bg-cyan-500 transition-all duration-200">
+                            <i data-feather="percent" class="w-5 h-5"></i> Aplicar código
+                        </button>
+                        <div id="promoCodeError" class="text-red-600 text-sm hidden">Código no válido o expirado.</div>
+                    </form>
+                    {% if order.promos is defined and order.promos|length > 0 %}
+                        <div class="w-full mt-6">
+                            <div class="font-semibold text-gray-700 mb-2 text-center">Códigos aplicados:</div>
+                            <div class="flex flex-wrap gap-6 w-full items-center justify-center">
+                                {# Cargar el producto por código en cada iteración #}
+                                {% for promoCode in order.promos|keys %}
+                                    {% set promoProduct = _ProductClass.getByCode(promoCode) %}
+                                    {% set inCart = false %}
+                                    {% if order.items is defined %}
+                                        {% for item in order.items %}
+                                            {% if promoProduct and item.product_id == promoProduct.id %}
+                                                {% set inCart = true %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if promoProduct and not inCart and promoProduct.id is defined and promoProduct.name and promoProduct.price is not null %}
+                                        <div class="product-card group bg-white rounded-2xl shadow-md p-4 flex flex-col items-center border border-gray-100 hover:shadow-xl hover:border-blue-400 transition-all duration-200 max-w-[210px] min-w-[150px] flex-1">
+                                            <span class="relative w-32 h-32 flex items-center justify-center overflow-hidden rounded-xl mb-2">
+                                                {% if promoProduct.getImagePath() %}
+                                                    <img src="/{{ promoProduct.getImagePath() }}" alt="{{ promoProduct.name }}" class="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110 rounded-xl">
+                                                {% else %}
+                                                    <span class="w-full h-full flex items-center justify-center text-gray-300 bg-gray-100 rounded-xl">Sin imagen</span>
+                                                {% endif %}
+                                            </span>
+                                            <div class="mt-1 text-center w-full">
+                                                <div class="font-semibold text-blue-700 flex items-center gap-1 justify-center text-lg group-hover:text-primary transition-colors">
+                                                    {{ promoProduct.name }}
+                                                </div>
+                                                <div class="text-primary font-bold text-base mt-1">${{ promoProduct.price|number_format(2, '.', ',') }}</div>
+                                                <div class="text-gray-600 text-xs mt-1">Código: <span class="font-mono">{{ promoCode }}</span></div>
+                                                <a href="/order/product/{{promoProduct.id}}" class="btn secondary px-3 py-1 rounded-full text-blue-700 border border-blue-300 bg-white hover:bg-blue-100 mt-2">Ver producto</a>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
     </div>
 
 {% endblock %}
@@ -102,5 +168,59 @@
                 this.setAttribute('data-active', 'true');
             });
         });
+        {% if promosEnabled %}
+        // Promo code category logic
+        document.getElementById('btn-category-promo').addEventListener('click', function() {
+            // Hide all category products
+            document.querySelectorAll('.category-products').forEach(catProds => {
+                catProds.style.display = 'none';
+            });
+            // Remove data-active from all buttons
+            document.querySelectorAll('.category-card').forEach(btn => {
+                btn.removeAttribute('data-active');
+            });
+            // Show promo code input
+            document.getElementById('category-promo').style.display = 'block';
+            this.setAttribute('data-active', 'true');
+        });
+        // Promo code form submission (AJAX o redirect) usando jQuery
+        $('#promoCodeForm').on('submit', function(e) {
+            e.preventDefault();
+            var code = $('#promoCodeInput').val().trim();
+            var errorDiv = $('#promoCodeError');
+            errorDiv.addClass('hidden');
+            if (!code) return;
+            // Validar el código por GET
+            $.get('/order/product-by-code/' + encodeURIComponent(code), function(data) {
+                if (data && data.productId) {
+                    // Si es válido, hacer POST a /order/apply-promo
+                    $.ajax({
+                        url: '/order/apply-promo',
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ code: code }),
+                        dataType: 'json',
+                        success: function(postData) {
+                            if (postData && postData.status === 'ok' && postData.productId) {
+                                window.location.href = '/order/product/' + postData.productId;
+                            } else {
+                                if (postData && postData.message) {
+                                    errorDiv.text(postData.message);
+                                }
+                                errorDiv.removeClass('hidden');
+                            }
+                        },
+                        error: function() {
+                            errorDiv.removeClass('hidden');
+                        }
+                    });
+                } else {
+                    errorDiv.removeClass('hidden');
+                }
+            }, 'json').fail(function() {
+                errorDiv.removeClass('hidden');
+            });
+        });
+        {% endif %}
     </script>
 {% endblock %}
