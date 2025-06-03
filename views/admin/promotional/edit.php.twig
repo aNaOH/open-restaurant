@@ -97,12 +97,192 @@
 {% endblock %}
 {% block scripts %}
 <script src="/assets/js/components/fileUpload.js"></script>
-<script src="/assets/js/admin.promotional.edit.js"></script>
 <script>
-    window.discountEnabled = {{ discountEnabled ? 'true' : 'false' }};
-    window.fidelityEnabled = {{ fidelityEnabled ? 'true' : 'false' }};
-    window.composedId = {{ composed.id }};
-    window.componentsData = [
+document.addEventListener('DOMContentLoaded', function() {
+    const componentsContainer = document.getElementById('componentsContainer');
+    const addComponentBtn = document.getElementById('addComponentBtn');
+    // --- VALIDACIÓN Y ENVÍO ---
+    const form = document.querySelector('form[action^="/admin/promotional/edit/"]');
+    // Mostrar/ocultar campos según configuración
+    const discountEnabled = {{ discountEnabled ? 'true' : 'false' }};
+    const fidelityEnabled = {{ fidelityEnabled ? 'true' : 'false' }};
+    const promoCodeField = document.getElementById('promoCodeField');
+    const loyaltyPointsField = document.getElementById('loyaltyPointsField');
+    function updatePromoFieldsVisibility() {
+        if (discountEnabled && !fidelityEnabled) {
+            promoCodeField.style.display = '';
+            loyaltyPointsField.style.display = 'none';
+        } else if (!discountEnabled && fidelityEnabled) {
+            promoCodeField.style.display = 'none';
+            loyaltyPointsField.style.display = '';
+        } else if (discountEnabled && fidelityEnabled) {
+            promoCodeField.style.display = '';
+            loyaltyPointsField.style.display = '';
+        } else {
+            promoCodeField.style.display = 'none';
+            loyaltyPointsField.style.display = 'none';
+        }
+    }
+    updatePromoFieldsVisibility();
+    // --- VALIDACIÓN Y ENVÍO ---
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(form);
+        // Imagen desde file-upload (solo si se sube una nueva, no obligatoria)
+        let imgFile = null;
+        if (imgUpload && typeof imgUpload.getFileInput === 'function') {
+            const fileInput = imgUpload.getFileInput();
+            if (fileInput && fileInput.length > 0 && fileInput[0]) {
+                imgFile = fileInput[0];
+            }
+        }
+        if (imgFile) {
+            formData.append('image', imgFile);
+        }
+        // Componentes: productos o categorías
+        formData.delete('components[]');
+        const rows = componentsContainer.querySelectorAll('.component-row');
+        let valid = true;
+        let totalComponents = 0;
+        rows.forEach(row => {
+            const type = row.querySelector('.component-type-select').value;
+            let ids = [];
+            if (type === 'product') {
+                const productSelect = row.querySelector('.component-product-select');
+                const selectedOptions = Array.from(productSelect.options).filter(opt => opt.selected && opt.style.display !== 'none');
+                if (selectedOptions.length) {
+                    ids = selectedOptions.map(opt => opt.value);
+                    totalComponents += ids.length;
+                } else {
+                    valid = false;
+                }
+            } else {
+                const categorySelect = row.querySelector('.component-category-select');
+                const selectedCategory = categorySelect.value;
+                if (selectedCategory) {
+                    ids.push(selectedCategory);
+                    totalComponents++;
+                } else {
+                    valid = false;
+                }
+            }
+            if (ids.length) {
+                formData.append('components[]', JSON.stringify({ type, ids }));
+            }
+        });
+        if (!valid || totalComponents < 1) {
+            alert('Debes seleccionar al menos un producto o categoría como componente.');
+            return;
+        }
+        // Validación de campos según configuración
+        const promoCode = form.querySelector('#promo_code') ? form.querySelector('#promo_code').value.trim() : '';
+        const loyaltyPoints = form.querySelector('#loyalty_points') ? form.querySelector('#loyalty_points').value.trim() : '';
+        if (discountEnabled && !fidelityEnabled && !promoCode) {
+            alert('El código promocional es obligatorio.');
+            return;
+        }
+        if (fidelityEnabled && !discountEnabled && !loyaltyPoints) {
+            alert('Los puntos de fidelización son obligatorios.');
+            return;
+        }
+        if (discountEnabled && fidelityEnabled && !promoCode && !loyaltyPoints) {
+            alert('Debes rellenar al menos el código promocional o los puntos de fidelización.');
+            return;
+        }
+        // Validación de código promocional único (AJAX, si se ha introducido)
+        const promoCodeError = document.getElementById('promoCodeError');
+        if (promoCode) {
+            fetch(`/admin/promotional/check-code?code=${encodeURIComponent(promoCode)}&exclude={{ composed.id }}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.exists) {
+                        promoCodeError.classList.remove('hidden');
+                    } else {
+                        promoCodeError.classList.add('hidden');
+                        submitPromoForm(formData);
+                    }
+                })
+                .catch(() => {
+                    // Si hay error en la petición, permitir el envío para no bloquear al usuario
+                    submitPromoForm(formData);
+                });
+        } else {
+            submitPromoForm(formData);
+        }
+    });
+    function submitPromoForm(formData) {
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                window.location.href = '/admin/promotional';
+            } else {
+                alert('Error al guardar el producto promocional: ' + (data.message || 'Error desconocido'));
+            }
+        })
+        .catch(error => {
+            console.error('Error en la solicitud:', error);
+            alert('Error en la solicitud. Por favor, inténtalo de nuevo más tarde.');
+        });
+    }
+    const removeComponentBtns = document.querySelectorAll('.remove-component-btn');
+    removeComponentBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const componentRow = btn.closest('.component-row');
+            componentRow.parentNode.removeChild(componentRow);
+        });
+    });
+    addComponentBtn.addEventListener('click', function() {
+        const firstRow = componentsContainer.querySelector('.component-row');
+        const newRow = firstRow.cloneNode(true);
+        newRow.querySelector('.component-type-select').value = 'product';
+        newRow.querySelector('.component-product-select').style.display = '';
+        Array.from(newRow.querySelector('.component-product-select').options).forEach(opt => opt.selected = false);
+        newRow.querySelector('.component-category-select').style.display = 'none';
+        newRow.querySelector('.component-category-select').selectedIndex = 0;
+        newRow.querySelector('.component-category-filter').style.display = '';
+        newRow.querySelector('.component-category-filter').selectedIndex = 0;
+        newRow.querySelector('.remove-component-btn').style.display = '';
+        componentsContainer.appendChild(newRow);
+    });
+    componentsContainer.addEventListener('change', function(e) {
+        if (e.target.classList.contains('component-type-select')) {
+            const row = e.target.closest('.component-row');
+            if (e.target.value === 'product') {
+                row.querySelector('.component-product-select').style.display = '';
+                row.querySelector('.component-category-select').style.display = 'none';
+                row.querySelector('.component-category-filter').style.display = '';
+            } else {
+                row.querySelector('.component-product-select').style.display = 'none';
+                row.querySelector('.component-category-select').style.display = '';
+                row.querySelector('.component-category-filter').style.display = 'none';
+            }
+        }
+        if (e.target.classList.contains('component-category-filter')) {
+            const row = e.target.closest('.component-row');
+            const filterValue = e.target.value;
+            const productSelect = row.querySelector('.component-product-select');
+            Array.from(productSelect.options).forEach(opt => {
+                if (!filterValue || opt.dataset.category === filterValue) {
+                    opt.style.display = '';
+                } else {
+                    opt.style.display = 'none';
+                    opt.selected = false;
+                }
+            });
+        }
+    });
+    // --- CARGA INICIAL DE COMPONENTES SELECCIONADOS ---
+    {% if components is defined and components|length > 0 %}
+    // Limpiar el contenedor y cargar los componentes guardados
+    componentsContainer.innerHTML = '';
+    const componentsData = [
         {% for comp in components %}
             {% if comp.type == 'group' %}
                 {% for item in comp.items %}
@@ -113,5 +293,55 @@
             {% endif %}
         {% endfor %}
     ];
+    componentsData.forEach(function(component) {
+        // Crear una nueva fila desde cero para evitar referencias rotas
+        const newRow = document.createElement('div');
+        newRow.className = 'component-row flex gap-2 items-center';
+        newRow.innerHTML = `
+            <select class="component-type-select border rounded px-2 py-1" style="min-width:110px">
+                <option value="product">Producto</option>
+                <option value="category">Categoría</option>
+            </select>
+            <select class="component-category-filter border rounded px-2 py-1" style="min-width:110px">
+                <option value="">Todas</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+            <select class="component-product-select border rounded px-2 py-1" multiple style="min-width:160px">
+                {% for product in products %}
+                <option value="{{ product.id }}" data-category="{{ product.category.id }}">{{ product.name }}</option>
+                {% endfor %}
+            </select>
+            <select class="component-category-select border rounded px-2 py-1" style="min-width:160px; display:none">
+                <option value="">Selecciona categoría</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+            <button type="button" class="remove-component-btn text-red-600 hover:text-red-800 text-xl font-bold px-2" title="Quitar componente" style="display:none">&times;</button>
+        `;
+        // Set tipo
+        newRow.querySelector('.component-type-select').value = component.type;
+        if (component.type === 'product') {
+            newRow.querySelector('.component-product-select').style.display = '';
+            newRow.querySelector('.component-category-select').style.display = 'none';
+            newRow.querySelector('.component-category-filter').style.display = '';
+            // Seleccionar productos
+            Array.from(newRow.querySelector('.component-product-select').options).forEach(opt => {
+                opt.selected = component.ids.includes(opt.value);
+            });
+        } else {
+            newRow.querySelector('.component-product-select').style.display = 'none';
+            newRow.querySelector('.component-category-select').style.display = '';
+            newRow.querySelector('.component-category-filter').style.display = 'none';
+            // Seleccionar categoría
+            newRow.querySelector('.component-category-select').value = component.ids[0] || '';
+        }
+        newRow.querySelector('.remove-component-btn').style.display = componentsData.length > 1 ? '' : 'none';
+        componentsContainer.appendChild(newRow);
+    });
+    {% endif %}
+});
 </script>
 {% endblock %}
