@@ -128,11 +128,20 @@ class OrderHelpers {
                 return true;
             }
         }
-        // If not found, add new item
+        // If not found, add new item (guardar snapshot JSON del producto)
+        $product = Product::getById($productId);
         $order['items'][] = [
             'product_id' => $productId,
             'quantity' => $quantity,
-            'metadata' => $metadata
+            'metadata' => $metadata,
+            'product_snapshot' => $product ? [
+                'id' => $product->id,
+                'name' => $product->name,
+                'price' => $product->price,
+                'image' => $product->getImagePath(),
+                'code' => $product->code,
+                'type' => $product->type->value,
+            ] : null
         ];
         $_SESSION['order'] = $order;
         return true;
@@ -184,8 +193,15 @@ class OrderHelpers {
         if(!$product || $product->type != EPRODUCT_TYPE::PROMOTION) {
             return false; // Invalid promo code
         }
-        // Solo guardar el código, no el objeto
-        $order['promos'][$promoCode] = true;
+        // Guardar snapshot JSON del producto en vez de solo el código
+        $order['promos'][$promoCode] = [
+            'id' => $product->id,
+            'name' => $product->name,
+            'price' => $product->price,
+            'image' => $product->getImagePath(),
+            'code' => $product->code,
+            'type' => $product->type->value,
+        ];
         $_SESSION['order'] = $order;
         return true;
     }

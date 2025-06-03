@@ -34,11 +34,24 @@ $router->mount('/order', function() use ($router) {
             return count(Product::getByCategory($category->id)) > 0;
         });
 
+        // Decode promo product snapshots before passing to Twig
+        if (isset($order['promos']) && is_array($order['promos'])) {
+            foreach ($order['promos'] as $code => $promoJson) {
+                if (is_string($promoJson)) {
+                    $decoded = json_decode($promoJson, true);
+                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                        $order['promos'][$code] = $decoded;
+                    } else {
+                        unset($order['promos'][$code]); // Remove invalid JSON
+                    }
+                }
+            }
+        }
+
         // Render the order page with the current order
         ViewController::render('order/index', [
             'order' => $order,
-            'categories' => $categories,
-            '_ProductClass' => Product::class
+            'categories' => $categories
         ]);
     });
 
@@ -179,6 +192,21 @@ $router->mount('/order', function() use ($router) {
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Código no válido o expirado.']);
         }
+        exit;
+    });
+
+    $router->post('/cancel-promo', function() {
+        $input = json_decode(file_get_contents('php://input'), true);
+        $code = isset($input['code']) ? trim($input['code']) : '';
+        if (!$code) {
+            echo json_encode(['status' => 'error', 'message' => 'Código no proporcionado.']);
+            exit;
+        }
+        if (!OrderHelpers::removePromoFromOrder($code)) {
+            echo json_encode(['status' => 'error', 'message' => 'No se pudo quitar el código.']);
+            exit;
+        }
+        echo json_encode(['status' => 'ok']);
         exit;
     });
 });

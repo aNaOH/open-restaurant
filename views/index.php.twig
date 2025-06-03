@@ -101,7 +101,13 @@
                                         <div class="font-semibold text-gray-800 flex items-center gap-1 justify-center text-lg group-hover:text-primary transition-colors">
                                             {{ product.name }}
                                         </div>
-                                        <div class="text-primary font-bold text-base mt-1">${{ product.price }}</div>
+                                        <div class="text-primary font-bold text-base mt-1">
+                                            {% if product.price == 0 %}
+                                                Gratis
+                                            {% else %}
+                                                ${{ product.price }}
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
                             {% endfor %}

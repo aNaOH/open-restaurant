@@ -3,7 +3,7 @@
 $router->mount('/composed', function() use ($router) {
     $router->get('/add', function() {
         $categories = Category::getAll();
-        $products = Product::getAll();
+        $products = Product::getAllByType(EPRODUCT_TYPE::SIMPLE);
         $data = [
             'categories' => $categories,
             'products' => $products
@@ -66,6 +66,17 @@ $router->mount('/composed', function() use ($router) {
             $data = is_array($component) ? $component : json_decode($component, true);
             if ($data['type'] === 'product') {
                 foreach ($data['ids'] as $prodId) {
+                    $prodObj = Product::getById($prodId);
+                    if ($prodObj && ($prodObj->type === EPRODUCT_TYPE::COMPOSED || $prodObj->type === EPRODUCT_TYPE::PROMOTION)) {
+                        $jsonResponse = [
+                            'status' => 'error',
+                            'message' => 'No puedes añadir productos compuestos ni promocionales como componentes.'
+                        ];
+                        header('Content-Type: application/json');
+                        http_response_code(400);
+                        echo json_encode($jsonResponse);
+                        exit;
+                    }
                     $composed->addChild($prodId, $position);
                     $totalComponents++;
                 }
@@ -236,6 +247,17 @@ $router->mount('/composed', function() use ($router) {
             $data = is_array($component) ? $component : json_decode($component, true);
             if ($data['type'] === 'product') {
                 foreach ($data['ids'] as $prodId) {
+                    $prodObj = Product::getById($prodId);
+                    if ($prodObj && ($prodObj->type === EPRODUCT_TYPE::COMPOSED || $prodObj->type === EPRODUCT_TYPE::PROMOTION)) {
+                        $jsonResponse = [
+                            'status' => 'error',
+                            'message' => 'No puedes añadir productos compuestos ni promocionales como componentes.'
+                        ];
+                        header('Content-Type: application/json');
+                        http_response_code(400);
+                        echo json_encode($jsonResponse);
+                        exit;
+                    }
                     $composed->addChild($prodId, $position);
                 }
             } elseif ($data['type'] === 'category') {

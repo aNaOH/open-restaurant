@@ -15,7 +15,13 @@
                 {% endif %}
                 <div class="flex-1 w-full">
                     <h1 class="text-3xl font-extrabold text-gray-800 mb-2 tracking-tight">{{ product.name }}</h1>
-                    <div class="text-blue-600 font-extrabold text-xl mb-2">${{ product.price }}</div>
+                    <div class="text-blue-600 font-extrabold text-xl mb-2">
+                        {% if product.price == 0 %}
+                            Gratis
+                        {% else %}
+                            ${{ product.price }}
+                        {% endif %}
+                    </div>
                     {% if product.type.value == 0 %}
                         <div class="text-gray-600 mb-4 leading-relaxed">{{ product.description }}</div>
                         <form method="post" action="/order/add/{{ product.id }}" class="flex items-center gap-4 mt-2">
