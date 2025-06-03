@@ -3,16 +3,16 @@
 $router->mount('/products', function() use ($router) {
     $router->get('/', function() {
         $products = Product::getAllByType(EPRODUCT_TYPE::STANDARD);
-        ViewController::render('admin/products/index', array_merge(SidebarHelpers::getBaseData(), [
+        ViewController::render('admin/products/index', [
             'products' => $products
-        ]));
+        ]);
     });
 
     $router->get('/add', function() {
         $categories = Category::getAll();
-        ViewController::render('admin/products/add', array_merge(SidebarHelpers::getBaseData(), [
+        ViewController::render('admin/products/add', [
             'categories' => $categories
-        ]));
+        ]);
     });
 
     $router->post('/add', function() {
@@ -83,10 +83,10 @@ $router->mount('/products', function() use ($router) {
         $product = Product::getById($id);
         $categories = Category::getAll();
         if ($product) {
-            ViewController::render('admin/products/edit', array_merge(SidebarHelpers::getBaseData(), [
+            ViewController::render('admin/products/edit', [
                 'product' => $product,
                 'categories' => $categories
-            ]));
+            ]);
         } else {
             header('Location: /admin/products');
             exit;
@@ -179,7 +179,7 @@ $router->mount('/products', function() use ($router) {
             header('Location: /admin/products');
             exit;
         } else {
-            ViewController::render('admin/products/index', array_merge(SidebarHelpers::getBaseData(), ['error' => 'Producto no encontrado.']));
+            ViewController::render('admin/products/index', ['error' => 'Producto no encontrado.']);
         }
     });
 });

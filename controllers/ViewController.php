@@ -13,6 +13,6 @@ class ViewController
             'debug' => true,
         ]);
 
-        echo $twig->render($view . '.php.twig', $data);
+        echo $twig->render($view . '.php.twig', array_merge(ViewHelpers::getBaseData(), $data));
     }
 }

@@ -54,7 +54,7 @@ class AuthHelpers {
     }
 }
 
-class SidebarHelpers {
+class ViewHelpers {
 
     public static function getBaseData(){
         

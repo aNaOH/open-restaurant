@@ -3,12 +3,10 @@
 $router->mount('/users', function() use ($router) {
     $router->get('/', function() {
         $users = User::getAll();
-        ViewController::render('admin/users/index', array_merge(SidebarHelpers::getBaseData(), [
-            'users' => $users
-        ]));
+        ViewController::render('admin/users/index', $data);
     });
     $router->get('/add', function() {
-        ViewController::render('admin/users/add', SidebarHelpers::getBaseData());
+        ViewController::render('admin/users/add');
     });
     $router->post('/add', function() {
         $name = $_POST['name'] ?? '';
@@ -19,9 +17,7 @@ $router->mount('/users', function() use ($router) {
         $points = $_POST['points'] ?? 0;
         if ($name && $email && $password) {
             if ($password !== $password_confirm) {
-                ViewController::render('admin/users/add', array_merge(SidebarHelpers::getBaseData(), [
-                    'error' => 'Las contraseñas no coinciden.'
-                ]));
+                ViewController::render('admin/users/add', $data);
                 return;
             }
             // Validación de contraseña segura
@@ -42,9 +38,7 @@ $router->mount('/users', function() use ($router) {
                 $passwordErrors[] = 'La contraseña debe contener al menos un carácter especial.';
             }
             if (!empty($passwordErrors)) {
-                ViewController::render('admin/users/add', array_merge(SidebarHelpers::getBaseData(), [
-                    'error' => implode(' ', $passwordErrors)
-                ]));
+                ViewController::render('admin/users/add', $data);
                 return;
             }
             $user = new User(null, $email, $name, password_hash($password, PASSWORD_DEFAULT), $role, $points);
@@ -52,17 +46,13 @@ $router->mount('/users', function() use ($router) {
             header('Location: /admin/users');
             exit;
         } else {
-            ViewController::render('admin/users/add', array_merge(SidebarHelpers::getBaseData(), [
-                'error' => 'Todos los campos son obligatorios.'
-            ]));
+            ViewController::render('admin/users/add', $data);
         }
     });
     $router->get('/edit/{id}', function($id) {
         $user = User::getById($id);
         if ($user) {
-            ViewController::render('admin/users/edit', array_merge(SidebarHelpers::getBaseData(), [
-                'user' => $user
-            ]));
+            ViewController::render('admin/users/edit', $data);
         } else {
             header('Location: /admin/users');
             exit;
@@ -77,10 +67,7 @@ $router->mount('/users', function() use ($router) {
                 $password = $_POST['password'];
                 $password_confirm = $_POST['password_confirm'] ?? '';
                 if ($password !== $password_confirm) {
-                    ViewController::render('admin/users/edit', array_merge(SidebarHelpers::getBaseData(), [
-                        'user' => $user,
-                        'error' => 'Las contraseñas no coinciden.'
-                    ]));
+                    ViewController::render('admin/users/edit', $data);
                     return;
                 }
                 // Validación de contraseña segura
@@ -101,10 +88,7 @@ $router->mount('/users', function() use ($router) {
                     $passwordErrors[] = 'La contraseña debe contener al menos un carácter especial.';
                 }
                 if (!empty($passwordErrors)) {
-                    ViewController::render('admin/users/edit', array_merge(SidebarHelpers::getBaseData(), [
-                        'user' => $user,
-                        'error' => implode(' ', $passwordErrors)
-                    ]));
+                    ViewController::render('admin/users/edit', $data);
                     return;
                 }
                 $user->password = password_hash($password, PASSWORD_DEFAULT);

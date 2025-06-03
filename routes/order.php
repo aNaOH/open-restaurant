@@ -15,6 +15,25 @@ $router->before('GET|POST', '/order', function() {
 });
 
 $router->mount('/order', function() use ($router) {
+        $router->get('/', function() {
+        // Get the current order
+        $order = OrderHelpers::getOrder();
+        if ($order === null) {
+            // Redirect to home if no order exists
+            header('Location: /');
+            exit;
+        }
+
+        $categories = Category::getAll();
+        // Remove from categories those that have no products
+        $categories = array_filter($categories, function($category) {
+            return count(Product::getByCategory($category->id)) > 0;
+        });
+
+        // Render the order page with the current order
+        ViewController::render('order/index', $data);
+    });
+
     $router->post('/begin', function() {
         //Check if an order already exists
         if (OrderHelpers::getOrder() !== null) {
@@ -72,28 +91,6 @@ $router->mount('/order', function() use ($router) {
         // Redirect to the order page
         header('Location: /order');
         exit;
-    });
-
-    $router->get('/', function() {
-        // Get the current order
-        $order = OrderHelpers::getOrder();
-        if ($order === null) {
-            // Redirect to home if no order exists
-            header('Location: /');
-            exit;
-        }
-
-        $categories = Category::getAll();
-        // Remove from categories those that have no products
-        $categories = array_filter($categories, function($category) {
-            return count(Product::getByCategory($category->id)) > 0;
-        });
-
-        // Render the order page with the current order
-        ViewController::render('order/index', [
-            'order' => $order,
-            'restaurantName' => CONFIG->RESTAURANT_NAME
-        ]);
     });
 
     $router->get("/stop", function() {

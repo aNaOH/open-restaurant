@@ -10,12 +10,12 @@ $router->before('GET|POST', '/admin', function() {
 $router->mount('/admin', function() use ($router) {
     $router->get('/', function() {
         $tables = Table::getAll();
-        ViewController::render('admin/index', SidebarHelpers::getBaseData());
+        ViewController::render('admin/index');
     });
 
     $router->get('/config', function() {
         global $config;
-        ViewController::render('admin/config', array_merge(SidebarHelpers::getBaseData(), [
+        ViewController::render('admin/config', [
             'discount_enabled' => $config->DISCOUNT_ENABLED,
             'fidelity_enabled' => $config->FIDELITY_ENABLED,
             'points_per_unit' => $config->POINTS_PER_UNIT,
@@ -23,7 +23,7 @@ $router->mount('/admin', function() use ($router) {
             'restaurant_address' => $config->RESTAURANT_ADDRESS,
             'restaurant_phone' => $config->RESTAURANT_PHONE,
             'restaurant_email' => $config->RESTAURANT_EMAIL
-        ]));
+        ]);
     });
     
     $router->post('/config/features', function() {

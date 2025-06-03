@@ -4,10 +4,11 @@ $router->mount('/composed', function() use ($router) {
     $router->get('/add', function() {
         $categories = Category::getAll();
         $products = Product::getAll();
-        ViewController::render('admin/composed/add', array_merge(SidebarHelpers::getBaseData(), [
+        $data = [
             'categories' => $categories,
             'products' => $products
-        ]));
+        ];
+        ViewController::render('admin/composed/add', $data);
     });
 
     $router->post('/add', function() {
@@ -144,9 +145,10 @@ $router->mount('/composed', function() use ($router) {
         // Obtener todos los productos compuestos
         $composedProducts = Product::getAllByType(EPRODUCT_TYPE::COMPOSED);
         
-        ViewController::render('admin/composed/index', array_merge(SidebarHelpers::getBaseData(), [
+        $data = [
             'composedProducts' => $composedProducts
-        ]));
+        ];
+        ViewController::render('admin/composed/index', $data);
     });
 
     $router->get('/edit/{id}', function($id) {
@@ -160,13 +162,14 @@ $router->mount('/composed', function() use ($router) {
         // Procesar componentes y categoría para el formulario
         $components = $composed->getChildren();
         $category = is_object($composed->category) ? $composed->category : ($composed->category ? Category::getById($composed->category) : null);
-        ViewController::render('admin/composed/edit', array_merge(SidebarHelpers::getBaseData(), [
+        $data = [
             'composed' => $composed,
             'components' => $components,
             'categories' => $categories,
             'products' => $products,
             'category' => $category
-        ]));
+        ];
+        ViewController::render('admin/composed/edit', $data);
     });
 
     $router->post('/edit/{id}', function($id) {

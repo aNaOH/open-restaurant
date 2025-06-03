@@ -4,22 +4,24 @@ $router->mount('/promotional', function() use ($router) {
     $router->get('/', function() {
         // Listar productos promocionales (compuestos con code o points)
         $promotionalProducts = Product::getAllByType(EPRODUCT_TYPE::PROMOTION); // true,true: solo con code o points
-        ViewController::render('admin/promotional/index', array_merge(SidebarHelpers::getBaseData(), [
+        $data = [
             'promotionalProducts' => $promotionalProducts,
             'discountEnabled' => CONFIG->DISCOUNT_ENABLED,
             'fidelityEnabled' => CONFIG->FIDELITY_ENABLED
-        ]));
+        ];
+        ViewController::render('admin/promotional/index', $data);
     });
 
     $router->get('/add', function() {
         $categories = Category::getAll();
         $products = Product::getAll();
-        ViewController::render('admin/promotional/add', array_merge(SidebarHelpers::getBaseData(), [
+        $data = [
             'categories' => $categories,
             'products' => $products,
             'discountEnabled' => CONFIG->DISCOUNT_ENABLED,
             'fidelityEnabled' => CONFIG->FIDELITY_ENABLED
-        ]));
+        ];
+        ViewController::render('admin/promotional/add', $data);
     });
 
     $router->post('/add', function() {
@@ -190,7 +192,7 @@ $router->mount('/promotional', function() use ($router) {
         // Procesar componentes y categoría para el formulario
         $components = $composed->getChildren();
         $category = is_object($composed->category) ? $composed->category : ($composed->category ? Category::getById($composed->category) : null);
-        ViewController::render('admin/promotional/edit', array_merge(SidebarHelpers::getBaseData(), [
+        $data = [
             'composed' => $composed,
             'components' => $components,
             'categories' => $categories,
@@ -198,7 +200,8 @@ $router->mount('/promotional', function() use ($router) {
             'category' => $category,
             'discountEnabled' => CONFIG->DISCOUNT_ENABLED,
             'fidelityEnabled' => CONFIG->FIDELITY_ENABLED
-        ]));
+        ];
+        ViewController::render('admin/promotional/edit', $data);
     });
 
     $router->post('/edit/{id}', function($id) {

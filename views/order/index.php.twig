@@ -1,3 +1,106 @@
 {% extends "/templates/base.php.twig" %}
 
 {% block title %}Pidiendo para la mesa {{order.table}}{% endblock %}
+
+{% block content %}
+
+    {% include "/components/header.php.twig" %}
+
+    {% if categories|length == 0 %}
+        <div class="text-gray-500 mt-8">No hay categorías disponibles.</div>
+    {% endif %}
+    <div class="flex flex-wrap gap-6 w-full items-center justify-center mt-8">
+        {% for category in categories %}
+            <button id="btn-category-{{ category.id }}" class="category-card group bg-white rounded-2xl shadow-md p-4 flex flex-col items-center border border-gray-100 hover:shadow-xl hover:border-blue-400 transition-all duration-200 max-w-[210px] min-w-[150px] flex-1 cursor-pointer">
+                <span class="relative w-32 h-32 flex items-center justify-center overflow-hidden rounded-xl mb-2">
+                    <img src="/{{ category.getImagePath() }}" alt="{{ category.name }}" class="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110 rounded-xl">
+                    <span class="absolute bottom-2 right-2 bg-white rounded-full p-1 shadow border border-blue-200">
+                        <i data-feather="tag" class="w-4 h-4 text-primary"></i>
+                    </span>
+                </span>
+                <div class="mt-1 text-center w-full">
+                    <div class="font-semibold text-gray-800 flex items-center gap-1 justify-center text-lg group-hover:text-primary transition-colors">
+                        {{ category.name }}
+                    </div>
+                </div>
+            </button>
+        {% endfor %}
+    </div>
+
+    <div class="w-full mt-2 flex flex-col items-center justify-center border-t-2 border-blue-200 pt-2">
+        {% for category in categories %}
+            {% set catProducts = category.getProducts() %}
+            {% if catProducts|length > 0 %}
+                <div class="category-products mb-8 w-full" id="category-{{ category.id }}">
+                    <div class="flex flex-wrap gap-6 w-full items-center justify-center">
+                        {% for product in catProducts %}
+                            <a href="/order/product/{{product.id}}" class="product-card group bg-white rounded-2xl shadow-md p-4 flex flex-col items-center border border-gray-100 hover:shadow-xl hover:border-blue-400 transition-all duration-200 cursor-pointer max-w-[210px] min-w-[150px] flex-1">
+                                <span class="relative w-32 h-32 flex items-center justify-center overflow-hidden rounded-xl mb-2">
+                                    <img src="/{{ product.getImagePath() }}" alt="{{ product.name }}" class="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110 rounded-xl">
+                                </span>
+                                <div class="mt-1 text-center w-full">
+                                    <div class="font-semibold text-gray-800 flex items-center gap-1 justify-center text-lg group-hover:text-primary transition-colors">
+                                        {{ product.name }}
+                                    </div>
+                                    <div class="text-primary font-bold text-base mt-1">${{ product.price }}</div>
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    <style>
+        .category-card[data-active="true"] {
+            background-color: #DBEAFE; /* bg-blue-100 */
+            border-color: #60A5FA;    /* border-blue-400 */
+        }
+    </style>
+    <script>
+        // Hide products initially
+        document.querySelectorAll('.category-products').forEach(catProds => {
+            catProds.style.display = 'none';
+        });
+        // Show products for the first category by default
+        const firstCategory = document.querySelector('.category-products');
+        if (firstCategory) {
+            firstCategory.style.display = 'block';
+        }
+
+        // Set data-active to true for the first category button by default
+        const firstCategoryBtn = document.querySelector('.category-card');
+        if (firstCategoryBtn) {
+            firstCategoryBtn.setAttribute('data-active', 'true');
+        }
+
+        // Add click event to category buttons, manage data-active attribute
+        document.querySelectorAll('.category-card').forEach(button => {
+            button.addEventListener('click', function() {
+                // Hide all category products
+                document.querySelectorAll('.category-products').forEach(catProds => {
+                    catProds.style.display = 'none';
+                });
+
+                // Remove data-active from all buttons
+                document.querySelectorAll('.category-card').forEach(btn => {
+                    btn.removeAttribute('data-active');
+                });
+
+                // Show the products for the clicked category
+                const categoryId = this.id.replace('btn-category-', '');
+                const categoryProducts = document.getElementById('category-' + categoryId);
+                if (categoryProducts) {
+                    categoryProducts.style.display = 'block';
+                }
+
+                // Set data-active to true for the clicked button
+                this.setAttribute('data-active', 'true');
+            });
+        });
+    </script>
+{% endblock %}

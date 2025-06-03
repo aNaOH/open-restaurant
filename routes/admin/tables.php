@@ -11,13 +11,11 @@ use Endroid\QrCode\Writer\PngWriter;
 $router->mount('/tables', function() use ($router) {
     $router->get('/', function() {
         $tables = Table::getAll();
-        ViewController::render('admin/tables/index', array_merge(SidebarHelpers::getBaseData(), [
-            'tables' => $tables,
-        ]));
+        ViewController::render('admin/tables/index', $data);
     });
 
     $router->get('/add', function() {
-        ViewController::render('admin/tables/add', SidebarHelpers::getBaseData());
+        ViewController::render('admin/tables/add');
     });
 
     $router->post('/add', function() {
@@ -27,18 +25,14 @@ $router->mount('/tables', function() use ($router) {
             header("Location: /admin/tables");
             exit;
         } else {
-            ViewController::render('admin/tables/add', array_merge(SidebarHelpers::getBaseData(), [
-                'error' => 'Introduce el número de mesa.',
-            ]));
+            ViewController::render('admin/tables/add', $data);
         }
     });
 
     $router->get('/edit/{id}', function($id) {
         $table = Table::getById($id);
         if ($table) {
-            ViewController::render('admin/tables/edit', array_merge(SidebarHelpers::getBaseData(), [
-                'table' => $table,
-            ]));
+            ViewController::render('admin/tables/edit', $data);
         } else {
             header("Location: /admin/tables");
             exit;
@@ -71,10 +65,7 @@ $router->mount('/tables', function() use ($router) {
 
             $result = $builder->build();
             
-            ViewController::render('admin/tables/qr', array_merge(SidebarHelpers::getBaseData(), [
-                'table' => $table,
-                'qrCode' => $result->getDataUri(),
-            ]));
+            ViewController::render('admin/tables/qr', $data);
 
             exit;
         } else {
@@ -95,10 +86,7 @@ $router->mount('/tables', function() use ($router) {
             header("Location: /admin/tables");
             exit;
         } else {
-            ViewController::render('admin/tables/edit', array_merge(SidebarHelpers::getBaseData(), [
-                'error' => 'Introduce el número de mesa.',
-                'table' => Table::getById($id),
-            ]));
+            ViewController::render('admin/tables/edit', $data);
         }
     });
 
@@ -109,9 +97,7 @@ $router->mount('/tables', function() use ($router) {
             header("Location: /admin/tables");
             exit;
         } else {
-            ViewController::render('admin/tables/index', array_merge(SidebarHelpers::getBaseData(), [
-                'error' => 'Mesa no encontrada.',
-            ]));
+            ViewController::render('admin/tables/index', $data);
         }
     });
 

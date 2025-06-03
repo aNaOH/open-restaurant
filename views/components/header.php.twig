@@ -12,6 +12,7 @@
                         <span class="text-blue-700 font-semibold">{{ user.points }} puntos</span>
                     </div>
                 {% endif %}
+                {% include "/components/cart_floating.php.twig" %}
             </div>
             <div class="flex items-center gap-2">
                 {% if user.role and user.role.value == 2 %}
@@ -33,6 +34,7 @@
             </div>
         {% else %}
             <div class="flex items-center gap-2 ml-auto">
+                {% include "/components/cart_floating.php.twig" %}
                 <a href="/login" class="inline-flex items-center gap-1 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition shadow">
                     <i data-feather="log-in"></i>
                     Iniciar sesión
@@ -45,4 +47,3 @@
         {% endif %}
     </div>
 {% endif %}
-<script>if(window.feather){window.feather.replace();}</script>

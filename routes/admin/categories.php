@@ -3,11 +3,11 @@
 $router->mount('/categories', function() use ($router) {
     $router->get('/', function() {
         $categories = Category::getAll();
-        ViewController::render('admin/categories/index', array_merge(SidebarHelpers::getBaseData(), ['categories' => $categories]));
+        ViewController::render('admin/categories/index', ['categories' => $categories]);
     });
 
     $router->get('/add', function() {
-        ViewController::render('admin/categories/add', SidebarHelpers::getBaseData());
+        ViewController::render('admin/categories/add');
     });
 
     $router->post('/add', function() {
@@ -78,7 +78,7 @@ $router->mount('/categories', function() use ($router) {
     $router->get('/edit/{id}', function($id) {
         $category = Category::getById($id);
         if ($category) {
-            ViewController::render('admin/categories/edit', array_merge(SidebarHelpers::getBaseData(), ['category' => $category]));
+            ViewController::render('admin/categories/edit', ['category' => $category]);
         } else {
             header("Location: /admin/categories");
             exit;
@@ -154,7 +154,7 @@ $router->mount('/categories', function() use ($router) {
             header("Location: /admin/categories");
             exit;
         } else {
-            ViewController::render('admin/categories/index', array_merge(SidebarHelpers::getBaseData(), ['error' => 'Categoría no encontrada.']));
+            ViewController::render('admin/categories/index', ['error' => 'Categoría no encontrada.']);
         }
     });
 
