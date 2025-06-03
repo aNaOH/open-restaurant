@@ -2,13 +2,13 @@
   <img src="assets/or/logo.svg" alt="Open Restaurant Logo" width="180" />
 </p>
 
-# open-restaurant
+# OpenRestaurant
 
-Open Restaurant is a web application designed to help restaurants manage their menu, orders, tables, and users efficiently. It features an intuitive setup wizard, user roles, product and category management, and a modern interface built with PHP, Twig, and Tailwind CSS.
+OpenRestaurant is a web application designed to help restaurants manage their menu, orders, tables, and users efficiently. It features an intuitive setup wizard, user roles, product and category management, and a modern interface built with PHP, Twig, and Tailwind CSS.
 
 ---
 
-Open Restaurant es una aplicación web diseñada para ayudar a los restaurantes a gestionar su menú, pedidos, mesas y usuarios de manera eficiente. Incluye un asistente de configuración intuitivo, gestión de roles de usuario, productos y categorías, y una interfaz moderna construida con PHP, Twig y Tailwind CSS.
+OpenRestaurant es una aplicación web diseñada para ayudar a los restaurantes a gestionar su menú, pedidos, mesas y usuarios de manera eficiente. Incluye un asistente de configuración intuitivo, gestión de roles de usuario, productos y categorías, y una interfaz moderna construida con PHP, Twig y Tailwind CSS.
 
 ## English
 
