@@ -69,6 +69,23 @@
                 <input type="submit" class="btn primary" value="Guardar cambios">
             </form>
         </div>
+        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-6 shadow">
+            <h2 class="text-xl font-extrabold text-blue-700 mb-4 flex items-center gap-2"><i data-feather="credit-card"></i> Stripe (Pagos)</h2>
+            <form action="/admin/config/stripe" method="POST" class="flex flex-col gap-4 mb-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="stripe_public_key" class="block text-gray-700 text-sm font-bold mb-2">Clave pública de Stripe</label>
+                        <input type="text" id="stripe_public_key" name="stripe_public_key" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ stripe_public_key|default('') }}">
+                    </div>
+                    <div>
+                        <label for="stripe_secret_key" class="block text-gray-700 text-sm font-bold mb-2">Clave secreta de Stripe</label>
+                        <input type="text" id="stripe_secret_key" name="stripe_secret_key" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" value="{{ stripe_secret_key|default('') }}">
+                    </div>
+                </div>
+                <div class="text-sm text-gray-500">Puedes obtener tus claves en <a href="https://dashboard.stripe.com/apikeys" target="_blank" class="text-blue-600 underline">Stripe Dashboard</a>.</div>
+                <input type="submit" class="btn primary mt-4" value="Guardar claves de Stripe">
+            </form>
+        </div>
     </div>
 {% endblock %}
 {% block scripts %}

@@ -23,6 +23,9 @@ class Config {
 
     public $INSTALL_FINISHED = false;
 
+    public $STRIPE_PUBLIC_KEY = '';
+    public $STRIPE_SECRET_KEY = '';
+
     // Check if the application is installed, check if the database name and user are set
     public function isInstalled() {
         return ( !empty($this->DB_NAME) && !empty($this->DB_USER) ) && $this->INSTALL_FINISHED == true;
@@ -53,6 +56,11 @@ class Config {
                 $this->FIDELITY_ENABLED = isset($config['features']['fidelityEnabled']) ? $config['features']['fidelityEnabled'] : false;
             }
 
+            if(isset($config['stripe'])) {
+                $this->STRIPE_PUBLIC_KEY = isset($config['stripe']['publicKey']) ? $config['stripe']['publicKey'] : '';
+                $this->STRIPE_SECRET_KEY = isset($config['stripe']['secretKey']) ? $config['stripe']['secretKey'] : '';
+            }
+
             $this->INSTALL_FINISHED = isset($config['installFinished']) ? $config['installFinished'] : false;
         }
     }
@@ -75,6 +83,10 @@ class Config {
                 'discountEnabled' => $this->DISCOUNT_ENABLED,
                 'fidelityEnabled' => $this->FIDELITY_ENABLED,
                 'pointsPerUnit' => $this->POINTS_PER_UNIT
+            ],
+            'stripe' => [
+                'publicKey' => $this->STRIPE_PUBLIC_KEY,
+                'secretKey' => $this->STRIPE_SECRET_KEY
             ],
             'installFinished' => $this->INSTALL_FINISHED
         ];

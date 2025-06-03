@@ -86,6 +86,21 @@ $router->mount('/order', function() use ($router) {
         ]);
     });
 
+    $router->get('/cart', function() {
+        // Get the current order
+        $order = OrderHelpers::getOrder();
+        if ($order === null) {
+            // Redirect to home if no order exists
+            header('Location: /');
+            exit;
+        }
+        
+        // Render the cart page with the current order
+        ViewController::render('order/cart', [
+            'order' => $order
+        ]);
+    });
+
     $router->post('/begin', function() {
         //Check if an order already exists
         if (OrderHelpers::getOrder() !== null) {
@@ -195,9 +210,19 @@ $router->mount('/order', function() use ($router) {
             echo json_encode(['status' => 'error', 'message' => 'Código no proporcionado.']);
             exit;
         }
+        // Eliminar la promo del pedido
         if (!OrderHelpers::removePromoFromOrder($code)) {
             echo json_encode(['status' => 'error', 'message' => 'No se pudo quitar el código.']);
             exit;
+        }
+        // Quitar del carrito cualquier producto asociado a esa promo
+        $order = OrderHelpers::getOrder();
+        if ($order && isset($order['items']) && is_array($order['items'])) {
+            foreach ($order['items'] as $item) {
+                if (isset($item['metadata']['promo']) && $item['metadata']['promo'] === $code) {
+                    OrderHelpers::removeItemFromOrder($item['product_id'], $item['metadata']);
+                }
+            }
         }
         echo json_encode(['status' => 'ok']);
         exit;
@@ -279,6 +304,64 @@ $router->mount('/order', function() use ($router) {
         } else {
             echo json_encode(['status' => 'error', 'message' => 'No se pudo quitar el producto del carrito.']);
         }
+        exit;
+    });
+
+    $router->get('/checkout', function() {
+        global $config;
+        $order = OrderHelpers::getOrder();
+        if ($order === null) {
+            header('Location: /');
+            exit;
+        }
+        ViewController::render('order/checkout', [
+            'order' => $order,
+            'stripe_public_key' => $config->STRIPE_PUBLIC_KEY
+        ]);
+    });
+
+    $router->post('/create-stripe', function() {
+        header('Content-Type: application/json');
+
+        // Configura tu clave secreta de Stripe desde la configuración
+        \Stripe\Stripe::setApiKey(CONFIG->STRIPE_SECRET_KEY);
+
+        // Obtén el pedido actual (ajusta según tu lógica de sesión)
+        $order = isset($_SESSION['order']) ? $_SESSION['order'] : null;
+        if (!$order || !isset($order['items']) || count($order['items']) === 0) {
+            http_response_code(400);
+            echo json_encode(['error' => 'No hay pedido activo.']);
+            exit;
+        }
+
+        // Calcula el total (ajusta si tienes lógica de descuentos/promos)
+        $total = 0;
+        foreach ($order['items'] as $item) {
+            $price = isset($item['product_snapshot']['price']) ? $item['product_snapshot']['price'] : 0;
+            $total += $price * $item['quantity'];
+        }
+
+        if ($total <= 0) {
+            http_response_code(400);
+            echo json_encode(['error' => 'El total debe ser mayor a cero.']);
+            exit;
+        }
+
+        try {
+            $paymentIntent = \Stripe\PaymentIntent::create([
+                'amount' => intval($total * 100), // Stripe usa centavos
+                'currency' => 'eur', // Cambia a tu moneda
+                'metadata' => [
+                    'order_id' => session_id(),
+                    'table' => $order['table'] ?? ''
+                ]
+            ]);
+            echo json_encode(['client_secret' => $paymentIntent->client_secret]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['error' => $e->getMessage()]);
+        }
+
         exit;
     });
 });

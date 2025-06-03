@@ -22,7 +22,9 @@ $router->mount('/admin', function() use ($router) {
             'restaurant_name' => $config->RESTAURANT_NAME,
             'restaurant_address' => $config->RESTAURANT_ADDRESS,
             'restaurant_phone' => $config->RESTAURANT_PHONE,
-            'restaurant_email' => $config->RESTAURANT_EMAIL
+            'restaurant_email' => $config->RESTAURANT_EMAIL,
+            'stripe_public_key' => $config->STRIPE_PUBLIC_KEY,
+            'stripe_secret_key' => $config->STRIPE_SECRET_KEY
         ]);
     });
     
@@ -109,6 +111,15 @@ $router->mount('/admin', function() use ($router) {
         exit;
     });
 
+
+    $router->post('/config/stripe', function() {
+        global $config;
+        $config->STRIPE_PUBLIC_KEY = isset($_POST['stripe_public_key']) ? trim($_POST['stripe_public_key']) : '';
+        $config->STRIPE_SECRET_KEY = isset($_POST['stripe_secret_key']) ? trim($_POST['stripe_secret_key']) : '';
+        $config->save();
+        header('Location: /admin/config');
+        exit;
+    });
 
     include_once 'routes/admin/tables.php';
     include_once 'routes/admin/categories.php';
