@@ -1,5 +1,18 @@
 <?php
 
+class Helpers {
+    public static function getBaseUrl() {
+        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
+        $host = $_SERVER['HTTP_HOST'];
+        $script = $_SERVER['SCRIPT_NAME'];
+        $path = dirname($script);
+
+        // Reemplaza las barras invertidas por barras normales y elimina la barra final
+        $baseUrl = $protocol . $host . str_replace('\\', '/', $path);
+        return rtrim($baseUrl, '/');
+    }
+}
+
 class AuthHelpers {
 
     public static function isLoggedIn() {

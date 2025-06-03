@@ -1,0 +1,66 @@
+{% extends "/templates/admin.php.twig" %}
+
+{% block title %}QR para la mesa {{table.id}}{% endblock %}
+
+{% block name %}QR para la mesa {{table.id}}{% endblock %}
+{% block content %}
+    <div class="flex flex-col h-full">
+        
+        <img src="{{ qrCode }}" alt="QR Code for table {{ table.id }}" class="mx-auto my-4" style="max-width: 300px; max-height: 300px;">
+        <div class="flex items-center justify-center mb-4">
+            <a href="/admin/tables" class="btn primary flex items-center gap-2"><i data-feather="arrow-left"></i> Volver a las mesas</a>
+            <button id="downloadQrBtn" class="btn secondary flex items-center gap-2 ml-2"><i data-feather="download"></i> Descargar QR</button>
+            <button id="printQrBtn" class="btn secondary flex items-center gap-2 ml-2"><i data-feather="printer"></i> Imprimir QR</button>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        document.getElementById('downloadQrBtn').addEventListener('click', function() {
+            // Create a link element to download the QR code image
+            const qrImage = document.querySelector('img[alt="QR Code for table {{ table.id }}"]');
+            const link = document.createElement('a');
+            link.href = qrImage.src;
+            link.download = `qr_table_{{ table.id }}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        document.getElementById('printQrBtn').addEventListener('click', function() {
+            // Open the print dialog and print ONLY the QR code
+            const qrImage = document.querySelector('img[alt="QR Code for table {{ table.id }}"]');
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Imprimir QR</title>
+                        <style>
+                            body {
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                height: 100vh;
+                                margin: 0;
+                            }
+                            img {
+                                max-width: 100%;
+                                max-height: 100%;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <img src="${qrImage.src}" alt="QR Code for table {{ table.id }}">
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.focus();
+            printWindow.print();
+            printWindow.close();
+
+        });
+    </script>
+{% endblock %}

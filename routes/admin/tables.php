@@ -1,5 +1,13 @@
 <?php
 
+use Endroid\QrCode\Builder\Builder;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\Label\LabelAlignment;
+use Endroid\QrCode\Label\Font\OpenSans;
+use Endroid\QrCode\RoundBlockSizeMode;
+use Endroid\QrCode\Writer\PngWriter;
+
 $router->mount('/tables', function() use ($router) {
     $router->get('/', function() {
         $tables = Table::getAll();
@@ -31,6 +39,44 @@ $router->mount('/tables', function() use ($router) {
             ViewController::render('admin/tables/edit', array_merge(SidebarHelpers::getBaseData(), [
                 'table' => $table,
             ]));
+        } else {
+            header("Location: /admin/tables");
+            exit;
+        }
+    });
+
+    $router->get('/qr/{id}', function($id) {
+        $table = Table::getById($id);
+        if ($table) {
+
+            // Get base URL from the environment
+            $baseUrl = Helpers::getBaseUrl();
+            // Create the full URL for the table
+            $tableUrl = $baseUrl . '/order/begin/' . $table->id;
+
+            $builder = new Builder(
+                writer: new PngWriter(),
+                writerOptions: [],
+                validateResult: false,
+                data: $tableUrl,
+                encoding: new Encoding('UTF-8'),
+                errorCorrectionLevel: ErrorCorrectionLevel::High,
+                size: 300,
+                margin: 10,
+                roundBlockSizeMode: RoundBlockSizeMode::Margin,
+                labelText: 'Pide aquí',
+                labelFont: new OpenSans(20),
+                labelAlignment: LabelAlignment::Center
+            );
+
+            $result = $builder->build();
+            
+            ViewController::render('admin/tables/qr', array_merge(SidebarHelpers::getBaseData(), [
+                'table' => $table,
+                'qrCode' => $result->getDataUri(),
+            ]));
+
+            exit;
         } else {
             header("Location: /admin/tables");
             exit;
