@@ -172,11 +172,18 @@ $router->post("/features", function() {
 
     $discount_enabled = isset($_POST['codeEnabled']) ? true : false;
     $fidelity_enabled = isset($_POST['fidelityEnabled']) ? true : false;
+    $points_per_unit = isset($_POST['pointsPerUnit']) ? intval($_POST['pointsPerUnit']) : 100; // Default value
+    if ($points_per_unit <= 0) {
+        header('Content-Type: application/json');
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Los puntos por unidad deben ser mayores que cero.']);
+        exit;
+    }
 
     $config = new Config();
     $config->DISCOUNT_ENABLED = $discount_enabled;
     $config->FIDELITY_ENABLED = $fidelity_enabled;
-    $config->POINTS_PER_UNIT = 100; // Default value
+    $config->POINTS_PER_UNIT = $points_per_unit; // Default value
     $config->INSTALL_FINISHED = true;
 
     $config->save();

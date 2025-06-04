@@ -80,4 +80,16 @@ class User {
             Connection::doDelete(DBCONN, 'User', ['id' => $this->id]);
         }
     }
+
+    /**
+     * Añade puntos de fidelidad al usuario y guarda el cambio en la base de datos.
+     * @param int $points Cantidad de puntos a añadir (puede ser negativa para restar).
+     */
+    public function addPoints(int $points): void {
+        $this->points += $points;
+        if ($this->points < 0) {
+            $this->points = 0;
+        }
+        $this->save();
+    }
 }

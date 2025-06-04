@@ -365,9 +365,8 @@ $router->mount('/order', function() use ($router) {
         $orderData = $input['order'] ?? null;
         $email = $input['email'] ?? null;
         $stripe_id = $input['stripe_id'] ?? null;
-        $total = $input['total'] ?? null;
 
-        if (!$orderData || !$email || !$stripe_id || !$total) {
+        if (!$orderData || !$email || !$stripe_id) {
             http_response_code(400);
             echo json_encode(['error' => 'Datos incompletos para guardar el pedido.']);
             exit;
@@ -381,13 +380,35 @@ $router->mount('/order', function() use ($router) {
             exit;
         }
 
+
+        // Añadir puntos al usuario si se proporciona
+        if(CONFIG->FIDELITY_ENABLED) {
+            if (isset($input['user_id']) && $input['user_id']) {
+                $user = User::getById($input['user_id']);
+                if ($user) {
+                    echo "Usuario encontrado: {$user->id}\n"; // Debugging
+                    echo "Calculo de puntos (".CONFIG->POINTS_PER_UNIT." puntos por euro)\n"; // Debugging 
+                    $total = 0;
+                    foreach ($items as $item) {
+                        $price = isset($item['product_snapshot']['price']) ? $item['product_snapshot']['price'] : 0;
+                        
+                        $points_gained = intval($price * $item['quantity'] * CONFIG->POINTS_PER_UNIT);
+                        echo "Puntos ganados por producto: $points_gained\n"; // Debugging
+                        $total += $points_gained;
+                    }
+                    $points = $total; // Por ejemplo, 1 punto por cada 10 euros
+                    $user->addPoints($points);
+                }
+            }
+        }
+
         // Crear el pedido principal usando el modelo refactorizado
         $order = new Order();
         $order->table_id = $table_id;
-        $order->user = null; // Si tienes user_id, ponlo aquí
+        $order->user = isset($input['user_id']) && $input['user_id'] ? $input['user_id'] : null;
         $order->stripe_id = $stripe_id;
-        $order->date = date('Y-m-d');
-        $order->time = date('Y-m-d H:i:s');
+        $order->date = (new DateTime(CONFIG->nowInTimezone()))->format('Y-m-d');
+        $order->time = CONFIG->nowInTimezone();
         $order->save();
 
         if (!$order->id) {
@@ -402,9 +423,29 @@ $router->mount('/order', function() use ($router) {
             $quantity = $item['quantity'];
             $price = $item['product_snapshot']['price'] ?? 0;
             $metadata = $item['metadata'] ?? null;
-            Order::addProduct($order->id, $product_id, $price, $quantity, $metadata);
+            $order->addProduct($product_id, $price, $quantity, $metadata);
         }
 
-        echo json_encode(['status' => 'ok', 'order_id' => $order->id]);
+        echo json_encode(['status' => 'ok', 'order_id' => $order->id, 'points_gained' => isset($points) ? $points : 0]);
+    });
+
+    $router->get('/user-by-email', function() {
+        header('Content-Type: application/json');
+        $email = isset($_GET['email']) ? trim($_GET['email']) : '';
+        if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            echo json_encode(['exists' => false]);
+            exit;
+        }
+        $user = User::getByEmail($email);
+        if ($user) {
+            echo json_encode([
+                'exists' => true,
+                'points_per_unit' => CONFIG->POINTS_PER_UNIT
+            ]);
+        } else {
+            echo json_encode(['exists' => false]);
+        }
+        exit;
+
     });
 });

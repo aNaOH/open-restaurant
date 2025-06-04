@@ -56,6 +56,10 @@ class Config {
             if(isset($config['features'])) {
                 $this->DISCOUNT_ENABLED = isset($config['features']['discountEnabled']) ? $config['features']['discountEnabled'] : false;
                 $this->FIDELITY_ENABLED = isset($config['features']['fidelityEnabled']) ? $config['features']['fidelityEnabled'] : false;
+                $this->POINTS_PER_UNIT = isset($config['features']['pointsPerUnit']) ? intval($config['features']['pointsPerUnit']) : 100; // Default value
+                if ($this->POINTS_PER_UNIT <= 0) {
+                    $this->POINTS_PER_UNIT = 100; // Default value if invalid
+                }
             }
 
             if(isset($config['stripe'])) {
