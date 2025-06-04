@@ -15,6 +15,7 @@
                         <th class="py-3 px-6 text-left">ID</th>
                         <th class="py-3 px-6 text-left">Nombre</th>
                         <th class="py-3 px-6 text-left">Incluye</th>
+                        <th class="py-3 px-6 text-left">Precio</th>
                         <th class="py-3 px-6 text-left">Acciones</th>
                     </tr>
                 </thead>
@@ -45,6 +46,7 @@
                                     <span class="text-gray-400">Ninguno</span>
                                 {% endif %}
                             </td>
+                            <td class="py-3 px-6 text-left">{{ composed.price }} €</td>
                             <td class="py-3 px-6 text-left flex gap-2">
                                 <a href="/admin/composed/edit/{{ composed.id }}" class="btn secondary flex items-center gap-1"><i data-feather="edit"></i> Editar</a>
                                 <form action="/admin/composed/delete/{{ composed.id }}" method="POST" class="inline-block delete-entity-form" data-entity="composed">

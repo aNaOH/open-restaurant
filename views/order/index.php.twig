@@ -9,9 +9,11 @@
     {% if categories|length == 0 %}
         <div class="text-gray-500 mt-8">No hay categorías disponibles.</div>
     {% endif %}
-    <div class="flex flex-wrap gap-6 w-full items-center justify-center mt-8">
+    <div class="flex w-full items-center mt-8 gap-6 overflow-x-auto pb-2"
+         style="scrollbar-width: thin; justify-content: center;"
+         id="categories-row">
         {% for category in categories %}
-            <button id="btn-category-{{ category.id }}" class="category-card group bg-white rounded-2xl shadow-md p-4 flex flex-col items-center border border-gray-100 hover:shadow-xl hover:border-blue-400 transition-all duration-200 max-w-[210px] min-w-[150px] flex-1 cursor-pointer">
+            <button id="btn-category-{{ category.id }}" class="category-card group bg-white rounded-2xl shadow-md p-4 flex flex-col items-center border border-gray-100 hover:shadow-xl hover:border-blue-400 transition-all duration-200 flex-shrink-0 cursor-pointer" style="width:210px; min-width:210px; max-width:210px; height:210px; min-height:210px; max-height:210px;">
                 <span class="relative w-32 h-32 flex items-center justify-center overflow-hidden rounded-xl mb-2">
                     <img src="/{{ category.getImagePath() }}" alt="{{ category.name }}" class="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110 rounded-xl">
                     <span class="absolute bottom-2 right-2 bg-white rounded-full p-1 shadow border border-blue-200">
@@ -26,7 +28,7 @@
             </button>
         {% endfor %}
         {% if promosEnabled %}
-            <button id="btn-category-promo" class="category-card group bg-white rounded-2xl shadow-md p-4 flex flex-col items-center border border-gray-100 hover:shadow-xl hover:border-blue-400 transition-all duration-200 max-w-[210px] min-w-[150px] flex-1 cursor-pointer">
+            <button id="btn-category-promo" class="category-card group bg-white rounded-2xl shadow-md p-4 flex flex-col items-center border border-gray-100 hover:shadow-xl hover:border-blue-400 transition-all duration-200 flex-shrink-0 cursor-pointer" style="width:210px; min-width:210px; max-width:210px; height:210px; min-height:210px; max-height:210px;">
                 <span class="relative w-32 h-32 flex items-center justify-center overflow-hidden rounded-xl mb-2">
                     <span class="flex items-center justify-center w-full h-full text-blue-500">
                         <i data-feather="percent" class="w-16 h-16"></i>
@@ -40,6 +42,30 @@
             </button>
         {% endif %}
     </div>
+    <script>
+    // Centrado dinámico si no hay overflow
+    document.addEventListener('DOMContentLoaded', function() {
+        const row = document.getElementById('categories-row');
+        function updateJustify() {
+            if (row.scrollWidth > row.clientWidth + 2) {
+                row.style.justifyContent = 'flex-start';
+            } else {
+                row.style.justifyContent = 'center';
+            }
+        }
+        updateJustify();
+        window.addEventListener('resize', updateJustify);
+    });
+    // Ajusta el tamaño del botón de promo para igualar a los demás
+    document.addEventListener('DOMContentLoaded', function() {
+        const promoBtn = document.getElementById('btn-category-promo');
+        if (promoBtn) {
+            promoBtn.style.width = '';
+            promoBtn.style.minWidth = '150px';
+            promoBtn.style.maxWidth = '210px';
+        }
+    });
+    </script>
 
     <div class="w-full mt-2 flex flex-col items-center justify-center border-t-2 border-blue-200 pt-2">
         {% for category in categories %}
@@ -62,7 +88,7 @@
                                         {% elseif product.price == 0 %}
                                             Gratis
                                         {% else %}
-                                            ${{ product.price }}
+                                            {{ product.price }} €
                                         {% endif %}
                                     </div>
                                 </div>
@@ -133,7 +159,7 @@
                                                         {% if promoProduct.price == 0 %}
                                                             Gratis
                                                         {% else %}
-                                                            ${{ promoProduct.price|number_format(2, '.', ',') }}
+                                                            {{ promoProduct.price|number_format(2, '.', ',') }} €
                                                         {% endif %}
                                                     </div>
                                                     <div class="text-gray-600 text-xs mt-1">Código: <span class="font-mono">{{ promoCode }}</span></div>

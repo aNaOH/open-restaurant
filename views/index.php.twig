@@ -92,9 +92,9 @@
         {% if categories|length == 0 %}
             <div class="text-gray-500">No hay categorías disponibles.</div>
         {% endif %}
-        <div class="flex flex-wrap gap-6 w-full items-center justify-center">
+        <div class="flex w-full items-center gap-6 overflow-x-auto pb-2" style="scrollbar-width: thin; justify-content: center;" id="categories-row">
             {% for category in categories %}
-                <a href="#category-{{ category.id }}" class="category-card group bg-white rounded-2xl shadow-md p-4 flex flex-col items-center border border-gray-100 hover:shadow-xl hover:border-blue-400 transition-all duration-200 max-w-[210px] min-w-[150px] flex-1 cursor-pointer">
+                <button id="btn-category-{{ category.id }}" class="category-card group bg-white rounded-2xl shadow-md p-4 flex flex-col items-center border border-gray-100 hover:shadow-xl hover:border-blue-400 transition-all duration-200 flex-shrink-0 cursor-pointer" style="width:210px; min-width:210px; max-width:210px; height:210px; min-height:210px; max-height:210px;">
                     <span class="relative w-32 h-32 flex items-center justify-center overflow-hidden rounded-xl mb-2">
                         <img src="/{{ category.getImagePath() }}" alt="{{ category.name }}" class="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110 rounded-xl">
                         <span class="absolute bottom-2 right-2 bg-white rounded-full p-1 shadow border border-blue-200">
@@ -106,18 +106,14 @@
                             {{ category.name }}
                         </div>
                     </div>
-                </a>
+                </button>
             {% endfor %}
         </div>
         <div class="w-full max-w-4xl mt-6">
             {% for category in categories %}
                 {% set catProducts = category.getProducts() %}
                 {% if catProducts|length > 0 %}
-                    <div class="mb-8 w-full" id="category-{{ category.id }}">
-                        <h2 class="section-title text-2xl font-bold text-primary mb-4 border-b-2 border-blue-200 pb-1 flex items-center gap-2">
-                            <i data-feather="folder" class="w-5 h-5 text-primary"></i>
-                            {{ category.name }}
-                        </h2>
+                    <div class="category-products mb-8 w-full" id="category-{{ category.id }}">
                         <div class="flex flex-wrap gap-6 w-full items-center justify-center">
                             {% for product in catProducts %}
                                 <div class="product-card group bg-white rounded-2xl shadow-md p-4 flex flex-col items-center border border-gray-100 hover:shadow-xl hover:border-blue-400 transition-all duration-200 cursor-pointer max-w-[210px] min-w-[150px] flex-1"
@@ -133,13 +129,13 @@
                                         <div class="font-semibold text-gray-800 flex items-center gap-1 justify-center text-lg group-hover:text-primary transition-colors">
                                             {{ product.name }}
                                         </div>
-                                        <div class="text-primary font-bold text-base mt-1">
+                                        <div class="text-primary font-bold text-base mt-1 text-center w-full">
                                             {% if product.points is defined and product.points > 0 %}
-                                                <span class="text-yellow-700 flex items-center gap-1"><i data-feather="star" class="w-5 h-5 text-yellow-500"></i> {{ product.points }} puntos</span>
+                                                <span class="text-yellow-700 flex items-center gap-1 justify-center w-full"><i data-feather="star" class="w-5 h-5 text-yellow-500"></i> {{ product.points }} puntos</span>
                                             {% elseif product.price == 0 %}
                                                 Gratis
                                             {% else %}
-                                                ${{ product.price }}
+                                                {{ product.price }} €
                                             {% endif %}
                                         </div>
                                     </div>
@@ -235,6 +231,10 @@
         font-size: 1rem;
         margin-top: 0.5rem;
     }
+    .category-card[data-active="true"] {
+        background-color: #DBEAFE; /* bg-blue-100 */
+        border-color: #60A5FA;    /* border-blue-400 */
+    }
 </style>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -252,7 +252,7 @@
                 } else if (parseFloat(price) === 0) {
                     priceHtml = 'Gratis';
                 } else {
-                    priceHtml = '$' + price;
+                    priceHtml = price + ' €';
                 }
                 document.getElementById('modalPrice').innerHTML = priceHtml;
                 // Decodifica entidades HTML para mostrar correctamente los caracteres especiales
@@ -337,6 +337,52 @@
                 cancelOrderModal.classList.remove('fade-in', 'fade-out');
             });
         }
+        // Centrado dinámico si no hay overflow
+        const row = document.getElementById('categories-row');
+        function updateJustify() {
+            if (row.scrollWidth > row.clientWidth + 2) {
+                row.style.justifyContent = 'flex-start';
+            } else {
+                row.style.justifyContent = 'center';
+            }
+        }
+        updateJustify();
+        window.addEventListener('resize', updateJustify);
+        // Oculta productos de todas las categorías al inicio
+        document.querySelectorAll('.category-products').forEach(catProds => {
+            catProds.style.display = 'none';
+        });
+        // Muestra productos de la primera categoría por defecto
+        const firstCategory = document.querySelector('.category-products');
+        if (firstCategory) {
+            firstCategory.style.display = 'block';
+        }
+        // Marca el primer botón como activo
+        const firstCategoryBtn = document.querySelector('.category-card');
+        if (firstCategoryBtn) {
+            firstCategoryBtn.setAttribute('data-active', 'true');
+        }
+        // Click en botones de categoría
+        document.querySelectorAll('.category-card').forEach(button => {
+            button.addEventListener('click', function() {
+                // Oculta todos los productos
+                document.querySelectorAll('.category-products').forEach(catProds => {
+                    catProds.style.display = 'none';
+                });
+                // Quita el activo de todos los botones
+                document.querySelectorAll('.category-card').forEach(btn => {
+                    btn.removeAttribute('data-active');
+                });
+                // Muestra productos de la categoría clicada
+                const categoryId = this.id.replace('btn-category-', '');
+                const categoryProducts = document.getElementById('category-' + categoryId);
+                if (categoryProducts) {
+                    categoryProducts.style.display = 'block';
+                }
+                // Marca el botón como activo
+                this.setAttribute('data-active', 'true');
+            });
+        });
     });
 </script>
 {% endblock %}

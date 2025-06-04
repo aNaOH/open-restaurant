@@ -33,7 +33,7 @@
                                         </span>
                                     {% elseif item.product_snapshot.price is defined %}
                                         <span class="ml-2 text-blue-600 font-bold text-base">
-                                            {% if item.product_snapshot.price == 0 %}Gratis{% else %}${{ (item.product_snapshot.price * item.quantity)|number_format(2, '.', ',') }}{% endif %}
+                                            {% if item.product_snapshot.price == 0 %}Gratis{% else %}{{ (item.product_snapshot.price * item.quantity)|number_format(2, '.', ',') }} €{% endif %}
                                         </span>
                                     {% endif %}
                                     {% if item.metadata.promo is defined %}
@@ -95,7 +95,7 @@
                 {% elseif total_dinero == 0 and total_puntos == 0 %}
                     Gratis
                 {% else %}
-                    ${{ total_dinero|number_format(2, '.', ',') }}
+                    {{ total_dinero|number_format(2, '.', ',') }} €
                 {% endif %}
             </span>
             {% if total_puntos > 0 and not (total_dinero == 0) %}
@@ -230,12 +230,12 @@ function showPaymentSuccessUI(email) {
             y += 8;
             doc.setFontSize(12);
             {% for item in order.items %}
-                doc.text('- {{ item.product_snapshot.name|e('js') }} x{{ item.quantity }}: ${{ (item.product_snapshot.price * item.quantity)|number_format(2, '.', ',') }}', 25, y);
+                doc.text('- {{ item.product_snapshot.name|e('js') }} x{{ item.quantity }}: ' + (({{ (item.product_snapshot.price * item.quantity)|number_format(2, '.', ',') }}) + ' €'), 25, y);
                 y += 7;
             {% endfor %}
             y += 3;
             doc.setFontSize(12);
-            doc.text('Total pagado: ${{ total_dinero|number_format(2, '.', ',') }} EUR', 20, y);
+            doc.text('Total pagado: {{ total_dinero|number_format(2, '.', ',') }} EUR', 20, y);
             y += 10;
             doc.text('ID de pedido: ' + (window._lastOrderId || ''), 20, y);
             y += 10;
