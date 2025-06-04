@@ -16,7 +16,8 @@ $router->get("/", function() {
     });
     $data = [
         'categories' => $categories,
-        'order' => OrderHelpers::getOrder()
+        'order' => OrderHelpers::getOrder(),
+        'isHomePage' => true // Pass this variable for the homepage
     ];
     ViewController::render('index', $data);
 });

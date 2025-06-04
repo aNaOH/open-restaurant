@@ -64,7 +64,6 @@ class AuthHelpers {
 class ViewHelpers {
 
     public static function getBaseData(){
-        
         $fidelityEnabled = CONFIG->FIDELITY_ENABLED;
         $promosEnabled = (CONFIG->FIDELITY_ENABLED || CONFIG->DISCOUNT_ENABLED);
 
@@ -72,11 +71,16 @@ class ViewHelpers {
             $user = User::getById($_SESSION['user']['id']);
         }
 
+        // Calculate isHomePage based on the current request URI
+        $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+        $isHomePage = ($requestUri === '/' || preg_match('/^\/\?(.*)$/', $requestUri));
+
         return [
             'fidelityEnabled' => $fidelityEnabled,
             'promosEnabled' => $promosEnabled,
             'user' => isset($user) ? $user : null,
-            'restaurantName' => CONFIG->RESTAURANT_NAME
+            'restaurantName' => CONFIG->RESTAURANT_NAME,
+            'isHomePage' => $isHomePage
         ];
     }
 }

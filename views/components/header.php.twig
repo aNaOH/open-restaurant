@@ -1,20 +1,28 @@
-{% if fidelityEnabled or user %}
-    <div class="w-full mt-4 mb-6 bg-white shadow-lg rounded-xl px-6 py-4 flex items-center justify-between border border-blue-100">
-        {% if user %}
-            <div class="flex items-center gap-4">
-                <div class="flex items-center gap-2">
-                    <i data-feather="user" class="text-blue-500"></i>
-                    <span class="text-gray-800 font-semibold">{{ user.name }}</span>
-                </div>
+{# Responsive and homepage-aware header #}
+{% set showHeader = fidelityEnabled or user or isHomePage %}
+{% if showHeader %}
+    <div class="w-full mt-4 mb-6 bg-white shadow-lg rounded-xl px-6 py-4 flex flex-row flex-wrap items-center justify-between border border-blue-100 gap-4">
+        <div class="flex items-center gap-2">
+            {% if user %}
+                <i data-feather="user" class="text-blue-500"></i>
+                <span class="text-gray-800 font-semibold">{{ user.name }}</span>
                 {% if fidelityEnabled %}
                     <div class="flex items-center gap-2 bg-blue-50 rounded px-2 py-1 ml-2">
                         <i data-feather="star" class="text-yellow-400"></i>
                         <span class="user-points text-blue-700 font-semibold">{{ user.points }} puntos</span>
                     </div>
                 {% endif %}
-                {% include "/components/cart_floating.php.twig" %}
-            </div>
-            <div class="flex items-center gap-2">
+            {% endif %}
+        </div>
+        <div class="flex flex-row flex-wrap items-center gap-4 ml-auto">
+            {% include "/components/cart_floating.php.twig" %}
+            {% if not isHomePage %}
+                <a href="/" class="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-gray-100 text-blue-700 font-semibold hover:bg-blue-200 transition ml-2">
+                    <i data-feather="home"></i>
+                    Ir al inicio
+                </a>
+            {% endif %}
+            {% if user %}
                 {% if user.role and user.role.value == 2 %}
                     <a href="/admin" class="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-blue-100 text-blue-700 font-semibold hover:bg-blue-200 transition">
                         <i data-feather="settings"></i>
@@ -31,10 +39,7 @@
                     <i data-feather="log-out"></i>
                     Cerrar sesión
                 </a>
-            </div>
-        {% else %}
-            <div class="flex items-center gap-2 ml-auto">
-                {% include "/components/cart_floating.php.twig" %}
+            {% else %}
                 <a href="/login" class="inline-flex items-center gap-1 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition shadow">
                     <i data-feather="log-in"></i>
                     Iniciar sesión
@@ -43,7 +48,16 @@
                     <i data-feather="user-plus"></i>
                     Registrarse
                 </a>
-            </div>
-        {% endif %}
+            {% endif %}
+        </div>
     </div>
 {% endif %}
+<style>
+@media (max-width: 640px) {
+    .flex-row { flex-direction: column !important; }
+    .ml-auto { margin-left: 0 !important; }
+    .w-full { width: 100% !important; }
+    .justify-between, .justify-end { justify-content: flex-start !important; }
+    .gap-4 { gap: 1rem !important; }
+}
+</style>

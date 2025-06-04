@@ -78,7 +78,27 @@ class Order {
 
     public function getProducts() {
         $rows = Connection::doSelect(DBCONN, 'OrderContains', ['order_id' => $this->id]);
-        return $rows;
+        $products = [];
+        foreach ($rows as $row) {
+            $product = Product::getById($row['product']);
+            $products[] = [
+                'product_id' => $row['product'],
+                'quantity' => $row['quantity'],
+                'price' => $row['price'],
+                'metadata' => $row['metadata'] ? json_decode($row['metadata'], true) : null,
+                'done' => (bool)$row['done'],
+                'product_snapshot' => $product ? [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'price' => $product->price,
+                    'points' => $product->points,
+                    'image' => $product->getImagePath(),
+                    'code' => $product->code,
+                    'type' => $product->type->value,
+                ] : null
+            ];
+        }
+        return $products;
     }
 
     public function getTotal() {
@@ -95,5 +115,55 @@ class Order {
         $tz = new \DateTimeZone($config->TIMEZONE);
         $now = new \DateTime('now', $tz);
         return $tz->getOffset($now) / 3600;
+    }
+
+    public function updateProductStatus($product_id, $status) {
+        // Only update if the product exists in this order
+        $rows = Connection::doSelect(DBCONN, 'OrderContains', [
+            'order_id' => $this->id,
+            'product' => $product_id
+        ]);
+        if ($rows && count($rows) > 0) {
+            Connection::doUpdate(DBCONN, 'OrderContains', [
+                'done' => $status ? 1 : 0 // Forzar 1 o 0 explícitamente
+            ], [
+                'order_id' => $this->id,
+                'product' => $product_id
+            ]);
+            return true;
+        }
+        return false;
+    }
+
+    public function getCompletedProducts() {
+        $rows = Connection::doSelect(DBCONN, 'OrderContains', [
+            'order_id' => $this->id,
+            'done' => true
+        ]);
+        return count($rows);
+    }
+
+    public function getPendingProducts() {
+        $rows = Connection::doSelect(DBCONN, 'OrderContains', [
+            'order_id' => $this->id,
+            'done' => false
+        ]);
+        return count($rows);
+    }
+
+    public function getStatus() {
+        $completed = $this->getCompletedProducts();
+        $pending = $this->getPendingProducts();
+        $total = count($this->getProducts());
+        if ($total === 0) {
+            return 'empty';
+        } elseif ($completed > 0 && $pending === 0) {
+            return 'completed';
+        } elseif ($pending > 0 && $completed > 0) {
+            return 'pending';
+        } elseif ($pending === $total) {
+            return 'not_started';
+        }
+        return 'empty';
     }
 }
