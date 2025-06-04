@@ -46,11 +46,18 @@ class AuthHelpers {
         $user = User::getById($session['id']);
     
         //Check if user is admin
-        if($user->role != EUSER_ROLE::ADMIN) {
+        return ($user->role == EUSER_ROLE::ADMIN);
+    }
+
+    public static function isEmployee() {
+        if(!self::isLoggedIn()) {
             return false;
         }
 
-        return true;
+        $session = $_SESSION['user'];
+        $user = User::getById($session['id']);
+
+        return ($user->role == EUSER_ROLE::EMPLOYEE || $user->role == EUSER_ROLE::ADMIN);
     }
 }
 
@@ -138,6 +145,7 @@ class OrderHelpers {
                 'id' => $product->id,
                 'name' => $product->name,
                 'price' => $product->price,
+                'points' => (isset($metadata['used_points']) && $metadata['used_points']) ? $product->points : null,
                 'image' => $product->getImagePath(),
                 'code' => $product->code,
                 'type' => $product->type->value,

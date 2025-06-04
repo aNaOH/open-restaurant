@@ -50,9 +50,24 @@ class Order {
         return $rows ? self::fromRow($rows[0]) : null;
     }
 
-    public static function addProduct($order_id, $product_id, $price, $quantity, $metadata = null) {
+    public static function getAll() {
+        $rows = Connection::doSelect(DBCONN, 'Orders');
+        return array_map([self::class, 'fromRow'], $rows);
+    }
+
+    public static function getByDate($date) {
+        $rows = Connection::doSelect(DBCONN, 'Orders', ['date' => $date]);
+        return array_map([self::class, 'fromRow'], $rows);
+    }
+
+    public static function getToday() {
+        $today = date('Y-m-d');
+        return self::getByDate($today);
+    }
+
+    public function addProduct($product_id, $price, $quantity, $metadata = null) {
         $data = [
-            'order_id' => $order_id, // Escapa el nombre de la columna reservada
+            'order_id' => $this->id, // Escapa el nombre de la columna reservada
             'product' => $product_id,
             'price' => $price,
             'quantity' => $quantity,
@@ -61,8 +76,8 @@ class Order {
         Connection::doInsert(DBCONN, 'OrderContains', $data);
     }
 
-    public static function getProducts($order_id) {
-        $rows = Connection::doSelect(DBCONN, 'OrderContains', ['order_id' => $order_id]);
+    public function getProducts() {
+        $rows = Connection::doSelect(DBCONN, 'OrderContains', ['order_id' => $this->id]);
         return $rows;
     }
 
@@ -73,5 +88,12 @@ class Order {
             $total += floatval($row['price']) * intval($row['quantity']);
         }
         return $total;
+    }
+
+    public static function getTimezoneOffsetHours() {
+        global $config;
+        $tz = new \DateTimeZone($config->TIMEZONE);
+        $now = new \DateTime('now', $tz);
+        return $tz->getOffset($now) / 3600;
     }
 }

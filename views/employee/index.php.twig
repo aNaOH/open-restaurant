@@ -1,0 +1,19 @@
+{% extends "/templates/base.php.twig" %}
+
+{% block title %}Panel de pedidos{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto mt-8 w-full">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Pedidos de hoy</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {% for order in orders %}
+            <button class="w-full bg-white border border-blue-200 rounded-xl shadow p-4 flex flex-col items-start hover:bg-blue-50 transition-all">
+                <span class="text-lg font-semibold text-blue-700">Mesa: {{ order.table_id }}</span>
+                <span class="text-gray-600 text-sm mt-1">Hora: {{ order.time|date('H:i') }}</span>
+            </button>
+        {% else %}
+            <div class="col-span-2 text-center text-gray-500 py-8">No hay pedidos para hoy.</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
