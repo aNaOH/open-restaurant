@@ -26,7 +26,7 @@ CREATE TABLE `Product` (
   `category` int DEFAULT NULL,
   `code` varchar(255) UNIQUE DEFAULT NULL,
   `points` int DEFAULT NULL,
-  FOREIGN KEY (`category`) REFERENCES `Category` (`id`)
+  FOREIGN KEY (`category`) REFERENCES `Category` (`id`) ON DELETE SET NULL
 );
 
 CREATE TABLE `ComposedBy` (
@@ -34,8 +34,8 @@ CREATE TABLE `ComposedBy` (
   `child_id` int NOT NULL,
   `position` int NOT NULL DEFAULT 0,
   PRIMARY KEY (`product_id`, `child_id`),
-  FOREIGN KEY (`product_id`) REFERENCES `Product` (`id`),
-  FOREIGN KEY (`child_id`) REFERENCES `Product` (`id`)
+  FOREIGN KEY (`product_id`) REFERENCES `Product` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`child_id`) REFERENCES `Product` (`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE `ComposedCategory` (
@@ -43,8 +43,8 @@ CREATE TABLE `ComposedCategory` (
   `category_id` int NOT NULL,
   `position` int NOT NULL DEFAULT 0,
   PRIMARY KEY (`product_id`, `category_id`),
-  FOREIGN KEY (`product_id`) REFERENCES `Product` (`id`),
-  FOREIGN KEY (`category_id`) REFERENCES `Category` (`id`)
+  FOREIGN KEY (`product_id`) REFERENCES `Product` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`category_id`) REFERENCES `Category` (`id`) ON DELETE CASCADE
 );
 
 CREATE TABLE `Orders` (
@@ -54,8 +54,8 @@ CREATE TABLE `Orders` (
   `table_id` varchar(255) NOT NULL,
   `user` int DEFAULT NULL,
   `stripe_id` varchar(255) DEFAULT NULL,
-  FOREIGN KEY (`table_id`) REFERENCES `Table` (`id`),
-  FOREIGN KEY (`user`) REFERENCES `User` (`id`)
+  FOREIGN KEY (`table_id`) REFERENCES `Table` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`user`) REFERENCES `User` (`id`) ON DELETE SET NULL
 );
 
 CREATE TABLE `OrderContains` (
@@ -66,6 +66,6 @@ CREATE TABLE `OrderContains` (
   `quantity` int NOT NULL DEFAULT 1,
   `metadata` text DEFAULT NULL,
   PRIMARY KEY (`order_id`, `product`),
-  FOREIGN KEY (`order_id`) REFERENCES `Orders` (`id`),
-  FOREIGN KEY (`product`) REFERENCES `Product` (`id`)
+  FOREIGN KEY (`order_id`) REFERENCES `Orders` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`product`) REFERENCES `Product` (`id`) ON DELETE CASCADE
 );

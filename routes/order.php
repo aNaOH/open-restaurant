@@ -94,11 +94,30 @@ $router->mount('/order', function() use ($router) {
             header('Location: /');
             exit;
         }
-        
-        // Render the cart page with the current order
+        // Calcular total_dinero y total_puntos en el backend
+        $total_dinero = 0;
+        $total_puntos = 0;
+        if (isset($order['items']) && is_array($order['items'])) {
+            foreach ($order['items'] as $item) {
+                $price = isset($item['product_snapshot']['price']) ? $item['product_snapshot']['price'] : 0;
+                $points = isset($item['product_snapshot']['points']) ? $item['product_snapshot']['points'] : 0;
+                $total_dinero += $price * $item['quantity'];
+                $total_puntos += $points * $item['quantity'];
+            }
+        }
+        // Determinar si se debe mostrar Stripe (solo si total_dinero > 0)
+        $show_stripe = $total_dinero > 0;
+        // Render the cart page with the current order and totals
+
         ViewController::render('order/cart', [
             'order' => $order,
-            'stripe_public_key' => CONFIG->STRIPE_PUBLIC_KEY
+            'stripe_public_key' => CONFIG->STRIPE_PUBLIC_KEY,
+            'total_dinero' => $total_dinero,
+            'total_puntos' => $total_puntos,
+            'show_stripe' => $show_stripe,
+            'points_per_unit' => defined('CONFIG->POINTS_PER_UNIT') ? CONFIG->POINTS_PER_UNIT : 100,
+            // Siempre obtener el usuario actualizado de la base de datos
+            'user' => (isset($_SESSION['user']) && isset($_SESSION['user']['id'])) ? User::getById($_SESSION['user']['id']) : null
         ]);
     });
 
@@ -243,6 +262,22 @@ $router->mount('/order', function() use ($router) {
         $quantity = isset($_POST['quantity']) ? max(1, intval($_POST['quantity'])) : 1;
         $notes = isset($_POST['notes']) ? trim($_POST['notes']) : '';
 
+        // --- Validación de puntos para productos promocionales ---
+        $isPromoWithPoints = ($product->type == EPRODUCT_TYPE::PROMOTION && $product->points && $product->points > 0);
+        if ($isPromoWithPoints) {
+            // Solo usuarios logueados pueden usar puntos
+            if (!isset($_SESSION['user']) || !isset($_SESSION['user']['id'])) {
+                echo json_encode(['status' => 'error', 'message' => 'Debes iniciar sesión para canjear este producto con puntos.']);
+                exit;
+            }
+            $user = User::getById($_SESSION['user']['id']);
+            if (!$user || $user->points < ($product->points * $quantity)) {
+                $faltan = $product->points * $quantity - ($user ? $user->points : 0);
+                echo json_encode(['status' => 'error', 'message' => 'No tienes suficientes puntos para añadir este producto. Te faltan ' . $faltan . ' puntos.']);
+                exit;
+            }
+        }
+
         // Recopilar componentes seleccionados como array de snapshots
         $components = [];
         foreach ($_POST as $key => $value) {
@@ -270,6 +305,10 @@ $router->mount('/order', function() use ($router) {
         // Si viene por código promocional, añadirlo a los metadatos
         if (isset($_POST['promo']) && $_POST['promo']) {
             $metadata['promo'] = $_POST['promo'];
+        }
+        // Forzar used_points en el backend si es promo con puntos
+        if ($isPromoWithPoints) {
+            $metadata['used_points'] = true;
         }
         $ok = OrderHelpers::addItemToOrder($product->id, $metadata, $quantity);
         if ($ok) {
@@ -365,8 +404,10 @@ $router->mount('/order', function() use ($router) {
         $orderData = $input['order'] ?? null;
         $email = $input['email'] ?? null;
         $stripe_id = $input['stripe_id'] ?? null;
+        $total_points = $input['total_points'] ?? 0;
+        $user_id = $input['user_id'] ?? null;
 
-        if (!$orderData || !$email || !$stripe_id) {
+        if (!$orderData || !$email || ($stripe_id === null && $total_points == 0)) {
             http_response_code(400);
             echo json_encode(['error' => 'Datos incompletos para guardar el pedido.']);
             exit;
@@ -380,25 +421,32 @@ $router->mount('/order', function() use ($router) {
             exit;
         }
 
-
-        // Añadir puntos al usuario si se proporciona
-        if(CONFIG->FIDELITY_ENABLED) {
-            if (isset($input['user_id']) && $input['user_id']) {
-                $user = User::getById($input['user_id']);
-                if ($user) {
-                    echo "Usuario encontrado: {$user->id}\n"; // Debugging
-                    echo "Calculo de puntos (".CONFIG->POINTS_PER_UNIT." puntos por euro)\n"; // Debugging 
-                    $total = 0;
-                    foreach ($items as $item) {
-                        $price = isset($item['product_snapshot']['price']) ? $item['product_snapshot']['price'] : 0;
-                        
-                        $points_gained = intval($price * $item['quantity'] * CONFIG->POINTS_PER_UNIT);
-                        echo "Puntos ganados por producto: $points_gained\n"; // Debugging
-                        $total += $points_gained;
-                    }
-                    $points = $total; // Por ejemplo, 1 punto por cada 10 euros
-                    $user->addPoints($points);
+        // --- PAGO CON PUNTOS: Validación y deducción ---
+        if (CONFIG->FIDELITY_ENABLED && $user_id && $total_points > 0) {
+            $user = User::getById($user_id);
+            if ($user) {
+                if ($user->points < $total_points) {
+                    http_response_code(400);
+                    echo json_encode(['error' => 'No tienes suficientes puntos para pagar este pedido.']);
+                    exit;
                 }
+                // Restar puntos usados
+                $user->addPoints(-$total_points);
+            }
+        }
+
+        // Añadir puntos al usuario si se proporciona (solo si no pagó con puntos)
+        if(CONFIG->FIDELITY_ENABLED && $user_id && $total_points == 0) {
+            $user = User::getById($user_id);
+            if ($user) {
+                $total = 0;
+                foreach ($items as $item) {
+                    $price = isset($item['product_snapshot']['price']) ? $item['product_snapshot']['price'] : 0;
+                    $points_gained = intval($price * $item['quantity'] * CONFIG->POINTS_PER_UNIT);
+                    $total += $points_gained;
+                }
+                $points = $total;
+                $user->addPoints($points);
             }
         }
 
@@ -426,6 +474,14 @@ $router->mount('/order', function() use ($router) {
             $order->addProduct($product_id, $price, $quantity, $metadata);
         }
 
+        // --- RESPUESTA SEGÚN TIPO DE PAGO ---
+        if (CONFIG->FIDELITY_ENABLED && $user_id && $total_points > 0) {
+            // Si pagó con puntos, devolver los puntos restantes
+            $user = User::getById($user_id);
+            echo json_encode(['status' => 'ok', 'order_id' => $order->id, 'points_left' => $user ? $user->points : 0]);
+            return;
+        }
+        // Si pagó con dinero, devolver puntos ganados (si aplica)
         echo json_encode(['status' => 'ok', 'order_id' => $order->id, 'points_gained' => isset($points) ? $points : 0]);
     });
 

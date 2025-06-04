@@ -123,6 +123,7 @@
                                 <div class="product-card group bg-white rounded-2xl shadow-md p-4 flex flex-col items-center border border-gray-100 hover:shadow-xl hover:border-blue-400 transition-all duration-200 cursor-pointer max-w-[210px] min-w-[150px] flex-1"
                                     data-name="{{ product.name }}"
                                     data-price="{{ product.price }}"
+                                    data-points="{{ product.points is defined and product.points > 0 ? product.points : '' }}"
                                     data-description="{{ product.description|escape('html') }}"
                                     data-image="/{{ product.getImagePath() }}">
                                     <span class="relative w-32 h-32 flex items-center justify-center overflow-hidden rounded-xl mb-2">
@@ -132,7 +133,15 @@
                                         <div class="font-semibold text-gray-800 flex items-center gap-1 justify-center text-lg group-hover:text-primary transition-colors">
                                             {{ product.name }}
                                         </div>
-                                        <div class="text-primary font-bold text-base mt-1">${{ product.price }}</div>
+                                        <div class="text-primary font-bold text-base mt-1">
+                                            {% if product.points is defined and product.points > 0 %}
+                                                <span class="text-yellow-700 flex items-center gap-1"><i data-feather="star" class="w-5 h-5 text-yellow-500"></i> {{ product.points }} puntos</span>
+                                            {% elseif product.price == 0 %}
+                                                Gratis
+                                            {% else %}
+                                                ${{ product.price }}
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
                             {% endfor %}
@@ -234,7 +243,18 @@
             card.addEventListener('click', function() {
                 document.getElementById('modalImage').src = card.dataset.image;
                 document.getElementById('modalName').textContent = card.dataset.name;
-                document.getElementById('modalPrice').textContent = '$' + card.dataset.price;
+                // Mostrar precio en puntos si corresponde
+                let price = card.dataset.price;
+                let points = card.dataset.points;
+                let priceHtml = '';
+                if (typeof points !== 'undefined' && points !== undefined && points !== '' && parseInt(points) > 0) {
+                    priceHtml = '<span class="text-yellow-700 flex items-center gap-1"><i data-feather="star" class="w-5 h-5 text-yellow-500"></i> ' + points + ' puntos</span>';
+                } else if (parseFloat(price) === 0) {
+                    priceHtml = 'Gratis';
+                } else {
+                    priceHtml = '$' + price;
+                }
+                document.getElementById('modalPrice').innerHTML = priceHtml;
                 // Decodifica entidades HTML para mostrar correctamente los caracteres especiales
                 const txt = document.createElement('textarea');
                 txt.innerHTML = card.dataset.description;
@@ -244,6 +264,7 @@
                     modal.classList.add('fade-in');
                     modal.classList.remove('fade-out');
                 }, 10);
+                if (window.feather) window.feather.replace();
             });
         });
         document.getElementById('closeModalBtn').addEventListener('click', function() {

@@ -216,14 +216,37 @@
         // Submit form via JS for a more dynamic experience
         const form = document.querySelector('form[action^="/order/add/"]');
         if(form) {
+            // Crear o reutilizar un div para mensajes
+            let pointsMsg = document.getElementById('points-error-msg');
+            if (!pointsMsg) {
+                pointsMsg = document.createElement('div');
+                pointsMsg.id = 'points-error-msg';
+                pointsMsg.className = 'text-red-600 text-sm mb-2';
+                form.insertBefore(pointsMsg, form.firstChild);
+            }
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
+                // --- Validación de puntos para productos promocionales ---
+                let needsPoints = false;
+                {% if product.points and product.points > 0 and user is defined and user %}
+                needsPoints = true;
+                if ({{ user.points|default(0) }} < {{ product.points|default(0) }}) {
+                    pointsMsg.textContent = 'No tienes suficientes puntos para añadir este producto.';
+                    return;
+                } else {
+                    pointsMsg.textContent = '';
+                }
+                {% endif %}
+                const fd = new FormData(form);
+                if (needsPoints) {
+                    fd.set('used_points', 'true');
+                }
                 const btn = form.querySelector('button[type="submit"]');
                 btn.disabled = true;
                 btn.innerHTML = '<span class="loader mr-2"></span> Añadiendo...';
                 fetch(form.action, {
                     method: 'POST',
-                    body: new FormData(form)
+                    body: fd
                 })
                 .then(res => res.json())
                 .then(data => {
@@ -235,12 +258,12 @@
                             window.location.href = '/order';
                         }, 900);
                     } else {
-                        alert(data && data.message ? data.message : 'Error al añadir al carrito');
+                        pointsMsg.textContent = data && data.message ? data.message : 'Error al añadir al carrito';
                     }
                 })
                 .catch(() => {
                     btn.disabled = false;
-                    alert('Error de red');
+                    pointsMsg.textContent = 'Error de red';
                 });
             });
         }

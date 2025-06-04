@@ -19,7 +19,12 @@
                                         <span class="flex-1 text-gray-800 text-sm">Producto #{{ item.product_id }}</span>
                                     {% endif %}
                                     <span class="text-primary font-bold text-xs">x{{ item.quantity }}</span>
-                                    {% if snapshot and snapshot.price is defined %}
+                                    {% if snapshot and (snapshot.points is defined and snapshot.points > 0) %}
+                                        <span class="ml-2 text-xs text-yellow-700 font-bold flex items-center gap-1">
+                                            <i data-feather="star" class="w-4 h-4 text-yellow-500"></i>
+                                            {{ (snapshot.points * item.quantity)|number_format(0, '.', ',') }} pts
+                                        </span>
+                                    {% elseif snapshot and snapshot.price is defined %}
                                         <span class="ml-2 text-xs text-gray-600">
                                             {% if snapshot.price == 0 %}Gratis{% else %}${{ (snapshot.price * item.quantity)|number_format(2, '.', ',') }}{% endif %}
                                         </span>
@@ -28,10 +33,10 @@
                                 </div>
                                 {% if item.metadata %}
                                     {% set meta = item.metadata %}
-                                    {% if meta.components is defined and meta.components|length > 0 %}
-                                        <div class="ml-10 text-xs text-gray-500 flex flex-wrap gap-1">
+                                    {% if meta.components is defined and meta.components|length > 1 %}
+                                        <div class="ml-10 text-xs text-gray-500 flex flex-wrap gap-1 overflow-x-auto max-w-[140px] md:max-w-[200px]">
                                             {% for comp in meta.components %}
-                                                <span class="bg-blue-50 border border-blue-100 rounded px-2 py-0.5">
+                                                <span class="bg-blue-50 border border-blue-100 rounded px-2 py-0.5 whitespace-nowrap">
                                                     {{ comp.name is defined ? comp.name : comp.id }}
                                                 </span>
                                             {% endfor %}
@@ -43,7 +48,25 @@
                     </ul>
                     <div class="mt-3 border-t pt-2 text-xs text-gray-700">
                         {% set total_dinero = order.items|map(i => (i.product_snapshot.price is defined ? i.product_snapshot.price : 0) * i.quantity)|reduce((a, b) => a + b) %}
-                        <div class="flex justify-between"><span>Total:</span> <span class="font-bold">${{ total_dinero|number_format(2, '.', ',') }}</span></div>
+                        {% set total_puntos = order.items|map(i => (i.product_snapshot.points is defined ? i.product_snapshot.points : 0) * i.quantity)|reduce((a, b) => a + b) %}
+                        <div class="flex justify-between">
+                            <span>Total:</span>
+                            <span class="font-bold">
+                                {% if total_dinero == 0 and total_puntos > 0 %}
+                                    <i data-feather="star" class="w-4 h-4 text-yellow-500"></i> {{ total_puntos|number_format(0, '.', ',') }} pts
+                                {% elseif total_dinero == 0 and total_puntos == 0 %}
+                                    Gratis
+                                {% else %}
+                                    ${{ total_dinero|number_format(2, '.', ',') }}
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% if total_puntos > 0 and not (total_dinero == 0) %}
+                        <div class="flex justify-between">
+                            <span>Total puntos:</span>
+                            <span class="font-bold text-purple-700 flex items-center gap-1"><i data-feather="star" class="w-4 h-4 text-yellow-500"></i> {{ total_puntos|number_format(0, '.', ',') }} pts</span>
+                        </div>
+                        {% endif %}
                     </div>
                 {% else %}
                     <div class="text-gray-500 text-sm">El carrito está vacío.</div>
