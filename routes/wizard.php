@@ -18,7 +18,10 @@ $router->get("/admin", function() {
 });
 
 $router->get("/config", function() {
-    ViewController::render('wizard/config');
+    $timezones = \DateTimeZone::listIdentifiers();
+    ViewController::render('wizard/config', [
+        'timezones' => $timezones
+    ]);
 });
 
 $router->get("/features", function() {
@@ -118,6 +121,7 @@ $router->post("/config", function() {
     $restaurant_phone = $_POST['restaurant_phone'];
     $restaurant_email = isset($_POST['restaurant_email']) ? $_POST['restaurant_email'] : '';
     $restaurant_logo = $_FILES['restaurant_logo'];
+    $timezone = isset($_POST['timezone']) ? $_POST['timezone'] : 'Europe/Madrid';
 
     // Validate the logo file
     if ($restaurant_logo['error'] !== UPLOAD_ERR_OK) {
@@ -155,6 +159,7 @@ $router->post("/config", function() {
     $config->RESTAURANT_ADDRESS = $restaurant_address;
     $config->RESTAURANT_PHONE = $restaurant_phone;
     $config->RESTAURANT_EMAIL = $restaurant_email;
+    $config->TIMEZONE = $timezone;
 
     $config->save();
 

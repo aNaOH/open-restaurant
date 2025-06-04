@@ -15,6 +15,8 @@ $router->mount('/admin', function() use ($router) {
 
     $router->get('/config', function() {
         global $config;
+        // Obtener todas las zonas horarias disponibles
+        $timezones = \DateTimeZone::listIdentifiers();
         ViewController::render('admin/config', [
             'discount_enabled' => $config->DISCOUNT_ENABLED,
             'fidelity_enabled' => $config->FIDELITY_ENABLED,
@@ -24,7 +26,9 @@ $router->mount('/admin', function() use ($router) {
             'restaurant_phone' => $config->RESTAURANT_PHONE,
             'restaurant_email' => $config->RESTAURANT_EMAIL,
             'stripe_public_key' => $config->STRIPE_PUBLIC_KEY,
-            'stripe_secret_key' => $config->STRIPE_SECRET_KEY
+            'stripe_secret_key' => $config->STRIPE_SECRET_KEY,
+            'timezone' => $config->TIMEZONE,
+            'timezones' => $timezones
         ]);
     });
     
@@ -116,6 +120,14 @@ $router->mount('/admin', function() use ($router) {
         global $config;
         $config->STRIPE_PUBLIC_KEY = isset($_POST['stripe_public_key']) ? trim($_POST['stripe_public_key']) : '';
         $config->STRIPE_SECRET_KEY = isset($_POST['stripe_secret_key']) ? trim($_POST['stripe_secret_key']) : '';
+        $config->save();
+        header('Location: /admin/config');
+        exit;
+    });
+
+    $router->post('/config/timezone', function() {
+        global $config;
+        $config->TIMEZONE = isset($_POST['timezone']) ? $_POST['timezone'] : 'Europe/Madrid';
         $config->save();
         header('Location: /admin/config');
         exit;

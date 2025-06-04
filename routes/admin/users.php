@@ -3,7 +3,9 @@
 $router->mount('/users', function() use ($router) {
     $router->get('/', function() {
         $users = User::getAll();
-        ViewController::render('admin/users/index', $data);
+        ViewController::render('admin/users/index', [
+            'users' => $users
+        ]);
     });
     $router->get('/add', function() {
         ViewController::render('admin/users/add');
@@ -17,7 +19,7 @@ $router->mount('/users', function() use ($router) {
         $points = $_POST['points'] ?? 0;
         if ($name && $email && $password) {
             if ($password !== $password_confirm) {
-                ViewController::render('admin/users/add', $data);
+                ViewController::render('admin/users/add');
                 return;
             }
             // Validación de contraseña segura

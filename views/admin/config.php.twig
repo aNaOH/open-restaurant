@@ -86,6 +86,22 @@
                 <input type="submit" class="btn primary mt-4" value="Guardar claves de Stripe">
             </form>
         </div>
+        <div class="bg-blue-50 border border-blue-100 rounded-2xl p-6 shadow">
+            <h2 class="text-xl font-extrabold text-blue-700 mb-4 flex items-center gap-2"><i data-feather="clock"></i> Zona horaria</h2>
+            <form action="/admin/config/timezone" method="POST" class="flex flex-col gap-4 mb-8">
+                <div>
+                    <label for="timezone" class="block text-gray-700 text-sm font-bold mb-2">Zona horaria</label>
+                    <select id="timezone" name="timezone" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        {% for tz in timezones %}
+                            <option value="{{ tz }}" {% if timezone == tz %}selected{% endif %}>
+                                {{ tz|replace({'_':' '}) }} (UTC{% set offset = (tz is defined ? (date('now', tz).format('P')) : '') %}{% if offset %}{{ offset }}{% endif %})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <input type="submit" class="btn primary mt-4" value="Guardar zona horaria">
+            </form>
+        </div>
     </div>
 {% endblock %}
 {% block scripts %}

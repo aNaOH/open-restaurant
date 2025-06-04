@@ -26,6 +26,8 @@ class Config {
     public $STRIPE_PUBLIC_KEY = '';
     public $STRIPE_SECRET_KEY = '';
 
+    public $TIMEZONE = 'Europe/Madrid';
+
     // Check if the application is installed, check if the database name and user are set
     public function isInstalled() {
         return ( !empty($this->DB_NAME) && !empty($this->DB_USER) ) && $this->INSTALL_FINISHED == true;
@@ -61,6 +63,8 @@ class Config {
                 $this->STRIPE_SECRET_KEY = isset($config['stripe']['secretKey']) ? $config['stripe']['secretKey'] : '';
             }
 
+            $this->TIMEZONE = isset($config['timezone']) ? $config['timezone'] : 'Europe/Madrid';
+
             $this->INSTALL_FINISHED = isset($config['installFinished']) ? $config['installFinished'] : false;
         }
     }
@@ -88,11 +92,21 @@ class Config {
                 'publicKey' => $this->STRIPE_PUBLIC_KEY,
                 'secretKey' => $this->STRIPE_SECRET_KEY
             ],
+            'timezone' => $this->TIMEZONE,
             'installFinished' => $this->INSTALL_FINISHED
         ];
 
         $content = json_encode($config);
         file_put_contents('./config.json', $content);
+    }
+
+    /**
+     * Devuelve la hora actual en la zona horaria configurada (formato Y-m-d H:i:s)
+     */
+    public function nowInTimezone() {
+        $tz = new \DateTimeZone($this->TIMEZONE);
+        $now = new \DateTime('now', $tz);
+        return $now->format('Y-m-d H:i:s');
     }
 }
 

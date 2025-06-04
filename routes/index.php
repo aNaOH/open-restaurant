@@ -26,7 +26,7 @@ $router->get("/login", function() {
         header("Location: /");
         exit;
     }
-    ViewController::render('auth/login', $data);
+    ViewController::render('auth/login');
 });
 
 $router->get("/register", function() {
@@ -34,7 +34,7 @@ $router->get("/register", function() {
         header("Location: /");
         exit;
     }
-    ViewController::render('auth/register', $data);
+    ViewController::render('auth/register');
 });
 
 $router->get("/logout", function() {
@@ -172,5 +172,6 @@ $router->get('/logo', function() {
 
 include_once 'routes/admin/index.php';
 include_once 'routes/order.php';
+include_once 'routes/employee.php';
 
 $router->run();
