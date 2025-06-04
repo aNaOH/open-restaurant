@@ -32,11 +32,9 @@ OpenRestaurant es una aplicación web diseñada para ayudar a los restaurantes a
    ```sh
    npm run build
    ```
-5. **Configure the application:**
-   - Edit `globals/config.php` and `config.json` with your database credentials and settings.
-6. **Start the server:**
+5. **Start the server:**
    - Use your preferred local server (e.g., Laragon, XAMPP, etc.) to serve the project directory.
-7. **Access the app:**
+6. **Access the app:**
    - Open your browser and go to `http://localhost/openrestaurant` (or your configured URL).
    - The application includes a setup wizard that will guide you through the initial configuration, including database creation. **You do not need to manually import `openRestaurant.sql`.**
 
@@ -64,10 +62,8 @@ OpenRestaurant es una aplicación web diseñada para ayudar a los restaurantes a
    ```sh
    npm run build
    ```
-5. **Configura la aplicación:**
-   - Edita `globals/config.php` y `config.json` con tus credenciales y configuraciones de base de datos.
-6. **Inicia el servidor:**
+5. **Inicia el servidor:**
    - Usa tu servidor local preferido (por ejemplo, Laragon, XAMPP, etc.) para servir el directorio del proyecto.
-7. **Accede a la app:**
+6. **Accede a la app:**
    - Abre tu navegador y ve a `http://localhost/openrestaurant` (o la URL que hayas configurado).
    - La aplicación incluye un asistente que te guiará en la configuración inicial, incluyendo la creación de la base de datos. **No es necesario importar manualmente `openRestaurant.sql`.**
