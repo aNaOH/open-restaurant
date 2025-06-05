@@ -90,13 +90,15 @@ $router->post("/login", function() {
     }
 });
 
-// Procesar registro
+// Ruta para procesar el registro de usuario
 $router->post("/register", function() {
+    // Obtiene los datos enviados por el formulario
     $name = $_POST['name'] ?? '';
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
 
+    // Verifica que todos los campos estén completos
     if (empty($name) || empty($email) || empty($password) || empty($confirm_password)) {
         $data = [
             'error' => 'Por favor, completa todos los campos.'
@@ -104,6 +106,7 @@ $router->post("/register", function() {
         ViewController::render('auth/register', $data);
         return;
     }
+    // Valida el formato del correo electrónico
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $data = [
             'error' => 'El correo electrónico no es válido.'
@@ -111,6 +114,7 @@ $router->post("/register", function() {
         ViewController::render('auth/register', $data);
         return;
     }
+    // Verifica que las contraseñas coincidan
     if ($password !== $confirm_password) {
         $data = [
             'error' => 'Las contraseñas no coinciden.'
@@ -118,7 +122,7 @@ $router->post("/register", function() {
         ViewController::render('auth/register', $data);
         return;
     }
-    // Validación de contraseña segura
+    // Validación de contraseña segura (longitud, mayúscula, minúscula, número, especial)
     $passwordErrors = [];
     if (strlen($password) < 8) {
         $passwordErrors[] = 'La contraseña debe tener al menos 8 caracteres.';
@@ -135,6 +139,7 @@ $router->post("/register", function() {
     if (!preg_match('/[^a-zA-Z0-9]/', $password)) {
         $passwordErrors[] = 'La contraseña debe contener al menos un carácter especial.';
     }
+    // Si hay errores de contraseña, los muestra
     if (!empty($passwordErrors)) {
         $data = [
             'error' => implode(' ', $passwordErrors)
@@ -142,6 +147,7 @@ $router->post("/register", function() {
         ViewController::render('auth/register', $data);
         return;
     }
+    // Verifica si el correo ya está registrado
     if (User::getByEmail($email)) {
         $data = [
             'error' => 'El correo electrónico ya está registrado.'
@@ -149,11 +155,12 @@ $router->post("/register", function() {
         ViewController::render('auth/register', $data);
         return;
     }
+    // Crea el usuario y lo guarda en la base de datos
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
     $user = new User(null, $email, $name, $hashedPassword, EUSER_ROLE::USER);
     if ($user) {
         $user->save();
-        header("Location: /");
+        header("Location: /"); // Redirige al inicio si todo sale bien
         exit;
     } else {
         $data = [

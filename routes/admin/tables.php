@@ -13,7 +13,9 @@ $router->mount('/tables', function() use ($router) {
     // Listar mesas
     $router->get('/', function() {
         $tables = Table::getAll();
-        ViewController::render('admin/tables/index', $data);
+        ViewController::render('admin/tables/index', [
+            'tables' => $tables // Pasa las mesas a la vista
+        ]);
     });
 
     // Formulario para crear mesa
@@ -29,7 +31,7 @@ $router->mount('/tables', function() use ($router) {
             header("Location: /admin/tables");
             exit;
         } else {
-            ViewController::render('admin/tables/add', $data);
+            ViewController::render('admin/tables/add');
         }
     });
 
@@ -37,7 +39,9 @@ $router->mount('/tables', function() use ($router) {
     $router->get('/edit/{id}', function($id) {
         $table = Table::getById($id);
         if ($table) {
-            ViewController::render('admin/tables/edit', $data);
+            ViewController::render('admin/tables/edit', [
+                'table' => $table // Pasa la mesa a la vista para editar
+            ]);
         } else {
             header("Location: /admin/tables");
             exit;
@@ -46,35 +50,41 @@ $router->mount('/tables', function() use ($router) {
 
     // Mostrar QR de la mesa
     $router->get('/qr/{id}', function($id) {
-        $table = Table::getById($id);
+        $table = Table::getById($id); // Busca la mesa por su ID
         if ($table) {
 
-            // Get base URL from the environment
+            // Obtiene la URL base del entorno (por ejemplo, http://localhost)
             $baseUrl = Helpers::getBaseUrl();
-            // Create the full URL for the table
+            // Crea la URL completa para la mesa, que usará el QR
             $tableUrl = $baseUrl . '/order/begin/' . $table->id;
 
+            // Construye el código QR con la librería Endroid QR Code
             $builder = new Builder(
-                writer: new PngWriter(),
+                writer: new PngWriter(), // El QR será una imagen PNG
                 writerOptions: [],
                 validateResult: false,
-                data: $tableUrl,
+                data: $tableUrl, // La URL que contendrá el QR
                 encoding: new Encoding('UTF-8'),
-                errorCorrectionLevel: ErrorCorrectionLevel::High,
-                size: 300,
-                margin: 10,
-                roundBlockSizeMode: RoundBlockSizeMode::Margin,
-                labelText: 'Pide aquí',
-                labelFont: new OpenSans(20),
-                labelAlignment: LabelAlignment::Center
+                errorCorrectionLevel: ErrorCorrectionLevel::High, // Nivel de corrección de errores
+                size: 300, // Tamaño del QR
+                margin: 10, // Margen alrededor del QR
+                roundBlockSizeMode: RoundBlockSizeMode::Margin, // Redondeo de bloques
+                labelText: 'Pide aquí', // Texto debajo del QR
+                labelFont: new OpenSans(20), // Fuente del texto
+                labelAlignment: LabelAlignment::Center // Centrado
             );
 
-            $result = $builder->build();
+            $result = $builder->build(); // Genera el QR
             
-            ViewController::render('admin/tables/qr', $data);
+            // Renderiza la vista que muestra el QR
+            ViewController::render('admin/tables/qr', [
+                'qrCode' => $result->getDataUri(), // Pasa la imagen del QR a la vista
+                'table' => $table // Pasa el ID de la mesa a la vista
+            ]);
 
             exit;
         } else {
+            // Si no existe la mesa, redirige al listado de mesas
             header("Location: /admin/tables");
             exit;
         }
@@ -93,19 +103,7 @@ $router->mount('/tables', function() use ($router) {
             header("Location: /admin/tables");
             exit;
         } else {
-            ViewController::render('admin/tables/edit', $data);
-        }
-    });
-
-    // Eliminar mesa (GET)
-    $router->get('/delete/{id}', function($id) {
-        $table = Table::getById($id);
-        if ($table) {
-            Connection::doDelete(DBCONN, 'table', ['id' => $id]);
-            header("Location: /admin/tables");
-            exit;
-        } else {
-            ViewController::render('admin/tables/index', $data);
+            ViewController::render('admin/tables/edit');
         }
     });
 

@@ -87,15 +87,19 @@
     </dialog>
 
     <div id="menu" class="flex flex-col items-center">
+        <!-- Título principal del menú -->
         <h1 class="main-title text-4xl font-extrabold text-primary drop-shadow mb-2 border-b-4 border-blue-500 inline-block pb-1">Menú</h1>
         <p class="subtitle text-2xl font-semibold text-cyan-600 mb-6 tracking-wide">Categorías</p>
+        <!-- Mensaje si no hay categorías -->
         {% if categories|length == 0 %}
             <div class="text-gray-500">No hay categorías disponibles.</div>
         {% endif %}
+        <!-- Fila de tarjetas de categorías, cada botón representa una categoría -->
         <div class="flex w-full items-center gap-6 overflow-x-auto pb-2" style="scrollbar-width: thin; justify-content: center;" id="categories-row">
             {% for category in categories %}
                 <button id="btn-category-{{ category.id }}" class="category-card group bg-white rounded-2xl shadow-md p-4 flex flex-col items-center border border-gray-100 hover:shadow-xl hover:border-blue-400 transition-all duration-200 flex-shrink-0 cursor-pointer" style="width:210px; min-width:210px; max-width:210px; height:210px; min-height:210px; max-height:210px;">
                     <span class="relative w-32 h-32 flex items-center justify-center overflow-hidden rounded-xl mb-2">
+                        <!-- Imagen de la categoría -->
                         <img src="/{{ category.getImagePath() }}" alt="{{ category.name }}" class="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110 rounded-xl">
                         <span class="absolute bottom-2 right-2 bg-white rounded-full p-1 shadow border border-blue-200">
                             <i data-feather="tag" class="w-4 h-4 text-primary"></i>
@@ -109,6 +113,7 @@
                 </button>
             {% endfor %}
         </div>
+        <!-- Listado de productos por categoría -->
         <div class="w-full max-w-4xl mt-6">
             {% for category in categories %}
                 {% set catProducts = category.getProducts() %}
@@ -116,6 +121,7 @@
                     <div class="category-products mb-8 w-full" id="category-{{ category.id }}">
                         <div class="flex flex-wrap gap-6 w-full items-center justify-center">
                             {% for product in catProducts %}
+                                <!-- Tarjeta de producto -->
                                 <div class="product-card group bg-white rounded-2xl shadow-md p-4 flex flex-col items-center border border-gray-100 hover:shadow-xl hover:border-blue-400 transition-all duration-200 cursor-pointer max-w-[210px] min-w-[150px] flex-1"
                                     data-name="{{ product.name }}"
                                     data-price="{{ product.price }}"
@@ -123,6 +129,7 @@
                                     data-description="{{ product.description|escape('html') }}"
                                     data-image="/{{ product.getImagePath() }}">
                                     <span class="relative w-32 h-32 flex items-center justify-center overflow-hidden rounded-xl mb-2">
+                                        <!-- Imagen del producto -->
                                         <img src="/{{ product.getImagePath() }}" alt="{{ product.name }}" class="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110 rounded-xl">
                                     </span>
                                     <div class="mt-1 text-center w-full">
@@ -131,10 +138,13 @@
                                         </div>
                                         <div class="text-primary font-bold text-base mt-1 text-center w-full">
                                             {% if product.points is defined and product.points > 0 %}
+                                                <!-- Muestra puntos si el producto tiene -->
                                                 <span class="text-yellow-700 flex items-center gap-1 justify-center w-full"><i data-feather="star" class="w-5 h-5 text-yellow-500"></i> {{ product.points }} puntos</span>
                                             {% elseif product.price == 0 %}
+                                                <!-- Muestra gratis si el precio es 0 -->
                                                 Gratis
                                             {% else %}
+                                                <!-- Muestra el precio en euros -->
                                                 {{ product.price }} €
                                             {% endif %}
                                         </div>

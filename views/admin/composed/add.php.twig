@@ -14,28 +14,37 @@
                 <label class="block text-gray-700 text-sm font-bold mb-2">Componentes</label>
                 <div id="componentsContainer" class="flex flex-col gap-2">
                     <div class="component-row flex gap-2 items-center">
+                        <!-- Selector de tipo de componente: permite elegir entre producto o categoría -->
                         <select class="component-type-select border rounded px-2 py-1" style="min-width:110px">
                             <option value="product">Producto</option>
                             <option value="category">Categoría</option>
                         </select>
+                        <!-- Filtro de categoría: muestra solo productos de la categoría seleccionada -->
                         <select class="component-category-filter border rounded px-2 py-1" style="min-width:110px">
                             <option value="">Todas</option>
                             {% for category in categories %}
                                 <option value="{{ category.id }}">{{ category.name }}</option>
                             {% endfor %}
                         </select>
+                        <!-- Selector de productos: permite seleccionar uno o varios productos (filtrados por categoría si aplica) -->
                         <select class="component-product-select border rounded px-2 py-1" multiple style="min-width:160px">
                             {% for product in products %}
                                 <option value="{{ product.id }}" data-category="{{ product.category.id }}">{{ product.name }}</option>
                             {% endfor %}
                         </select>
+                        <!-- Selector de categoría: solo visible si el tipo es "categoría" -->
                         <select class="component-category-select border rounded px-2 py-1" style="min-width:160px; display:none">
                             <option value="">Selecciona categoría</option>
                             {% for category in categories %}
                                 <option value="{{ category.id }}">{{ category.name }}</option>
                             {% endfor %}
                         </select>
-                        <button type="button" class="remove-component-btn text-red-600 hover:text-red-800 text-xl font-bold px-2" title="Quitar componente" style="display:none">&times;</button>
+                        <!-- Botón para quitar la fila de componente (visible solo si hay más de dos filas) -->
+                        <button
+                            type="button"
+                            class="remove-component-btn text-red-600 hover:text-red-800 text-xl font-bold px-2"
+                            title="Quitar componente"
+                            style="display:none">&times;</button>
                     </div>
                 </div>
                 <button type="button" id="addComponentBtn" class="mt-2 btn secondary flex items-center gap-1"><i data-feather="plus"></i> Añadir componente</button>
@@ -69,8 +78,11 @@
 <script src="/assets/js/components/fileUpload.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Referencia al contenedor de componentes y al botón para añadir más
     const componentsContainer = document.getElementById('componentsContainer');
     const addComponentBtn = document.getElementById('addComponentBtn');
+
+    // Muestra u oculta el botón de eliminar componente según la cantidad de filas
     function updateRemoveComponentButtons() {
         const rows = componentsContainer.querySelectorAll('.component-row');
         rows.forEach((row, idx) => {
@@ -78,9 +90,12 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.style.display = (rows.length > 2) ? '' : 'none';
         });
     }
+
+    // Al hacer clic en "Añadir componente", se clona la primera fila y se reinician sus valores
     addComponentBtn.addEventListener('click', function() {
         const firstRow = componentsContainer.querySelector('.component-row');
         const newRow = firstRow.cloneNode(true);
+        // Se reinician los valores de la nueva fila
         newRow.querySelector('.component-type-select').value = 'product';
         newRow.querySelector('.component-product-select').style.display = '';
         Array.from(newRow.querySelector('.component-product-select').options).forEach(opt => opt.selected = false);
@@ -92,6 +107,8 @@ document.addEventListener('DOMContentLoaded', function() {
         componentsContainer.appendChild(newRow);
         updateRemoveComponentButtons();
     });
+
+    // Permite eliminar una fila de componente si hay más de dos
     componentsContainer.addEventListener('click', function(e) {
         if (e.target.classList.contains('remove-component-btn')) {
             const rows = componentsContainer.querySelectorAll('.component-row');
@@ -101,6 +118,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    // Cambia el tipo de selector mostrado según la opción elegida (producto o categoría)
     componentsContainer.addEventListener('change', function(e) {
         if (e.target.classList.contains('component-type-select')) {
             const row = e.target.closest('.component-row');
@@ -114,6 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 row.querySelector('.component-category-filter').style.display = 'none';
             }
         }
+        // Filtra los productos según la categoría seleccionada
         if (e.target.classList.contains('component-category-filter')) {
             const row = e.target.closest('.component-row');
             const filterValue = e.target.value;
@@ -128,6 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+
     updateRemoveComponentButtons();
     // --- FILE UPLOAD LOGIC & SUBMIT ---
     const form = document.querySelector('form[action="/admin/composed/add"]');

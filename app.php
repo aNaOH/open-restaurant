@@ -19,7 +19,7 @@ define('CONFIG', new Config());
 // Verifica si la aplicación ya está instalada
 $is_installed = CONFIG->isInstalled();
 if (!$is_installed) {
-    // Si no está instalada, carga el asistente de instalación
+    // Si no está instalada, carga el asistente de instalación y no el resto de la aplicación
     include_once 'routes/wizard.php';
     exit;
 }

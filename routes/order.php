@@ -117,7 +117,7 @@ $router->mount('/order', function() use ($router) {
             'total_dinero' => $total_dinero,
             'total_puntos' => $total_puntos,
             'show_stripe' => $show_stripe,
-            'points_per_unit' => defined('CONFIG->POINTS_PER_UNIT') ? CONFIG->POINTS_PER_UNIT : 100,
+            'points_per_unit' => CONFIG->FIDELITY_ENABLED ? CONFIG->POINTS_PER_UNIT : null,
             // Siempre obtener el usuario actualizado de la base de datos
             'user' => (isset($_SESSION['user']) && isset($_SESSION['user']['id'])) ? User::getById($_SESSION['user']['id']) : null
         ]);
@@ -508,7 +508,7 @@ $router->mount('/order', function() use ($router) {
         if ($user) {
             echo json_encode([
                 'exists' => true,
-                'points_per_unit' => CONFIG->POINTS_PER_UNIT
+                'points_per_unit' => CONFIG->FIDELITY_ENABLED ? CONFIG->POINTS_PER_UNIT : null
             ]);
         } else {
             echo json_encode(['exists' => false]);

@@ -109,18 +109,33 @@
 
         <div class="mt-10">
             <h2 class="text-xl font-bold text-gray-800 mb-4">Pagar con tarjeta</h2>
-            {% if show_stripe %}
+            {% if user is not defined or not user %}
                 <form id="payment-form" class="bg-white rounded-xl shadow p-6 border border-blue-100 flex flex-col gap-4">
-                    <div id="card-element" class="mb-4"></div>
-                    <button id="pay-btn" type="button" class="w-full px-5 py-2 rounded-full font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all flex items-center justify-center gap-2">
-                        <span id="pay-btn-text">Pagar</span>
+                    <div id="checkout-user-info" class="flex flex-col gap-2 mb-2">
+                        <label for="checkout-email" class="font-semibold text-gray-700">Correo electrónico</label>
+                        <input id="checkout-email" name="email" type="email" required placeholder="Tu correo electrónico" class="border border-blue-200 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <div id="fidelity-hint" class="text-xs text-blue-700 mt-1 hidden"></div>
+                        <div id="login-hint" class="text-xs text-green-700 mt-1 hidden"></div>
+                    </div>
+                    <div id="card-element" class="mb-4 hidden"></div>
+                    <button id="pay-btn" type="button" class="w-full px-5 py-2 rounded-full font-semibold text-white bg-green-600 hover:bg-green-700 transition-all flex items-center justify-center gap-2">
+                        <span id="pay-btn-text">Finalizar pedido</span>
                         <span id="pay-btn-spinner" class="hidden animate-spin"><i data-feather="loader" class="w-5 h-5"></i></span>
                     </button>
                 </form>
             {% else %}
                 <form id="payment-form" class="bg-white rounded-xl shadow p-6 border border-blue-100 flex flex-col gap-4">
-                    <button id="pay-btn" type="button" class="w-full px-5 py-2 rounded-full font-semibold text-white bg-green-600 hover:bg-green-700 transition-all flex items-center justify-center gap-2">
-                        <span id="pay-btn-text">Finalizar pedido</span>
+                    <div id="checkout-user-info" class="flex flex-col gap-2 mb-2">
+                        <div class="font-semibold text-gray-700">Correo: <span class="text-blue-700">{{ user.email }}</span></div>
+                        {% if total_dinero > 0 and points_per_unit is defined %}
+                            <div class="text-xs text-blue-700 mt-1">Vas a ganar <span class="font-bold">{{ (total_dinero * points_per_unit)|number_format(0, '.', ',') }}</span> puntos de fidelidad con esta compra.</div>
+                        {% endif %}
+                    </div>
+                    {% if show_stripe %}
+                        <div id="card-element" class="mb-4"></div>
+                    {% endif %}
+                    <button id="pay-btn" type="button" class="w-full px-5 py-2 rounded-full font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all flex items-center justify-center gap-2">
+                        <span id="pay-btn-text">Pagar</span>
                         <span id="pay-btn-spinner" class="hidden animate-spin"><i data-feather="loader" class="w-5 h-5"></i></span>
                     </button>
                 </form>
@@ -174,8 +189,8 @@
     </style>
 {% endblock %}
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 {% block scripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://js.stripe.com/v3/"></script>
     <script>
 // Utilidades para feedback y botones
@@ -221,26 +236,83 @@ function showPaymentSuccessUI(email) {
     if (downloadReceiptBtn) {
         downloadReceiptBtn.onclick = function() {
             const doc = new window.jspdf.jsPDF();
-            doc.setFontSize(18);
+            // Colores y fuente para simular el estilo de la web
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(30, 58, 138); // azul oscuro
+            doc.setFontSize(20);
             doc.text('Recibo de compra', 20, 20);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(55, 65, 81); // gris oscuro
             doc.setFontSize(12);
             doc.text('Fecha: ' + new Date().toLocaleString(), 20, 35);
             doc.text('Correo: ' + (email || ''), 20, 45);
             let y = 60;
+            doc.setFont('helvetica', 'bold');
             doc.setFontSize(14);
+            doc.setTextColor(30, 64, 175); // azul
             doc.text('Productos:', 20, y);
             y += 8;
+            doc.setFont('helvetica', 'normal');
             doc.setFontSize(12);
+            doc.setTextColor(30, 41, 59); // gris
             {% for item in order.items %}
                 doc.text('- {{ item.product_snapshot.name|e('js') }} x{{ item.quantity }}: ' + (({{ (item.product_snapshot.price * item.quantity)|number_format(2, '.', ',') }}) + ' €'), 25, y);
                 y += 7;
+                {% if item.metadata.components is defined and item.metadata.components|length > 1 %}
+                    doc.setFont('helvetica', 'italic');
+                    doc.setFontSize(11);
+                    doc.setTextColor(202, 138, 4); // amarillo
+                    doc.text('  Componentes:', 28, y);
+                    y += 6;
+                    {% for comp in item.metadata.components %}
+                        doc.setFont('helvetica', 'normal');
+                        doc.setTextColor(55, 65, 81); // gris
+                        doc.text('    - {{ comp.name|e('js') }}', 32, y);
+                        y += 5;
+                    {% endfor %}
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(12);
+                    doc.setTextColor(30, 41, 59);
+                {% endif %}
+                {% if item.metadata.notes is defined and item.metadata.notes %}
+                    doc.setFont('helvetica', 'italic');
+                    doc.setFontSize(11);
+                    doc.setTextColor(16, 185, 129); // verde
+                    doc.text('  Notas: {{ item.metadata.notes|e('js') }}', 28, y);
+                    y += 6;
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(12);
+                    doc.setTextColor(30, 41, 59);
+                {% endif %}
             {% endfor %}
             y += 3;
-            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(13);
+            doc.setTextColor(37, 99, 235); // azul fuerte
             doc.text('Total pagado: {{ total_dinero|number_format(2, '.', ',') }} EUR', 20, y);
             y += 10;
+            // Mostrar puntos obtenidos si hay puntos
+            var puntos = {{ total_puntos|default(0) }};
+            if (puntos > 0) {
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(12);
+                doc.setTextColor(202, 138, 4); // amarillo (como los puntos en la web)
+                doc.text('Puntos obtenidos: ' + puntos.toLocaleString('es-ES'), 20, y);
+                y += 8;
+            }
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(12);
+            doc.setTextColor(99, 102, 241); // azul violeta
             doc.text('ID de pedido: ' + (window._lastOrderId || ''), 20, y);
+            y += 8;
+            if (typeof {{ order.table|json_encode|raw }} !== 'undefined') {
+                doc.text('Mesa: {{ order.table }}', 20, y);
+                y += 8;
+            }
             y += 10;
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(13);
+            doc.setTextColor(21, 128, 61); // verde
             doc.text('¡Gracias por tu compra!', 20, y);
             doc.save('recibo_openrestaurant.pdf');
         };
@@ -385,25 +457,39 @@ document.addEventListener('DOMContentLoaded', setupPaymentLogic);
 {% if user is not defined or not user %}
 document.addEventListener('DOMContentLoaded', function() {
     const emailInput = document.getElementById('checkout-email');
+    const cardElementDiv = document.getElementById('card-element');
     if (emailInput) {
         let lastHintEmail = '';
         emailInput.addEventListener('blur', async function() {
             const email = emailInput.value.trim();
-            if (!email || email === lastHintEmail) return;
-            lastHintEmail = email;
             const hintDiv = document.getElementById('fidelity-hint');
+            const loginHintDiv = document.getElementById('login-hint');
             hintDiv.classList.add('hidden');
-            if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return;
+            loginHintDiv.classList.add('hidden');
+            if (!email || email === lastHintEmail || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+                if (cardElementDiv) cardElementDiv.classList.add('hidden');
+                return;
+            }
+            lastHintEmail = email;
             try {
-                const res = await fetch('/order/user-by-email.php?email=' + encodeURIComponent(email));
+                const res = await fetch('/order/user-by-email?email=' + encodeURIComponent(email));
                 const data = await res.json();
-                if (data && data.exists && data.points_per_unit) {
-                    const total = {{ total_dinero|number_format(2, '.', ',') }};
+                if (data && data.exists) {
+                    loginHintDiv.innerHTML = `Este correo ya tiene una cuenta. <a href='/login' class='underline text-blue-700'>Inicia sesión aquí</a> para acumular puntos.`;
+                    loginHintDiv.classList.remove('hidden');
+                    if (cardElementDiv) cardElementDiv.classList.add('hidden');
+                } else if (data && data.points_per_unit && data.points_per_unit > 0) {
+                    const total = parseFloat('{{ total_dinero|number_format(2, '.', ',')|replace({',':'.'}) }}');
                     const points = Math.floor(total * data.points_per_unit);
-                    hintDiv.textContent = `Si inicias sesión con este correo ganarías ${points} puntos de fidelidad.`;
+                    hintDiv.textContent = `Si usas una cuenta ganarías ${points} puntos de fidelidad.`;
                     hintDiv.classList.remove('hidden');
+                    if (cardElementDiv) cardElementDiv.classList.remove('hidden');
+                } else {
+                    if (cardElementDiv) cardElementDiv.classList.remove('hidden');
                 }
-            } catch (e) {}
+            } catch (e) {
+                if (cardElementDiv) cardElementDiv.classList.add('hidden');
+            }
         });
     }
 });

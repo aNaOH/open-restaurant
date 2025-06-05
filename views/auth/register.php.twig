@@ -70,27 +70,30 @@
         <script src="/assets/js/feather.min.js"></script>
         <script>if(window.feather){window.feather.replace();}</script>
         <script>
-// Validación visual de contraseña segura
+// Obtiene el campo de contraseña
 const passwordInput = document.getElementById('password');
+// Define los requisitos de la contraseña y a qué elemento de la lista corresponde cada uno
 const requirements = [
-    { regex: /.{8,}/, selector: 'li:nth-child(1)' },
-    { regex: /[A-Z]/, selector: 'li:nth-child(2)' },
-    { regex: /[a-z]/, selector: 'li:nth-child(3)' },
-    { regex: /[0-9]/, selector: 'li:nth-child(4)' },
-    { regex: /[^a-zA-Z0-9]/, selector: 'li:nth-child(5)' }
+    { regex: /.{8,}/, selector: 'li:nth-child(1)' }, // Mínimo 8 caracteres
+    { regex: /[A-Z]/, selector: 'li:nth-child(2)' }, // Al menos una mayúscula
+    { regex: /[a-z]/, selector: 'li:nth-child(3)' }, // Al menos una minúscula
+    { regex: /[0-9]/, selector: 'li:nth-child(4)' }, // Al menos un número
+    { regex: /[^a-zA-Z0-9]/, selector: 'li:nth-child(5)' } // Al menos un carácter especial
 ];
+// Si existe el campo de contraseña, añade un evento para validar mientras se escribe
 if (passwordInput) {
     passwordInput.addEventListener('input', function() {
         const value = passwordInput.value;
+        // Recorre cada requisito y actualiza el color de la lista según si se cumple o no
         requirements.forEach(req => {
             const li = passwordInput.parentElement.parentElement.querySelector(req.selector);
             if (li) {
                 if (req.regex.test(value)) {
-                    li.classList.add('text-green-600');
+                    li.classList.add('text-green-600'); // Cumple el requisito
                     li.classList.remove('text-gray-500');
                 } else {
                     li.classList.remove('text-green-600');
-                    li.classList.add('text-gray-500');
+                    li.classList.add('text-gray-500'); // No cumple el requisito
                 }
             }
         });
