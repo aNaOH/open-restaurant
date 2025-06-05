@@ -7,28 +7,34 @@
 {% include "/components/header.php.twig" %}
 
 <div class="max-w-3xl mx-auto mt-8 w-full">
+    {# Botón para volver al panel de pedidos #}
     <form action="/employee" method="get" class="mb-4">
         <button type="submit" class="flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-blue-700 bg-blue-100 hover:bg-blue-200 transition-all duration-200 shadow-sm">
             <i data-feather="arrow-left" class="h-5 w-5"></i>
             Volver
         </button>
     </form>
+    {# Título principal con el número de mesa #}
     <h1 class="text-2xl font-bold text-gray-800 mb-6">Pedido para la mesa {{order.table_id}}</h1>
+    {# Sección de detalles del pedido #}
     <div class="bg-white border border-blue-200 rounded-xl shadow p-4 mb-6">
         <h2 class="text-lg font-semibold text-blue-700 mb-2">Detalles del pedido</h2>
         <p class="text-gray-600">Fecha: {{ order.date|date('d/m/Y') }}</p>
         <p class="text-gray-600">Hora: {{ order.time|date('H:i') }}</p>
         <p id="order-status" class="text-gray-600">Estado: {{ order.getStatus() == 'completed' ? 'Completado' : (order.getStatus() == 'pending' ? 'Pendiente' : 'Vacío') }}</p>
     </div>
+    {# Sección de productos del pedido #}
     <div class="bg-white border border-blue-100 rounded-xl shadow p-4 mb-6">
         <h2 class="text-lg font-semibold text-blue-700 mb-4">Productos</h2>
         <div class="flex flex-wrap gap-6 w-full items-stretch justify-center" id="products-row">
             {% for item in products %}
                 <div class="flex flex-col items-center h-full" style="min-width:240px; max-width:240px;">
+                    {# Card del producto individual #}
                     <div class="product-card group bg-white rounded-2xl shadow-md p-4 flex flex-col items-center border border-gray-100 hover:shadow-xl hover:border-blue-400 transition-all duration-200 flex-shrink-0 cursor-pointer relative {% if item.done %}bg-blue-100{% endif %} h-full"
                         style="width:240px; min-width:240px; max-width:240px; height:260px; min-height:260px; max-height:260px;"
                         data-product-id="{{ item.product_id }}"
                         data-done="{{ item.done ? 'true' : 'false' }}">
+                        {# Imagen del producto o icono si no hay imagen #}
                         <span class="relative w-40 h-40 flex items-center justify-center overflow-hidden rounded-xl mb-2">
                             {% if item.product_snapshot.image %}
                                 <img src="/{{ item.product_snapshot.image }}" alt="{{ item.product_snapshot.name }}" class="transition-transform duration-300 group-hover:scale-110 rounded-xl bg-white" style="width:10rem; height:10rem; min-width:10rem; min-height:10rem; max-width:10rem; max-height:10rem; object-fit:contain;">
@@ -36,6 +42,7 @@
                                 <span class="text-gray-400 flex flex-col items-center"><i data-feather="image" class="w-8 h-8 mb-1"></i>Sin imagen</span>
                             {% endif %}
                         </span>
+                        {# Nombre, cantidad y precio del producto #}
                         <div class="mt-1 text-center w-full">
                             <div class="font-semibold text-gray-800 flex items-center gap-1 justify-center text-lg group-hover:text-primary transition-colors">
                                 <i data-feather="box" class="w-5 h-5 text-blue-400"></i>
@@ -48,6 +55,7 @@
                                 <span class="text-blue-700 font-bold flex items-center gap-1"><i data-feather="euro" class="w-4 h-4"></i>{{ (item.price * item.quantity)|number_format(2, '.', ',') }} €</span>
                             </div>
                         </div>
+                        {# Checkbox para marcar como completado #}
                         <input type="checkbox"
                             class="form-checkbox h-5 w-5 text-green-600 absolute top-3 right-3 z-10 opacity-0 cursor-pointer"
                             id="product-done-{{ item.product_id }}"
@@ -55,8 +63,10 @@
                             {% if item.done %}checked{% endif %}
                             onchange="changeProductStatus('{{ order.id }}', '{{ item.product_id }}', this.checked)"
                         >
+                        {# Indicador visual de completado #}
                         <span class="absolute top-3 right-3 z-0 w-7 h-7 rounded-full transition-all duration-200 pointer-events-none done-indicator {% if item.done %}bg-blue-500{% else %}bg-gray-200{% endif %}"></span>
                     </div>
+                    {# Metadatos del producto: notas y componentes #}
                     <div class="flex flex-col gap-1 w-full items-center">
                         {% if item.metadata and item.metadata.notes %}
                             <div class="mt-2 text-xs text-gray-600 bg-yellow-50 rounded p-2 flex items-center gap-1 justify-center w-full"><i data-feather="edit-3" class="w-4 h-4 text-yellow-500"></i> {{ item.metadata.notes }}</div>
@@ -74,6 +84,7 @@
                     </div>
                 </div>
             {% else %}
+                {# Mensaje si no hay productos en el pedido #}
                 <div class="text-gray-500 py-4">No hay productos en este pedido.</div>
             {% endfor %}
         </div>
@@ -81,6 +92,7 @@
 </div>
 
 <script>
+// Actualiza el estado visual del pedido según los productos completados
 function updateOrderStatusUI(products) {
     const statusEl = document.getElementById('order-status');
     if (!statusEl) return;
@@ -99,6 +111,7 @@ function updateOrderStatusUI(products) {
     statusEl.textContent = 'Estado: ' + status;
 }
 
+// Cambia el estado de un producto (completado/no completado)
 function changeProductStatus(orderId, productId, checked) {
     fetch(`/employee/${orderId}/change-product-status`, {
         method: 'POST',
@@ -133,6 +146,7 @@ function changeProductStatus(orderId, productId, checked) {
     .catch(() => alert('Error de red al actualizar el estado.'));
 }
 
+// Inicializa los estados visuales y listeners al cargar la página
 document.addEventListener('DOMContentLoaded', function() {
     // Estado visual inicial de las cards
     document.querySelectorAll('.product-card').forEach(function(card) {

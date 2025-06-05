@@ -1,13 +1,12 @@
 <?php
-
+// Rutas del flujo de pedidos del cliente (carrito, productos, promos, pago, etc.)
+// Incluye validaciones, lógica de Stripe y gestión de puntos
 // create a before event to check if an order exists except for the begin route
 $router->before('GET|POST', '/order', function() {
-    // Check if it's the 'begin' route
+    // Verifica si existe un pedido activo, excepto en la ruta de inicio de pedido
     $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     if ($currentPath !== '/order/begin') {
-        // Check if an order exists
         if (null == OrderHelpers::getOrder()) {
-            // Redirect to home
             header('Location: /');
             exit;
         }
@@ -15,6 +14,7 @@ $router->before('GET|POST', '/order', function() {
 });
 
 $router->mount('/order', function() use ($router) {
+    // Página principal del pedido
     $router->get('/', function() {
         // Get the current order
         $order = OrderHelpers::getOrder();
@@ -41,6 +41,7 @@ $router->mount('/order', function() use ($router) {
         ]);
     });
 
+    // Página de producto dentro del pedido
     $router->get('/product/{id}', function($id) {
         // Get the current order
         $order = OrderHelpers::getOrder();
@@ -86,6 +87,7 @@ $router->mount('/order', function() use ($router) {
         ]);
     });
 
+    // Página del carrito
     $router->get('/cart', function() {
         // Get the current order
         $order = OrderHelpers::getOrder();
@@ -121,6 +123,7 @@ $router->mount('/order', function() use ($router) {
         ]);
     });
 
+    // Iniciar pedido (POST)
     $router->post('/begin', function() {
         //Check if an order already exists
         if (OrderHelpers::getOrder() !== null) {
@@ -157,6 +160,7 @@ $router->mount('/order', function() use ($router) {
         exit;
     });
 
+    // Iniciar pedido (GET con id de mesa)
     $router->get('/begin/{tableId}', function($tableId) {
         //Check if an order already exists
         if (OrderHelpers::getOrder() !== null) {
@@ -180,6 +184,7 @@ $router->mount('/order', function() use ($router) {
         exit;
     });
 
+    // Cancelar pedido
     $router->get("/stop", function() {
         // Stop the current order
         OrderHelpers::clearOrder();
@@ -188,6 +193,7 @@ $router->mount('/order', function() use ($router) {
         exit;
     });
 
+    // Buscar producto promocional por código
     $router->get('/product-by-code/{code}', function($code) {
         // Find a promotional product by code
         $product = Product::getByPromoCode($code);
@@ -199,6 +205,7 @@ $router->mount('/order', function() use ($router) {
         exit;
     });
 
+    // Aplicar código promocional
     $router->post('/apply-promo', function() {
         $input = json_decode(file_get_contents('php://input'), true);
         $code = isset($input['code']) ? trim($input['code']) : '';
@@ -216,6 +223,7 @@ $router->mount('/order', function() use ($router) {
         exit;
     });
 
+    // Cancelar código promocional
     $router->post('/cancel-promo', function() {
         // Permitir recibir el código tanto por JSON como por POST tradicional
         $input = file_get_contents('php://input');
@@ -248,6 +256,7 @@ $router->mount('/order', function() use ($router) {
         exit;
     });
 
+    // Añadir producto al pedido
     $router->post('/add/{id}', function($id) {
         $order = OrderHelpers::getOrder();
         if ($order === null) {
@@ -319,6 +328,7 @@ $router->mount('/order', function() use ($router) {
         exit;
     });
 
+    // Quitar producto del pedido
     $router->post('/remove', function() {
         $input = json_decode(file_get_contents('php://input'), true);
         $productId = isset($input['product_id']) ? intval($input['product_id']) : null;
@@ -347,6 +357,7 @@ $router->mount('/order', function() use ($router) {
         exit;
     });
 
+    // Crear pago Stripe
     $router->post('/create-stripe', function() {
         
         // Leer el email del body si viene (JSON)
@@ -396,7 +407,7 @@ $router->mount('/order', function() use ($router) {
         exit;
     });
 
-    // Guardar pedido en la base de datos tras pago Stripe
+    // Guardar pedido tras pago
     $router->post('/save', function() {
         header('Content-Type: application/json');
 
@@ -485,6 +496,7 @@ $router->mount('/order', function() use ($router) {
         echo json_encode(['status' => 'ok', 'order_id' => $order->id, 'points_gained' => isset($points) ? $points : 0]);
     });
 
+    // Buscar usuario por email
     $router->get('/user-by-email', function() {
         header('Content-Type: application/json');
         $email = isset($_GET['email']) ? trim($_GET['email']) : '';

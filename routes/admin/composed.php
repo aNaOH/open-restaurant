@@ -1,6 +1,7 @@
 <?php
-
+// Rutas del módulo de productos compuestos en el panel de administración
 $router->mount('/composed', function() use ($router) {
+    // Formulario para crear producto compuesto
     $router->get('/add', function() {
         $categories = Category::getAll();
         $products = Product::getAllByType(EPRODUCT_TYPE::SIMPLE);
@@ -11,6 +12,7 @@ $router->mount('/composed', function() use ($router) {
         ViewController::render('admin/composed/add', $data);
     });
 
+    // Procesar creación de producto compuesto
     $router->post('/add', function() {
         // Decodificar componentes si vienen como string JSON (AJAX)
         $components = isset($_POST['components']) ? $_POST['components'] : [];
@@ -152,6 +154,7 @@ $router->mount('/composed', function() use ($router) {
         }
     });
 
+    // Listar productos compuestos
     $router->get('/', function() {
         // Obtener todos los productos compuestos
         $composedProducts = Product::getAllByType(EPRODUCT_TYPE::COMPOSED);
@@ -162,6 +165,7 @@ $router->mount('/composed', function() use ($router) {
         ViewController::render('admin/composed/index', $data);
     });
 
+    // Formulario para editar producto compuesto
     $router->get('/edit/{id}', function($id) {
         $composed = Product::getById($id);
         if (!$composed || $composed->type !== EPRODUCT_TYPE::COMPOSED) {
@@ -183,6 +187,7 @@ $router->mount('/composed', function() use ($router) {
         ViewController::render('admin/composed/edit', $data);
     });
 
+    // Procesar edición de producto compuesto
     $router->post('/edit/{id}', function($id) {
         $composed = Product::getById($id);
         if (!$composed || $composed->type !== EPRODUCT_TYPE::COMPOSED) {
@@ -286,6 +291,7 @@ $router->mount('/composed', function() use ($router) {
         exit;
     });
 
+    // Eliminar producto compuesto
     $router->post('/delete/{id}', function($id) {
         $composed = Product::getById($id);
         if ($composed && $composed->type === EPRODUCT_TYPE::COMPOSED) {

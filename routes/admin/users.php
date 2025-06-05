@@ -1,15 +1,18 @@
 <?php
-
+// Rutas del módulo de usuarios en el panel de administración
 $router->mount('/users', function() use ($router) {
+    // Listar usuarios
     $router->get('/', function() {
         $users = User::getAll();
         ViewController::render('admin/users/index', [
             'users' => $users
         ]);
     });
+    // Formulario para crear usuario
     $router->get('/add', function() {
         ViewController::render('admin/users/add');
     });
+    // Procesar creación de usuario
     $router->post('/add', function() {
         $name = $_POST['name'] ?? '';
         $email = $_POST['email'] ?? '';
@@ -51,6 +54,7 @@ $router->mount('/users', function() use ($router) {
             ViewController::render('admin/users/add', $data);
         }
     });
+    // Formulario para editar usuario
     $router->get('/edit/{id}', function($id) {
         $user = User::getById($id);
         if ($user) {
@@ -60,6 +64,7 @@ $router->mount('/users', function() use ($router) {
             exit;
         }
     });
+    // Procesar edición de usuario
     $router->post('/edit/{id}', function($id) {
         $user = User::getById($id);
         if ($user) {
@@ -105,6 +110,7 @@ $router->mount('/users', function() use ($router) {
             exit;
         }
     });
+    // Eliminar usuario
     $router->post('/delete/{id}', function($id) {
         $user = User::getById($id);
         if ($user) {

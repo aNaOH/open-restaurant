@@ -1,7 +1,8 @@
 <?php
-
+// Rutas del panel de empleado
+// Incluye autenticación de empleados y gestión de pedidos del día
 $router->before('GET|POST', '/employee', function() {
-    // Check if it's the 'begin' route
+    // Verifica si el usuario es empleado o admin
     if (!AuthHelpers::isEmployee()) {
         header('Location: /login');
         exit;
@@ -9,6 +10,7 @@ $router->before('GET|POST', '/employee', function() {
 });
 
 $router->mount('/employee', function() use ($router) {
+    // Panel principal de empleados
     $router->get('/', function() {
         $tables = Table::getAll();
         $orders = Order::getAll();
@@ -19,6 +21,7 @@ $router->mount('/employee', function() use ($router) {
         ]);
     });
 
+    // Ver detalles de un pedido específico
     $router->get('/{order_id}', function($order_id) {
         $order = Order::getById($order_id);
 
@@ -42,6 +45,7 @@ $router->mount('/employee', function() use ($router) {
         ]);
     });
 
+    // Cambiar el estado de un producto en un pedido
     $router->post('/{order_id}/change-product-status', function($order_id) {
         $order = Order::getById($order_id);
 

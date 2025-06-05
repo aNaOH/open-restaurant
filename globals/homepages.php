@@ -1,10 +1,16 @@
 <?php
-
+// Clase que representa al autor de una homepage
 class HomepageAuthor {
-    public string $name;
-    public string $email;
-    public string $url;
+    public string $name; // Nombre del autor
+    public string $email; // Email del autor
+    public string $url; // URL del autor
 
+    /**
+     * Constructor de HomepageAuthor
+     * @param string $name
+     * @param string $email
+     * @param string $url
+     */
     public function __construct($name, $email, $url) {
         $this->name = $name;
         $this->email = $email;
@@ -12,12 +18,20 @@ class HomepageAuthor {
     }
 }
 
+// Clase que representa una homepage personalizada
 class Homepage {
-    public string $name;
-    public string $description;
-    public HomepageAuthor $author;
-    public string $entry;
+    public string $name; // Nombre de la homepage
+    public string $description; // Descripción
+    public HomepageAuthor $author; // Autor
+    public string $entry; // Carpeta de entrada
 
+    /**
+     * Constructor de Homepage
+     * @param string $name
+     * @param string $description
+     * @param HomepageAuthor|string $author
+     * @param string $entry
+     */
     public function __construct($name, $description, $author, $entry) {
         $this->name = $name;
         $this->description = $description;
@@ -28,9 +42,13 @@ class Homepage {
     }
 }
 
+// Clase que gestiona todas las homepages disponibles
 class Homepages {
-    public $homepages = [];
+    public $homepages = []; // Array de homepages
 
+    /**
+     * Constructor: carga todas las homepages desde la carpeta content/homepages
+     */
     public function __construct() {
         $homepagesLocation = 'content/homepages';
         // Get all folders in the homepages directory
@@ -46,4 +64,5 @@ class Homepages {
     }
 }
 
+// Instancia global de homepages
 $homepages = new Homepages();

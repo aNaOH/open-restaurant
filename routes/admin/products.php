@@ -1,6 +1,7 @@
 <?php
-
+// Rutas del módulo de productos simples en el panel de administración
 $router->mount('/products', function() use ($router) {
+    // Listar productos
     $router->get('/', function() {
         $products = Product::getAllByType(EPRODUCT_TYPE::STANDARD);
         ViewController::render('admin/products/index', [
@@ -8,6 +9,7 @@ $router->mount('/products', function() use ($router) {
         ]);
     });
 
+    // Formulario para crear producto
     $router->get('/add', function() {
         $categories = Category::getAll();
         ViewController::render('admin/products/add', [
@@ -15,6 +17,7 @@ $router->mount('/products', function() use ($router) {
         ]);
     });
 
+    // Procesar creación de producto
     $router->post('/add', function() {
         if (!isset($_POST['name'], $_POST['category'], $_POST['description'], $_POST['price'])) {
             $jsonResponse = [
@@ -79,6 +82,7 @@ $router->mount('/products', function() use ($router) {
         }
     });
 
+    // Formulario para editar producto
     $router->get('/edit/{id}', function($id) {
         $product = Product::getById($id);
         $categories = Category::getAll();
@@ -93,6 +97,7 @@ $router->mount('/products', function() use ($router) {
         }
     });
 
+    // Procesar edición de producto
     $router->post('/edit/{id}', function($id) {
         $product = Product::getById($id);
         if (!$product) {
@@ -172,6 +177,7 @@ $router->mount('/products', function() use ($router) {
         exit;
     });
 
+    // Eliminar producto
     $router->post('/delete/{id}', function($id) {
         $product = Product::getById($id);
         if ($product) {

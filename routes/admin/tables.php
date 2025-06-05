@@ -8,16 +8,20 @@ use Endroid\QrCode\Label\Font\OpenSans;
 use Endroid\QrCode\RoundBlockSizeMode;
 use Endroid\QrCode\Writer\PngWriter;
 
+// Rutas del módulo de mesas en el panel de administración
 $router->mount('/tables', function() use ($router) {
+    // Listar mesas
     $router->get('/', function() {
         $tables = Table::getAll();
         ViewController::render('admin/tables/index', $data);
     });
 
+    // Formulario para crear mesa
     $router->get('/add', function() {
         ViewController::render('admin/tables/add');
     });
 
+    // Procesar creación de mesa
     $router->post('/add', function() {
         if (isset($_POST['id'])) {
             $table = new Table($_POST['id'], $_POST['notes']);
@@ -29,6 +33,7 @@ $router->mount('/tables', function() use ($router) {
         }
     });
 
+    // Formulario para editar mesa
     $router->get('/edit/{id}', function($id) {
         $table = Table::getById($id);
         if ($table) {
@@ -39,6 +44,7 @@ $router->mount('/tables', function() use ($router) {
         }
     });
 
+    // Mostrar QR de la mesa
     $router->get('/qr/{id}', function($id) {
         $table = Table::getById($id);
         if ($table) {
@@ -74,6 +80,7 @@ $router->mount('/tables', function() use ($router) {
         }
     });
 
+    // Procesar edición de mesa
     $router->post('/edit/{id}', function($id) {
         if (isset($_POST['notes'])) {
             $table = Table::getById($id);
@@ -90,6 +97,7 @@ $router->mount('/tables', function() use ($router) {
         }
     });
 
+    // Eliminar mesa (GET)
     $router->get('/delete/{id}', function($id) {
         $table = Table::getById($id);
         if ($table) {
@@ -101,6 +109,7 @@ $router->mount('/tables', function() use ($router) {
         }
     });
 
+    // Eliminar mesa (POST)
     $router->post('/delete/{id}', function($id) {
         $table = Table::getById($id);
         if ($table) {

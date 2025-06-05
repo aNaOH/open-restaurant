@@ -1,14 +1,23 @@
 <?php
-
+// Clase que representa una categoría de productos
 class Category {
+    // Propiedades públicas de la categoría
     public ?int $id;
     public string $name;
 
+    /**
+     * Constructor de la clase Category
+     * @param int|null $id ID de la categoría
+     * @param string|null $name Nombre de la categoría
+     */
     public function __construct(?int $id = null, string $name = null) {
         $this->id = $id;
         $this->name = $name;
     }
 
+    /**
+     * Guarda la categoría en la base de datos (insertar o actualizar)
+     */
     public function save() {
         $data = ['name' => $this->name];
         if ($this->id) {
@@ -19,6 +28,10 @@ class Category {
         }
     }
 
+    /**
+     * Devuelve la ruta de la imagen de la categoría si existe
+     * @return string|null Ruta relativa o null si no existe
+     */
     public function getImagePath() {
         if ($this->id) {
             $uploadDir = 'assets/uploads/categories/';
@@ -34,6 +47,10 @@ class Category {
         return null;
     }
 
+    /**
+     * Obtiene los productos de esta categoría
+     * @return array Lista de productos
+     */
     public function getProducts() {
         if ($this->id) {
             $rows = Connection::doSelect(DBCONN, 'Product', ['category' => $this->id]);
@@ -42,6 +59,10 @@ class Category {
         return [];
     }
 
+    /**
+     * Devuelve los productos padres que contienen esta categoría como componente
+     * @return array Lista de productos padres
+     */
     public function getParentProducts(){
         $productRows = Connection::doSelect(DBCONN, 'ComposedCategory', ['category_id' => $this->id]);
         $parentProducts = [];
@@ -57,6 +78,9 @@ class Category {
         return $parentProducts;
     } 
 
+    /**
+     * Elimina la categoría de la base de datos y actualiza productos relacionados
+     */
     public function delete() {
         if ($this->id) {
             // Eliminar imagen si existe
@@ -87,18 +111,28 @@ class Category {
         }
     }
 
+    /**
+     * Crea una instancia de Category a partir de un array de datos
+     * @param array $row
+     * @return Category
+     */
     public static function fromRow($row) {
         return new self($row['id'], $row['name']);
     }
 
+    /**
+     * Obtiene una categoría por su ID
+     * @param int $id
+     * @return Category|null
+     */
     public static function getById($id) {
         $row = Connection::doSelect(DBCONN, 'Category', ['id' => $id]);
         return $row ? self::fromRow($row[0]) : null;
     }
 
     /**
-     * Retrieves all Category instances from the database.
-     * @return array An array of Category objects.
+     * Obtiene todas las categorías
+     * @return array Lista de categorías
      */
     public static function getAll() {
         $rows = Connection::doSelect(DBCONN, 'Category');

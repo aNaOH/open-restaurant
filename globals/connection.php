@@ -1,25 +1,24 @@
 <?php
-
+// Clase para gestionar la conexión y operaciones con la base de datos
 class Connection {
     // Constantes para tipos de acciones de base de datos
-    const DBACTION_INSERT = "INSERT INTO";
-    const DBACTION_UPDATE = "UPDATE";
-    const DBACTION_DELETE = "DELETE";
-    const DBACTION_SELECT = "SELECT";
+    const DBACTION_INSERT = "INSERT INTO"; // Acción de inserción
+    const DBACTION_UPDATE = "UPDATE";      // Acción de actualización
+    const DBACTION_DELETE = "DELETE";      // Acción de borrado
+    const DBACTION_SELECT = "SELECT";      // Acción de selección
 
     // Constante para modificador de consulta "IN"
     const DBMODIFIER_IN = "IN";
 
     // Constantes para búsqueda con LIKE
-    const DBSEARCH_START = "start";
-    const DBSEARCH_END = "end";
-    const DBSEARCH_BOTH = "both";
+    const DBSEARCH_START = "start"; // Buscar que empieza por
+    const DBSEARCH_END = "end";     // Buscar que termina por
+    const DBSEARCH_BOTH = "both";   // Buscar que contiene
 
     // Constantes para ordenación
-    const DBORDER_ASC = "ASC";
-    const DBORDER_DESC = "DESC";
+    const DBORDER_ASC = "ASC";      // Orden ascendente
+    const DBORDER_DESC = "DESC";    // Orden descendente
 
-    
     /**
      * Crea una base de datos y devuelve la conexión a ella.
      * @param string $host Host de la base de datos.
@@ -34,7 +33,7 @@ class Connection {
             $dbConn = new PDO($dsn, $user, $password);
             $dbConn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $dbConn->exec("CREATE DATABASE IF NOT EXISTS `$dbname`");
-            
+            // Conecta a la base de datos recién creada
             return self::connectToDB($host, $dbname, $user, $password);
         } catch (Exception $e) {
             return false;
@@ -43,10 +42,10 @@ class Connection {
 
     /**
      * Conecta a la base de datos usando credenciales dadas.
-     * @param string $host
-     * @param string $dbname
-     * @param string $user
-     * @param string $password
+     * @param string $host Host de la base de datos.
+     * @param string $dbname Nombre de la base de datos.
+     * @param string $user Usuario de la base de datos.
+     * @param string $password Contraseña del usuario.
      * @return PDO|bool Retorna la conexión o false en caso de error.
      */
     public static function connectToDB($host, $dbname, $user, $password): PDO|bool {
@@ -61,9 +60,9 @@ class Connection {
 
     /**
      * Inserta datos en una tabla.
-     * @param PDO $dbConn
-     * @param string $table
-     * @param array $data
+     * @param PDO $dbConn Conexión activa.
+     * @param string $table Nombre de la tabla.
+     * @param array $data Datos a insertar.
      * @return int Número de filas afectadas.
      */
     public static function doInsert($dbConn, $table, $data): int {
@@ -72,9 +71,9 @@ class Connection {
 
     /**
      * Actualiza datos en una tabla.
-     * @param PDO $dbConn
-     * @param string $table
-     * @param array $data
+     * @param PDO $dbConn Conexión activa.
+     * @param string $table Nombre de la tabla.
+     * @param array $data Datos a actualizar.
      * @param array $conditions Condiciones para el WHERE.
      * @return int Número de filas afectadas.
      */
@@ -84,8 +83,8 @@ class Connection {
 
     /**
      * Elimina datos de una tabla.
-     * @param PDO $dbConn
-     * @param string $table
+     * @param PDO $dbConn Conexión activa.
+     * @param string $table Nombre de la tabla.
      * @param array $conditions Condiciones para el WHERE.
      * @return int Número de filas afectadas.
      */
@@ -95,8 +94,8 @@ class Connection {
 
     /**
      * Selecciona datos de una tabla.
-     * @param PDO $dbConn
-     * @param string $table
+     * @param PDO $dbConn Conexión activa.
+     * @param string $table Nombre de la tabla.
      * @param array $conditions Condiciones para el WHERE.
      * @return array Resultado de la consulta en forma de array asociativo.
      */
@@ -105,9 +104,9 @@ class Connection {
     }
 
     /**
-     * Ejecuta una consulta SQL.
-     * @param PDO $dbConn
-     * @param string $action Acción SQL (INSERT, UPDATE, DELETE, SELECT).
+     * Ejecuta una consulta SQL (INSERT, UPDATE, DELETE, SELECT).
+     * @param PDO $dbConn Conexión activa.
+     * @param string $action Acción SQL.
      * @param string $table Tabla objetivo.
      * @param array $data Datos a insertar/actualizar.
      * @param array $conditions Condiciones para el WHERE.
@@ -118,12 +117,12 @@ class Connection {
             $sql = self::generateSql($action, $table, $data, $conditions);
             $stmt = $dbConn->prepare($sql);
 
-            // Enlazar datos
+            // Enlaza los datos a los parámetros de la consulta
             foreach ($data as $key => $value) {
                 $stmt->bindValue(":$key", $value);
             }
 
-            // Enlazar condiciones
+            // Enlaza las condiciones al WHERE
             foreach ($conditions as $key => $value) {
                 if (is_array($value)) {
                     $stmt->bindValue(":" . $value['param'], $value['value']);
@@ -140,8 +139,8 @@ class Connection {
     }
 
     /**
-     * Genera la sentencia SQL.
-     * @param string $action Acción SQL (INSERT, UPDATE, DELETE, SELECT).
+     * Genera la sentencia SQL según la acción.
+     * @param string $action Acción SQL.
      * @param string $table Tabla objetivo.
      * @param array $data Datos a insertar/actualizar.
      * @param array $conditions Condiciones para el WHERE.
@@ -202,8 +201,8 @@ class Connection {
 
     /**
      * Realiza una búsqueda en una tabla con soporte de paginación y ordenación.
-     * @param PDO $dbConn
-     * @param string $table
+     * @param PDO $dbConn Conexión activa.
+     * @param string $table Nombre de la tabla.
      * @param string $query Patrón de búsqueda.
      * @param string $searchColumn Columna donde buscar.
      * @param string $option Tipo de búsqueda: DBSEARCH_START, DBSEARCH_END, DBSEARCH_BOTH.
@@ -216,7 +215,7 @@ class Connection {
     public static function searchInTable($dbConn, $table, $query, $searchColumn, $option = self::DBSEARCH_END, $conditions = [], $perPage = null, $page = null, $orderBy = []): PDOStatement {
         $sql = "SELECT * FROM `$table`";
 
-        // Agregar condiciones al WHERE si existen
+        // Agrega condiciones al WHERE si existen
         if (!empty($query)) {
             $sql .= " WHERE ";
             if (count($conditions) > 0) {
@@ -226,12 +225,12 @@ class Connection {
             $sql .= "$searchColumn LIKE :query";
         }
 
-        // Agregar ordenamiento
+        // Agrega ordenamiento si corresponde
         if (!empty($orderBy)) {
             $sql .= " ORDER BY " . implode(', ', array_map(fn($order) => "{$order['column']} {$order['method']}", $orderBy));
         }
 
-        // Agregar paginación
+        // Agrega paginación si corresponde
         if ($perPage !== null && $page !== null) {
             $offset = ($page - 1) * $perPage;
             $sql .= " LIMIT :per_page OFFSET :offset";
@@ -239,12 +238,12 @@ class Connection {
 
         $stmt = $dbConn->prepare($sql);
 
-        // Enlazar condiciones
+        // Enlaza condiciones
         foreach ($conditions as $field => $value) {
             $stmt->bindParam(":$field", $value);
         }
 
-        // Enlazar el query para la búsqueda con LIKE
+        // Enlaza el query para la búsqueda con LIKE
         if (!empty($query)) {
             switch ($option) {
                 case self::DBSEARCH_START:
@@ -262,7 +261,7 @@ class Connection {
             $stmt->bindParam(':query', $query);
         }
 
-        // Enlazar parámetros de paginación
+        // Enlaza parámetros de paginación
         if ($perPage !== null && $page !== null) {
             $stmt->bindParam(':per_page', $perPage, PDO::PARAM_INT);
             $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
@@ -282,16 +281,14 @@ class Connection {
     public static function customQuery(PDO $dbConn, string $sql, array $params = []): PDOStatement {
         try {
             $stmt = $dbConn->prepare($sql);
-            
-            // Enlazar valores a los marcadores de posición "?"
-            foreach ($params as $index => $value) {
-                $stmt->bindValue($index + 1, $value); // El índice es 1-based para bindValue
+            // Enlaza valores a los marcadores de posición "?"
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key + 1, $value);
             }
-
             $stmt->execute();
             return $stmt;
         } catch (PDOException $e) {
-            die("Error en consulta personalizada: " . $e->getMessage());
+            die("Error: " . $e->getMessage());
         }
     }
 
@@ -306,11 +303,10 @@ class Connection {
             $sql = file_get_contents($sqlScript);
             $dbConn->exec($sql);
             return true;
-        } catch (PDOException $e) {
-            echo "Error: " . $e->getMessage();
+        } catch (Exception $e) {
+            echo "Error al ejecutar el script SQL: " . $e->getMessage();
             return false;
         }
     }
-
 }
 

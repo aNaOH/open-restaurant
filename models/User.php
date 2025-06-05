@@ -1,6 +1,7 @@
 <?php
-
+// Clase que representa a un usuario del sistema
 class User {
+    // Propiedades públicas del usuario
     public ?int $id;
     public string $email;
     public string $name;
@@ -8,6 +9,15 @@ class User {
     public EUSER_ROLE $role;
     public int $points;
 
+    /**
+     * Constructor de la clase User
+     * @param int|null $id ID del usuario
+     * @param string|null $email Correo electrónico
+     * @param string|null $name Nombre
+     * @param string|null $password Contraseña
+     * @param EUSER_ROLE|int|null $role Rol del usuario
+     * @param int $points Puntos de fidelidad
+     */
     public function __construct(
         ?int $id = null,
         ?string $email = null,
@@ -24,6 +34,9 @@ class User {
         $this->points = $points;
     }
 
+    /**
+     * Guarda el usuario en la base de datos (insertar o actualizar)
+     */
     public function save() {
         $data = [
             'email' => $this->email,
@@ -39,6 +52,11 @@ class User {
         }
     }
 
+    /**
+     * Crea una instancia de User a partir de un array de datos
+     * @param array $row Datos del usuario
+     * @return User
+     */
     public static function fromRow($row) {
         $role = isset($row['role']) ? (is_int($row['role']) ? EUSER_ROLE::from($row['role']) : $row['role']) : null;
         return new self(
@@ -51,15 +69,20 @@ class User {
         );
     }
 
+    /**
+     * Obtiene un usuario por su ID
+     * @param int $id
+     * @return User|null
+     */
     public static function getById($id) {
         $row = Connection::doSelect(DBCONN, 'User', ['id' => $id]);
         return $row ? self::fromRow($row[0]) : null;
     }
 
     /**
-     * Retrieves a User instance by email.
-     * @param string $email The email of the user.
-     * @return User|null The User object if found, null otherwise.
+     * Obtiene un usuario por su email
+     * @param string $email
+     * @return User|null
      */
     public static function getByEmail($email) {
         $rows = Connection::doSelect(DBCONN, 'User', ['email' => $email]);
@@ -67,14 +90,17 @@ class User {
     }
 
     /**
-     * Retrieves all User instances from the database.
-     * @return array An array of User objects.
+     * Obtiene todos los usuarios
+     * @return array Lista de usuarios
      */
     public static function getAll() {
         $rows = Connection::doSelect(DBCONN, 'User');
         return array_map([self::class, 'fromRow'], $rows);
     }
 
+    /**
+     * Elimina el usuario de la base de datos
+     */
     public function delete() {
         if ($this->id) {
             Connection::doDelete(DBCONN, 'User', ['id' => $this->id]);

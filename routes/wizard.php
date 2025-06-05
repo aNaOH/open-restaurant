@@ -1,22 +1,27 @@
 <?php
+// Rutas del asistente de instalación y configuración inicial
+// Incluye rutas para la configuración de la base de datos, usuario admin, datos del restaurante y características
 
 require_once 'models/User.php';
 
 $router = new \Bramus\Router\Router();
 
-
+// Ruta principal del asistente
 $router->get("/", function() {
     ViewController::render('wizard/index');
 });
 
+// Ruta para la configuración de la base de datos
 $router->get("/db", function() {
     ViewController::render('wizard/db');
 });
 
+// Ruta para crear el usuario administrador
 $router->get("/admin", function() {
     ViewController::render('wizard/admin');
 });
 
+// Ruta para la configuración general del restaurante
 $router->get("/config", function() {
     $timezones = \DateTimeZone::listIdentifiers();
     ViewController::render('wizard/config', [
@@ -24,10 +29,12 @@ $router->get("/config", function() {
     ]);
 });
 
+// Ruta para seleccionar características adicionales
 $router->get("/features", function() {
     ViewController::render('wizard/features');
 });
 
+// Guardar configuración de la base de datos
 $router->post("/db", function() {
     $db_host = $_POST['db_host'];
     $db_name = $_POST['db_name'];
@@ -62,6 +69,7 @@ $router->post("/db", function() {
     }
 });
 
+// Guardar usuario administrador
 $router->post("/admin", function() {
     $admin_username = $_POST['admin_username'];
     $admin_email = $_POST['admin_email'];
@@ -115,6 +123,7 @@ $router->post("/admin", function() {
     exit;
 });
 
+// Guardar datos del restaurante y logo
 $router->post("/config", function() {
     $restaurant_name = $_POST['restaurant_name'];
     $restaurant_address = $_POST['restaurant_address'];
@@ -168,6 +177,7 @@ $router->post("/config", function() {
     exit;
 });
 
+// Guardar características seleccionadas
 $router->post("/features", function() {
 
     $discount_enabled = isset($_POST['codeEnabled']) ? true : false;
@@ -193,4 +203,5 @@ $router->post("/features", function() {
     exit;
 });
 
+// Ejecutar el router
 $router->run();

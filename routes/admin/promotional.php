@@ -1,6 +1,7 @@
 <?php
-
+// Rutas del módulo de productos promocionales en el panel de administración
 $router->mount('/promotional', function() use ($router) {
+    // Listar productos promocionales
     $router->get('/', function() {
         // Listar productos promocionales (compuestos con code o points)
         $promotionalProducts = Product::getAllByType(EPRODUCT_TYPE::PROMOTION); // true,true: solo con code o points
@@ -12,6 +13,7 @@ $router->mount('/promotional', function() use ($router) {
         ViewController::render('admin/promotional/index', $data);
     });
 
+    // Formulario para crear producto promocional
     $router->get('/add', function() {
         $categories = Category::getAll();
         $products = Product::getAllByType(EPRODUCT_TYPE::STANDARD); // Solo productos simples
@@ -24,6 +26,7 @@ $router->mount('/promotional', function() use ($router) {
         ViewController::render('admin/promotional/add', $data);
     });
 
+    // Procesar creación de producto promocional
     $router->post('/add', function() {
         // Decodificar componentes si vienen como string JSON (AJAX)
         $components = $_POST['components'];
@@ -163,7 +166,7 @@ $router->mount('/promotional', function() use ($router) {
         }
     });
 
-    // Endpoint para validar unicidad de código promocional (AJAX)
+    // Validar unicidad de código promocional (AJAX)
     $router->get('/check-code', function() {
         $code = isset($_GET['code']) ? trim($_GET['code']) : '';
         $exclude = isset($_GET['exclude']) ? intval($_GET['exclude']) : null;
@@ -191,6 +194,7 @@ $router->mount('/promotional', function() use ($router) {
         exit;
     });
 
+    // Formulario para editar producto promocional
     $router->get('/edit/{id}', function($id) {
         $composed = Product::getById($id);
         if (!$composed || $composed->type !== EPRODUCT_TYPE::PROMOTION) {
@@ -215,6 +219,7 @@ $router->mount('/promotional', function() use ($router) {
         ViewController::render('admin/promotional/edit', $data);
     });
 
+    // Procesar edición de producto promocional
     $router->post('/edit/{id}', function($id) {
         $composed = Product::getById($id);
         if (!$composed || $composed->type !== EPRODUCT_TYPE::PROMOTION) {
@@ -353,6 +358,7 @@ $router->mount('/promotional', function() use ($router) {
         exit;
     });
 
+    // Eliminar producto promocional
     $router->post('/delete/{id}', function($id) {
         $promo = Product::getById($id);
         if ($promo && $promo->type === EPRODUCT_TYPE::PROMOTION) {

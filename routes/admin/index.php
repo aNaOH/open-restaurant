@@ -1,6 +1,7 @@
 <?php
-
+// Rutas del panel de administración principal y configuración
 $router->before('GET|POST', '/admin', function() {
+    // Verifica si el usuario es administrador
     if(!AuthHelpers::isAdmin()) {
         header('Location: /login');
         exit;
@@ -8,11 +9,13 @@ $router->before('GET|POST', '/admin', function() {
 });
 
 $router->mount('/admin', function() use ($router) {
+    // Panel principal de administración
     $router->get('/', function() {
         $tables = Table::getAll();
         ViewController::render('admin/index');
     });
 
+    // Configuración general
     $router->get('/config', function() {
         global $config;
         // Obtener todas las zonas horarias disponibles
@@ -32,6 +35,7 @@ $router->mount('/admin', function() use ($router) {
         ]);
     });
     
+    // Guardar configuración de características
     $router->post('/config/features', function() {
         global $config;
         // Leer valores del formulario
@@ -66,6 +70,7 @@ $router->mount('/admin', function() use ($router) {
         exit;
     });
     
+    // Guardar datos del restaurante
     $router->post('/config/restaurant', function() {
         global $config;
         $config->RESTAURANT_NAME = isset($_POST['restaurant_name']) ? $_POST['restaurant_name'] : '';
@@ -77,6 +82,7 @@ $router->mount('/admin', function() use ($router) {
         exit;
     });
     
+    // Guardar logo del restaurante
     $router->post('/config/logo', function() {
         $success = false;
         $error = null;
@@ -116,6 +122,7 @@ $router->mount('/admin', function() use ($router) {
     });
 
 
+    // Guardar claves de Stripe
     $router->post('/config/stripe', function() {
         global $config;
         $config->STRIPE_PUBLIC_KEY = isset($_POST['stripe_public_key']) ? trim($_POST['stripe_public_key']) : '';
@@ -125,6 +132,7 @@ $router->mount('/admin', function() use ($router) {
         exit;
     });
 
+    // Guardar zona horaria
     $router->post('/config/timezone', function() {
         global $config;
         $config->TIMEZONE = isset($_POST['timezone']) ? $_POST['timezone'] : 'Europe/Madrid';
@@ -133,6 +141,7 @@ $router->mount('/admin', function() use ($router) {
         exit;
     });
 
+    // Incluir submódulos de administración
     include_once 'routes/admin/tables.php';
     include_once 'routes/admin/categories.php';
     include_once 'routes/admin/products.php';

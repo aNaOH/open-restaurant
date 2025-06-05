@@ -1,6 +1,10 @@
 <?php
-
+// Clase de utilidades generales
 class Helpers {
+    /**
+     * Obtiene la URL base de la aplicación
+     * @return string
+     */
     public static function getBaseUrl() {
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
         $host = $_SERVER['HTTP_HOST'];
@@ -13,8 +17,12 @@ class Helpers {
     }
 }
 
+// Clase de utilidades para autenticación y roles
 class AuthHelpers {
-
+    /**
+     * Verifica si el usuario está logueado
+     * @return bool
+     */
     public static function isLoggedIn() {
 
         if(!isset($_SESSION['user'])) {
@@ -37,6 +45,10 @@ class AuthHelpers {
         return true;
     }
 
+    /**
+     * Verifica si el usuario es administrador
+     * @return bool
+     */
     public static function isAdmin() {
         if(!self::isLoggedIn()) {
             return false;
@@ -49,6 +61,10 @@ class AuthHelpers {
         return ($user->role == EUSER_ROLE::ADMIN);
     }
 
+    /**
+     * Verifica si el usuario es empleado o administrador
+     * @return bool
+     */
     public static function isEmployee() {
         if(!self::isLoggedIn()) {
             return false;
@@ -61,8 +77,12 @@ class AuthHelpers {
     }
 }
 
+// Clase de utilidades para vistas (datos base para Twig)
 class ViewHelpers {
-
+    /**
+     * Devuelve los datos base para las vistas Twig
+     * @return array
+     */
     public static function getBaseData(){
         $fidelityEnabled = CONFIG->FIDELITY_ENABLED;
         $promosEnabled = (CONFIG->FIDELITY_ENABLED || CONFIG->DISCOUNT_ENABLED);
@@ -85,7 +105,12 @@ class ViewHelpers {
     }
 }
 
+// Clase de utilidades para pedidos
 class OrderHelpers {
+    /**
+     * Inicia un pedido en la sesión
+     * @param string $table
+     */
     public static function beginOrder($table){
         // Create a new order with the given table, stored in session, expires in 30 minutes
         $_SESSION['order'] = [
@@ -96,6 +121,10 @@ class OrderHelpers {
         ];
     }
 
+    /**
+     * Obtiene el pedido actual de la sesión
+     * @return array|null
+     */
     public static function getOrder() {
         if(!isset($_SESSION['order'])) {
             return null;

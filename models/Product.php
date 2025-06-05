@@ -1,6 +1,7 @@
 <?php
-
+// Clase que representa un producto en el sistema
 class Product {
+    // Propiedades públicas del producto
     public ?int $id;
     public string $name;
     public string $description;
@@ -10,6 +11,17 @@ class Product {
     public ?string $code;
     public ?int $points;
 
+    /**
+     * Constructor de la clase Product
+     * @param int|null $id ID del producto
+     * @param string $name Nombre del producto
+     * @param string $description Descripción
+     * @param float $price Precio
+     * @param EPRODUCT_TYPE|int|null $type Tipo de producto
+     * @param Category|int|null $category Categoría
+     * @param string|null $code Código promocional
+     * @param int|null $points Puntos de fidelidad
+     */
     public function __construct(
         ?int $id = null,
         string $name = null,
@@ -40,6 +52,9 @@ class Product {
         $this->points = $points;
     }
 
+    /**
+     * Guarda el producto en la base de datos (insertar o actualizar)
+     */
     public function save() {
         $data = [
             'name' => $this->name,
@@ -58,6 +73,10 @@ class Product {
         }
     }
 
+    /**
+     * Devuelve la ruta de la imagen del producto si existe
+     * @return string|null Ruta relativa o null si no existe
+     */
     public function getImagePath() {
         if ($this->id) {
             $uploadDir = 'assets/uploads/products/';
@@ -73,6 +92,9 @@ class Product {
         return null;
     }
 
+    /**
+     * Elimina el producto de la base de datos y sus relaciones
+     */
     public function delete() {
         if ($this->id) {
             // Eliminar imagen del servidor
@@ -97,6 +119,10 @@ class Product {
         }
     }
 
+    /**
+     * Devuelve los productos padres que contienen este producto como componente
+     * @return array Lista de productos padres
+     */
     public function getParentProducts(){
         $productRows = Connection::doSelect(DBCONN, 'ComposedBy', ['child_id' => $this->id]);
         $parentProducts = [];
@@ -113,7 +139,7 @@ class Product {
     } 
 
     /**
-     * Devuelve todos los componentes (productos y categorías) de un producto compuesto, ordenados por posición.
+     * Devuelve todos los componentes (productos y categorías) de un producto compuesto, ordenados por posición
      * Si hay varios productos/categorías en la misma posición (por selección múltiple), agrupa en arrays de opciones.
      * Cada elemento es:
      *   - ['type' => 'product'|'category', 'object' => Product|Category, 'position' => int] (si solo hay uno en esa posición)
@@ -222,6 +248,11 @@ class Product {
         }
     }
 
+    /**
+     * Crea una instancia de Product a partir de un array de datos
+     * @param array $row
+     * @return Product
+     */
     public static function fromRow($row) {
         // Convertir type a EPRODUCT_TYPE y category a Category si es necesario
         $type = EPRODUCT_TYPE::from($row['type']);
@@ -233,14 +264,19 @@ class Product {
         return new self($row['id'], $row['name'], $row['description'], $row['price'], $type, $category, $row['code'], $row['points']);
     }
 
+    /**
+     * Obtiene un producto por su ID
+     * @param int $id
+     * @return Product|null
+     */
     public static function getById($id) {
         $row = Connection::doSelect(DBCONN, 'Product', ['id' => $id]);
         return $row ? self::fromRow($row[0]) : null;
     }
 
     /**
-     * Retrieves all Product instances from the database.
-     * @return array An array of Product objects.
+     * Obtiene todos los productos
+     * @return array Lista de productos
      */
     public static function getAll() {
         $rows = Connection::doSelect(DBCONN, 'Product');
@@ -248,10 +284,9 @@ class Product {
     }
 
     /**
-     * Retrieves all Product instances of a given type from the database.
-     * @param EPRODUCT_TYPE|array $type or array of EPRODUCT_TYPE values.
-     * If an array is provided, it will return products that match any of the types in the array.
-     * @return array An array of Product objects.
+     * Obtiene todos los productos de un tipo dado
+     * @param EPRODUCT_TYPE|array $type
+     * @return array Lista de productos
      */
     public static function getAllByType(EPRODUCT_TYPE|array $type) {
         if (is_array($type)) {
@@ -272,9 +307,9 @@ class Product {
     }
 
     /**
-     * Obtiene todos los productos de una categoría específica.
-     * @param int|Category $categoryId El ID de la categoría o el objeto Category.
-     * @return array Un array de objetos Product.
+     * Obtiene todos los productos de una categoría específica
+     * @param int|Category $categoryId
+     * @return array Lista de productos
      */
     public static function getByCategory($categoryId) {
         if ($categoryId instanceof Category) {
@@ -285,7 +320,7 @@ class Product {
     }
 
     /**
-     * Busca un producto promocional por código de promoción.
+     * Busca un producto promocional por código de promoción
      * @param string $code
      * @return Product|null
      */
@@ -295,7 +330,7 @@ class Product {
     }
 
     /**
-     * Busca un producto por su código promocional exacto (campo 'code').
+     * Busca un producto por su código promocional exacto
      * @param string $code
      * @return Product|null
      */

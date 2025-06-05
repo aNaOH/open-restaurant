@@ -1,15 +1,18 @@
 <?php
-
+// Rutas del módulo de categorías en el panel de administración
 $router->mount('/categories', function() use ($router) {
+    // Listar categorías
     $router->get('/', function() {
         $categories = Category::getAll();
         ViewController::render('admin/categories/index', ['categories' => $categories]);
     });
 
+    // Formulario para crear categoría
     $router->get('/add', function() {
         ViewController::render('admin/categories/add');
     });
 
+    // Procesar creación de categoría
     $router->post('/add', function() {
 
         if(!(isset($_FILES['image']) && $_FILES['image']['error'] == UPLOAD_ERR_OK)) {
@@ -75,6 +78,7 @@ $router->mount('/categories', function() use ($router) {
         }
     });
 
+    // Formulario para editar categoría
     $router->get('/edit/{id}', function($id) {
         $category = Category::getById($id);
         if ($category) {
@@ -85,6 +89,7 @@ $router->mount('/categories', function() use ($router) {
         }
     });
 
+    // Procesar edición de categoría
     $router->post('/edit/{id}', function($id) {
         if (isset($_POST['name'])) {
             $category = Category::getById($id);
@@ -147,6 +152,7 @@ $router->mount('/categories', function() use ($router) {
         }
     });
 
+    // Eliminar categoría (GET)
     $router->get('/delete/{id}', function($id) {
         $category = Category::getById($id);
         if ($category) {
@@ -158,6 +164,7 @@ $router->mount('/categories', function() use ($router) {
         }
     });
 
+    // Eliminar categoría (POST)
     $router->post('/delete/{id}', function($id) {
         $category = Category::getById($id);
         if ($category) {

@@ -1,38 +1,44 @@
 <?php
-
+// Clase de configuración global de la aplicación
 class Config {
+    // Propiedades de conexión a la base de datos
     public $DB_HOST = '';
     public $DB_NAME = '';
     public $DB_USER = '';
     public $DB_PASS = '';
 
+    // Propiedades de información del restaurante
     public $RESTAURANT_NAME = '';
     public $RESTAURANT_ADDRESS = '';
     public $RESTAURANT_PHONE = '';
     public $RESTAURANT_EMAIL = '';
-    //public $RESTAURANT_CURRENCY = '';
-    //public $RESTAURANT_CURRENCY_SYMBOL = '';
-    //public $RESTAURANT_CURRENCY_POSITION = 'left'; // left or right
-    //public $RESTAURANT_CURRENCY_DECIMALS = 2;
-    //public $RESTAURANT_CURRENCY_DECIMAL_SEPARATOR = '.'; // . or ,
-    //public $RESTAURANT_CURRENCY_THOUSAND_SEPARATOR = ','; // . or ,
 
+    // Propiedades de características
     public $DISCOUNT_ENABLED;
     public $FIDELITY_ENABLED;
     public $POINTS_PER_UNIT;
 
+    // Estado de instalación
     public $INSTALL_FINISHED = false;
 
+    // Claves de Stripe
     public $STRIPE_PUBLIC_KEY = '';
     public $STRIPE_SECRET_KEY = '';
 
+    // Zona horaria
     public $TIMEZONE = 'Europe/Madrid';
 
-    // Check if the application is installed, check if the database name and user are set
+    /**
+     * Verifica si la aplicación está instalada correctamente
+     * @return bool
+     */
     public function isInstalled() {
         return ( !empty($this->DB_NAME) && !empty($this->DB_USER) ) && $this->INSTALL_FINISHED == true;
     }
 
+    /**
+     * Constructor: carga la configuración desde config.json si existe
+     */
     public function __construct() {
         if(!file_exists('./config.json')) {
             return;
@@ -56,9 +62,9 @@ class Config {
             if(isset($config['features'])) {
                 $this->DISCOUNT_ENABLED = isset($config['features']['discountEnabled']) ? $config['features']['discountEnabled'] : false;
                 $this->FIDELITY_ENABLED = isset($config['features']['fidelityEnabled']) ? $config['features']['fidelityEnabled'] : false;
-                $this->POINTS_PER_UNIT = isset($config['features']['pointsPerUnit']) ? intval($config['features']['pointsPerUnit']) : 100; // Default value
+                $this->POINTS_PER_UNIT = isset($config['features']['pointsPerUnit']) ? intval($config['features']['pointsPerUnit']) : 100; // Valor por defecto
                 if ($this->POINTS_PER_UNIT <= 0) {
-                    $this->POINTS_PER_UNIT = 100; // Default value if invalid
+                    $this->POINTS_PER_UNIT = 100; // Valor por defecto si es inválido
                 }
             }
 
@@ -73,6 +79,9 @@ class Config {
         }
     }
 
+    /**
+     * Guarda la configuración actual en config.json
+     */
     public function save() {
         $config = [
             'database' => [
@@ -106,6 +115,7 @@ class Config {
 
     /**
      * Devuelve la hora actual en la zona horaria configurada (formato Y-m-d H:i:s)
+     * @return string
      */
     public function nowInTimezone() {
         $tz = new \DateTimeZone($this->TIMEZONE);

@@ -1,5 +1,6 @@
 <?php
-
+// Rutas principales del frontend (inicio, login, registro, logout)
+// Incluye lógica de autenticación y renderizado de vistas principales
 include_once 'models/Table.php';
 include_once 'models/Category.php';
 include_once 'models/Product.php';
@@ -8,20 +9,22 @@ include_once 'models/Order.php';
 
 $router = new \Bramus\Router\Router();
 
+// Página de inicio
 $router->get("/", function() {
     $categories = Category::getAll();
-    // Remove from categories those that have no products
+    // Eliminar de las categorías aquellas que no tienen productos
     $categories = array_filter($categories, function($category) {
         return count(Product::getByCategory($category->id)) > 0;
     });
     $data = [
         'categories' => $categories,
         'order' => OrderHelpers::getOrder(),
-        'isHomePage' => true // Pass this variable for the homepage
+        'isHomePage' => true // Pasar esta variable para la página de inicio
     ];
     ViewController::render('index', $data);
 });
 
+// Página de login
 $router->get("/login", function() {
     if(AuthHelpers::isLoggedIn()) {
         header("Location: /");
@@ -30,6 +33,7 @@ $router->get("/login", function() {
     ViewController::render('auth/login');
 });
 
+// Página de registro
 $router->get("/register", function() {
     if(AuthHelpers::isLoggedIn()) {
         header("Location: /");
@@ -38,6 +42,7 @@ $router->get("/register", function() {
     ViewController::render('auth/register');
 });
 
+// Cerrar sesión
 $router->get("/logout", function() {
     if(AuthHelpers::isLoggedIn()) {
         session_destroy();
@@ -46,6 +51,7 @@ $router->get("/logout", function() {
     exit;
 });
 
+// Procesar login
 $router->post("/login", function() {
     if (isset($_POST['email']) && isset($_POST['password'])) {
         $email = $_POST['email'];
@@ -84,6 +90,7 @@ $router->post("/login", function() {
     }
 });
 
+// Procesar registro
 $router->post("/register", function() {
     $name = $_POST['name'] ?? '';
     $email = $_POST['email'] ?? '';
@@ -157,8 +164,8 @@ $router->post("/register", function() {
 });
 
 $router->get('/logo', function() {
-        //Search for the logo in the content folder, it can be a .png or .jpg file
-        //if found, return it with the correct MIME, if not, return 404
+        //Buscar el logo en la carpeta de contenido, puede ser un archivo .png o .jpg
+        //si se encuentra, devolverlo con el MIME correcto, si no, devolver 404
         $logo = glob('content/logo.{jpg,png}', GLOB_BRACE);
         if (count($logo) > 0) {
             $logo = $logo[0];
