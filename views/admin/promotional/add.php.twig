@@ -5,7 +5,7 @@
 {% block name %}Crear producto promocional{% endblock %}
 {% block content %}
     <div class="max-w-lg mx-auto p-8">
-        <form action="/admin/promotional/add" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4" id="promoForm">
+        <form id="promoForm" action="/admin/promotional/add" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4">
             <div>
                 <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nombre</label>
                 <input type="text" id="name" name="name" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
