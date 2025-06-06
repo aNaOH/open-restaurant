@@ -24,7 +24,7 @@ $router->mount('/promotional', function() use ($router) {
         foreach ($categories as $category) {
             $hasComposedOrPromotional = false;
             $hasStandardProducts = false;
-            foreach ($category->products as $product) {
+            foreach ($category->getProducts() as $product) {
                 if ($product->type === EPRODUCT_TYPE::COMPOSED || $product->type === EPRODUCT_TYPE::PROMOTION) {
                     $hasComposedOrPromotional = true;
                 } elseif ($product->type === EPRODUCT_TYPE::STANDARD) {
@@ -231,7 +231,7 @@ $router->mount('/promotional', function() use ($router) {
         foreach ($categories as $category) {
             $hasComposedOrPromotional = false;
             $hasStandardProducts = false;
-            foreach ($category->products as $product) {
+            foreach ($category->getProducts() as $product) {
                 if ($product->type === EPRODUCT_TYPE::COMPOSED || $product->type === EPRODUCT_TYPE::PROMOTION) {
                     $hasComposedOrPromotional = true;
                 } elseif ($product->type === EPRODUCT_TYPE::STANDARD) {

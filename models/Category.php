@@ -52,9 +52,8 @@ class Category {
      * @return array Lista de productos
      */
     public function getProducts() {
-        if ($this->id) {
-            $rows = Connection::doSelect(DBCONN, 'Product', ['category' => $this->id]);
-            return array_map([Product::class, 'fromRow'], $rows);
+        if($this->id) {
+            return Product::getByCategory($this->id);
         }
         return [];
     }
