@@ -109,52 +109,41 @@
                         </button>
                         <div id="promoCodeError" class="text-red-600 text-sm hidden">Código no válido o expirado.</div>
                     </form>
-                    {% set promos_not_in_cart = [] %}
-                    {% for promoCode, promoJson in order.promos %}
-                        {% set promoProduct = promoJson %}
-                        {% set inCart = false %}
-                        {% if order.items is defined %}
-                            {% for item in order.items %}
-                                {% if promoProduct and item.product_id == promoProduct.id %}
-                                    {% set inCart = true %}
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}
-                        {% if promoProduct and promoProduct.id is defined and promoProduct.name and promoProduct.price is not null %}
-                            {% set _ = promos_not_in_cart.append({
-                                'promoCode': promoCode,
-                                'promoProduct': promoProduct,
-                                'inCart': inCart
-                            }) %}
-                        {% endif %}
-                    {% endfor %}
-                    {% if promos_not_in_cart|length > 0 %}
+                    {% if order.promos is defined and order.promos|length > 0 %}
                         <div class="w-full mt-6">
                             <div class="font-semibold text-gray-700 mb-2 text-center">Códigos aplicados:</div>
                             <div class="flex flex-wrap gap-6 w-full items-center justify-center">
-                                {% for promo in promos_not_in_cart %}
-                                    {% if not promo.inCart %}
-                                        <a href="/order/product/{{promo.promoProduct.id}}" class="product-card group bg-white rounded-2xl shadow-md p-4 flex flex-col items-center border border-gray-100 hover:shadow-xl hover:border-blue-400 transition-all duration-200 max-w-[210px] min-w-[150px] flex-1 cursor-pointer" style="text-decoration: none;">
+                                {% for promoCode, promoProduct in order.promos %}
+                                    {% set inCart = false %}
+                                    {% if order.items is defined %}
+                                        {% for item in order.items %}
+                                            {% if item.product_id == promoProduct.id %}
+                                                {% set inCart = true %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if promoProduct.id is defined and promoProduct.name and promoProduct.price is not null and not inCart %}
+                                        <a href="/order/product/{{promoProduct.id}}" class="product-card group bg-white rounded-2xl shadow-md p-4 flex flex-col items-center border border-gray-100 hover:shadow-xl hover:border-blue-400 transition-all duration-200 max-w-[210px] min-w-[150px] flex-1 cursor-pointer" style="text-decoration: none;">
                                             <span class="relative w-32 h-32 flex items-center justify-center overflow-hidden rounded-xl mb-2">
-                                                {% if promo.promoProduct.image %}
-                                                    <img src="/{{ promo.promoProduct.image }}" alt="{{ promo.promoProduct.name }}" class="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110 rounded-xl">
+                                                {% if promoProduct.image %}
+                                                    <img src="/{{ promoProduct.image }}" alt="{{ promoProduct.name }}" class="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110 rounded-xl">
                                                 {% else %}
                                                     <span class="w-full h-full flex items-center justify-center text-gray-300 bg-gray-100 rounded-xl">Sin imagen</span>
                                                 {% endif %}
                                             </span>
                                             <div class="mt-1 text-center w-full">
                                                 <div class="font-semibold text-blue-700 flex items-center gap-1 justify-center text-lg group-hover:text-primary transition-colors">
-                                                    {{ promo.promoProduct.name }}
+                                                    {{ promoProduct.name }}
                                                 </div>
                                                 <div class="text-primary font-bold text-base mt-1">
-                                                    {% if promo.promoProduct.price == 0 %}
+                                                    {% if promoProduct.price == 0 %}
                                                         Gratis
                                                     {% else %}
-                                                        {{ promo.promoProduct.price|number_format(2, '.', ',') }} €
+                                                        {{ promoProduct.price|number_format(2, '.', ',') }} €
                                                     {% endif %}
                                                 </div>
-                                                <div class="text-gray-600 text-xs mt-1">Código: <span class="font-mono">{{ promo.promoCode }}</span></div>
-                                                <button type="button" class="remove-promo-btn mt-2 px-3 py-1 rounded-full text-red-600 border border-red-300 bg-red-50 hover:bg-red-100 transition-all duration-200" data-promo="{{ promo.promoCode }}">Quitar</button>
+                                                <div class="text-gray-600 text-xs mt-1">Código: <span class="font-mono">{{ promoCode }}</span></div>
+                                                <button type="button" class="remove-promo-btn mt-2 px-3 py-1 rounded-full text-red-600 border border-red-300 bg-red-50 hover:bg-red-100 transition-all duration-200" data-promo="{{ promoCode }}">Quitar</button>
                                             </div>
                                         </a>
                                     {% endif %}
