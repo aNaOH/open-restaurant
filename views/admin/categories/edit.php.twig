@@ -5,14 +5,14 @@
 {% block name %}Editar categoría {{category.name}}{% endblock %}
 {% block content %}
     <div class="max-w-lg mx-auto bg-white rounded-2xl p-8">
-        <form action="/admin/categories/edit/{{ category.id }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4">
+        <form id="editCatForm" action="/admin/categories/edit/{{ category.id }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4">
             <div>
                 <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nombre</label>
                 <input type="text" id="name" name="name" required value="{{ category.name }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
             </div>
             <div>
                 <label for="image" class="block text-gray-700 text-sm font-bold mb-2">Imagen</label>
-                <file-upload id="categoryImageUpload" name="image" class="w-full" accept-image="true" accept-video="false" image-aspect-ratio="1:1" min-image-width="256" min-image-height="256" existing-image="{{ category.getImagePath() }}"></file-upload>
+                <file-upload id="imgUpload" name="image" class="w-full" accept-image="true" accept-video="false" image-aspect-ratio="1:1" min-image-width="256" min-image-height="256" existing-image="{{ category.getImagePath() }}"></file-upload>
             </div>
             <button type="submit" class="btn primary flex items-center gap-2"><i data-feather="save"></i> Guardar cambios</button>
         </form>
