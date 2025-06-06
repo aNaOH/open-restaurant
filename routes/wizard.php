@@ -23,9 +23,20 @@ $router->get("/admin", function() {
 
 // Ruta para la configuración general del restaurante
 $router->get("/config", function() {
-    $timezones = \DateTimeZone::listIdentifiers();
+    $all_timezones = \DateTimeZone::listIdentifiers();
+    $now = new \DateTime('now');
+    $tz_with_offsets = [];
+    foreach ($all_timezones as $tz) {
+        $timezone = new \DateTimeZone($tz);
+        $offset = $timezone->getOffset($now);
+        $tz_with_offsets[] = ['tz' => $tz, 'offset' => $offset];
+    }
+    usort($tz_with_offsets, function($a, $b) {
+        return $a['offset'] <=> $b['offset'];
+    });
+    $sorted_timezones = array_column($tz_with_offsets, 'tz');
     ViewController::render('wizard/config', [
-        'timezones' => $timezones
+        'timezones' => $sorted_timezones
     ]);
 });
 
