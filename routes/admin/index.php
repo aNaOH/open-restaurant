@@ -19,18 +19,7 @@ $router->mount('/admin', function() use ($router) {
     $router->get('/config', function() {
         global $config;
         // Obtener todas las zonas horarias disponibles
-        $all_timezones = \DateTimeZone::listIdentifiers();
-        $unique_timezones = [];
-        $offsets = [];
-        $now = new \DateTime('now');
-        foreach ($all_timezones as $tz) {
-            $timezone = new \DateTimeZone($tz);
-            $offset = $timezone->getOffset($now);
-            if (!isset($offsets[$offset])) {
-                $offsets[$offset] = $tz;
-                $unique_timezones[] = $tz;
-            }
-        }
+        $timezones = \DateTimeZone::listIdentifiers();
         ViewController::render('admin/config', [
             'discount_enabled' => $config->DISCOUNT_ENABLED,
             'fidelity_enabled' => $config->FIDELITY_ENABLED,
@@ -42,7 +31,7 @@ $router->mount('/admin', function() use ($router) {
             'stripe_public_key' => $config->STRIPE_PUBLIC_KEY,
             'stripe_secret_key' => $config->STRIPE_SECRET_KEY,
             'timezone' => $config->TIMEZONE,
-            'timezones' => $unique_timezones
+            'timezones' => $timezones
         ]);
     });
     
