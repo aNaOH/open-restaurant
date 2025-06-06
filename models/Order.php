@@ -115,7 +115,7 @@ class Order {
 
         $data = [
             'order_id' => $this->id, // Escapa el nombre de la columna reservada
-            'index' => $index, // Añade el índice para mantener el orden
+            'iio' => $index, // Añade el índice para mantener el orden
             'product' => $product_id,
             'price' => $price,
             'quantity' => $quantity,
