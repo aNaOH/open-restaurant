@@ -485,8 +485,6 @@ $router->mount('/order', function() use ($router) {
             $order->addProduct($product_id, $price, $quantity, $metadata);
         }
 
-        exit;
-
         // --- RESPUESTA SEGÚN TIPO DE PAGO ---
         if (CONFIG->FIDELITY_ENABLED && $user_id && $total_points > 0) {
             // Si pagó con puntos, devolver los puntos restantes
