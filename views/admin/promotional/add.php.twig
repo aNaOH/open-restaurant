@@ -204,7 +204,7 @@
             const rows = componentsContainer.querySelectorAll('.component-row');
             let valid = true;
             let totalComponents = 0;
-            rows.forEach row => {
+            rows.forEach(function(row) {
                 const type = row.querySelector('.component-type-select').value;
                 let ids = [];
                 if (type === 'product') {
