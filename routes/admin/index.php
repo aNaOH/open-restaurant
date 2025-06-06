@@ -152,6 +152,28 @@ $router->mount('/admin', function() use ($router) {
         exit;
     });
 
+    // Listado de pedidos
+    $router->get('/orders', function() {
+        // Obtener todos los pedidos ordenados del más reciente al más antiguo
+        $orders = Order::getAll(['order' => 'created_at DESC']);
+        ViewController::render('admin/orders', [
+            'orders' => $orders
+        ]);
+    });
+
+    // Detalle de pedido
+    $router->get('/orders/(\d+)', function($orderId) {
+        $order = Order::getById($orderId);
+        if (!$order) {
+            // Redirigir si no existe el pedido
+            header('Location: /admin/orders');
+            exit;
+        }
+        ViewController::render('admin/order_detail', [
+            'order' => $order
+        ]);
+    });
+
     // Incluir submódulos de administración
     include_once 'routes/admin/tables.php';
     include_once 'routes/admin/categories.php';

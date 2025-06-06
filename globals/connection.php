@@ -93,14 +93,15 @@ class Connection {
     }
 
     /**
-     * Selecciona datos de una tabla.
+     * Selecciona datos de una tabla con soporte de ordenación.
      * @param PDO $dbConn Conexión activa.
      * @param string $table Nombre de la tabla.
      * @param array $conditions Condiciones para el WHERE.
+     * @param array $order Ordenación, por ejemplo: ['order' => 'created_at DESC']
      * @return array Resultado de la consulta en forma de array asociativo.
      */
-    public static function doSelect($dbConn, $table, $conditions = []): array {
-        return self::executeSql($dbConn, self::DBACTION_SELECT, $table, [], $conditions)->fetchAll(PDO::FETCH_ASSOC);
+    public static function doSelect($dbConn, $table, $conditions = [], $order = []): array {
+        return self::executeSql($dbConn, self::DBACTION_SELECT, $table, [], $conditions, $order)->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -110,11 +111,12 @@ class Connection {
      * @param string $table Tabla objetivo.
      * @param array $data Datos a insertar/actualizar.
      * @param array $conditions Condiciones para el WHERE.
+     * @param array $order Ordenación, por ejemplo: ['order' => 'created_at DESC']
      * @return PDOStatement|int Retorna el PDOStatement o el número de filas afectadas.
      */
-    private static function executeSql($dbConn, $action, $table, $data, $conditions = []): PDOStatement|int {
+    private static function executeSql($dbConn, $action, $table, $data, $conditions = [], $order = []): PDOStatement|int {
         try {
-            $sql = self::generateSql($action, $table, $data, $conditions);
+            $sql = self::generateSql($action, $table, $data, $conditions, $order);
             $stmt = $dbConn->prepare($sql);
 
             // Enlaza los datos a los parámetros de la consulta
@@ -144,9 +146,10 @@ class Connection {
      * @param string $table Tabla objetivo.
      * @param array $data Datos a insertar/actualizar.
      * @param array $conditions Condiciones para el WHERE.
+     * @param array $order Ordenación, por ejemplo: ['order' => 'created_at DESC']
      * @return string Sentencia SQL generada.
      */
-    private static function generateSql($action, $table, $data, $conditions): string {
+    private static function generateSql($action, $table, $data, $conditions, $order = []): string {
         switch ($action) {
             case self::DBACTION_INSERT:
                 $columns = implode(", ", array_keys($data));
@@ -161,7 +164,11 @@ class Connection {
                 return "$action FROM `$table` $conditionClause";
             case self::DBACTION_SELECT:
                 $conditionClause = self::generateConditionClause($conditions);
-                return "$action * FROM `$table` $conditionClause";
+                $orderClause = '';
+                if (isset($order['order'])) {
+                    $orderClause = ' ORDER BY ' . $order['order'];
+                }
+                return "$action * FROM `$table` $conditionClause$orderClause";
             default:
                 throw new Exception("Acción no válida");
         }

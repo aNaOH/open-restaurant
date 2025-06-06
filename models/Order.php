@@ -75,11 +75,11 @@ class Order {
     }
 
     /**
-     * Obtiene todos los pedidos
+     * Obtiene todos los pedidos ordenados del más reciente al más antiguo
      * @return array Lista de pedidos
      */
     public static function getAll() {
-        $rows = Connection::doSelect(DBCONN, 'Orders');
+        $rows = Connection::doSelect(DBCONN, 'Orders', [], ['order' => 'created_at DESC']);
         return array_map([self::class, 'fromRow'], $rows);
     }
 
@@ -89,7 +89,7 @@ class Order {
      * @return array Lista de pedidos
      */
     public static function getByDate($date) {
-        $rows = Connection::doSelect(DBCONN, 'Orders', ['date' => $date]);
+        $rows = Connection::doSelect(DBCONN, 'Orders', ['date' => $date], ['order' => 'created_at DESC']);
         return array_map([self::class, 'fromRow'], $rows);
     }
 

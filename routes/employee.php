@@ -37,11 +37,17 @@ $router->mount('/employee', function() use ($router) {
         }
 
         $products = $order->getProducts();
-
+        $table = Table::getById($order->table_id);
+        
+        if(!$table) {
+            header('Location: /employee');
+            exit;
+        }
 
         ViewController::render('employee/order', [
             'order' => $order,
-            'products' => $products
+            'products' => $products,
+            'table' => $table
         ]);
     });
 
