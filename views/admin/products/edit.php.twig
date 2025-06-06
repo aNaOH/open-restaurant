@@ -4,7 +4,7 @@
 
 {% block name %}Editar producto {{product.name}}{% endblock %}
 {% block content %}
-    <div class="max-w-lg mx-auto bg-blue-50 border border-blue-100 rounded-2xl p-8 shadow">
+    <div class="max-w-lg mx-auto p-8">
         <h2 class="text-2xl font-extrabold text-blue-700 mb-6 flex items-center gap-2"><i data-feather="edit"></i> Editar producto</h2>
         <form action="/admin/products/edit/{{ product.id }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4">
             <div>

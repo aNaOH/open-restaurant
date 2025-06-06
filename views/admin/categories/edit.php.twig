@@ -4,7 +4,7 @@
 
 {% block name %}Editar categoría {{category.name}}{% endblock %}
 {% block content %}
-    <div class="max-w-lg mx-auto bg-white rounded-2xl p-8">
+    <div class="max-w-lg mx-autop-8">
         <form id="editCatForm" action="/admin/categories/edit/{{ category.id }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4">
             <div>
                 <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Nombre</label>
