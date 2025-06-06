@@ -9,9 +9,6 @@
     <a href="/admin/orders" class="inline-flex items-center gap-2 text-blue-600 hover:underline mb-4">
         <i data-feather="arrow-left"></i> Volver a pedidos
     </a>
-    <h1 class="text-2xl font-bold text-blue-700 mb-6 flex items-center gap-2">
-        <i data-feather="file-text"></i> Detalle del pedido #{{ order.id }}
-    </h1>
     <div class="p-6 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
@@ -42,7 +39,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for item in order.getItems() %}
+                {% for item in order.getProducts() %}
                 <tr>
                     <td class="px-4 py-2">{{ item.product_snapshot.name }}</td>
                     <td class="px-4 py-2">{{ item.quantity }}</td>
