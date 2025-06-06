@@ -58,6 +58,15 @@ $router->mount('/admin', function() use ($router) {
         $config->POINTS_PER_UNIT = $pointsPerUnit;
         $config->save();
 
+        if(!$promoCodes) {
+            $products = Product::getAll();
+            foreach ($products as $product) {
+                // Eliminar códigos promocionales de todos los productos
+                $product->code = null;
+                $product->save();
+            }
+        }
+
         if (!$loyaltyProgram) {
             // Elimina todos los usuarios que no sean administradores ni empleados
             // Asumimos que EUSER_ROLE::ADMIN = 0 y EUSER_ROLE::EMPLOYEE = 1
@@ -68,13 +77,28 @@ $router->mount('/admin', function() use ($router) {
                     'operator' => '='
                 ]
             ]);
+
+            foreach ($products as $product) {
+                // Eliminar puntos de fidelidad de todos los productos
+                $product->points = 0;
+                $product->save();
+            }
+
+            foreach (User::getAll() as $user) {
+                // Eliminar puntos de fidelidad de todos los usuarios
+                $user->points = 0;
+                $user->save();
+            }
         }
+
         if (!$loyaltyProgram && !$promoCodes) {
-            // Elimina todos los productos promocionales
-            // Asumimos que EPRODUCT_TYPE::PROMOTION = 2
-            Connection::doDelete(DBCONN, 'Product', [
-                'type' => 2
-            ]);
+            $products = Product::getAll();
+            foreach ($products as $product) {
+                if($product->type == EPRODUCT_TYPE::PROMOTION) {
+                    $product->removeAllChildren();
+                    $product->delete();
+                }
+            }
         }
         // Redirigir o mostrar mensaje
         header('Location: /admin/config');
