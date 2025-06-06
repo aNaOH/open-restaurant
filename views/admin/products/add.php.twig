@@ -29,7 +29,7 @@
             </div>
             <div>
                 <label for="image" class="block text-gray-700 text-sm font-bold mb-2">Imagen</label>
-                <file-upload id="productImageUpload" name="image" class="w-full" accept-image="true" accept-video="false" image-aspect-ratio="1:1" min-image-width="256" min-image-height="256"></file-upload>
+                <file-upload id="imgUpload" name="image" class="w-full" accept-image="true" accept-video="false" image-aspect-ratio="1:1" min-image-width="256" min-image-height="256"></file-upload>
             </div>
             <button type="submit" class="btn primary flex items-center gap-2"><i data-feather="plus-square"></i> Crear producto</button>
         </form>
@@ -50,8 +50,9 @@
         formData.append('category', document.getElementById('category').value);
         formData.append('description', document.getElementById('description').value);
         formData.append('price', document.getElementById('price').value);
-        if (document.getElementById('imgUpload').getFileInput() && document.getElementById('imgUpload').getFileInput()[0]) {
-            formData.append('image', document.getElementById('imgUpload').getFileInput()[0]);
+        const imgUpload = document.getElementById('imgUpload');
+        if (imgUpload && imgUpload.getFileInput && imgUpload.getFileInput()[0]) {
+            formData.append('image', imgUpload.getFileInput()[0]);
         }
         $.ajax({
             url: '/admin/products/add',
