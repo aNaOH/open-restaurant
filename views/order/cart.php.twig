@@ -507,7 +507,7 @@ function removePromo(event, code) {
     })
     .then(res => res.json())
     .then(data => {
-        if (data && data.success) {
+        if (data && data.status === 'ok') {
             // Quitar promo de la UI
             const promoDiv = form.closest('.flex.items-center');
             if (promoDiv) promoDiv.remove();
