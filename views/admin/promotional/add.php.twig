@@ -41,6 +41,7 @@
                         </select>
                         <select class="component-category-filter border rounded px-2 py-1" style="min-width:110px">
                             <option value="">Todas</option>
+                            <option value="none">Sin categoría</option>
                             {% for category in categories %}
                                 <option value="{{ category.id }}">{{ category.name }}</option>
                             {% endfor %}

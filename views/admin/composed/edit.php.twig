@@ -24,6 +24,7 @@
                                     </select>
                                     <select class="component-category-filter border rounded px-2 py-1" style="min-width:110px;{% if comp.items[0].type != 'product' %}display:none{% endif %}">
                                         <option value="">Todas</option>
+                                        <option value="none">Sin categoría</option>
                                         {% for category in categories %}
                                             <option value="{{ category.id }}">{{ category.name }}</option>
                                         {% endfor %}
@@ -63,6 +64,7 @@
                                     </select>
                                     <select class="component-category-filter border rounded px-2 py-1" style="min-width:110px;{% if comp.type != 'product' %}display:none{% endif %}">
                                         <option value="">Todas</option>
+                                        <option value="none">Sin categoría</option>
                                         {% for category in categories %}
                                             <option value="{{ category.id }}">{{ category.name }}</option>
                                         {% endfor %}
@@ -92,6 +94,7 @@
                             </select>
                             <select class="component-category-filter border rounded px-2 py-1" style="min-width:110px">
                                 <option value="">Todas</option>
+                                <option value="none">Sin categoría</option>
                                 {% for category in categories %}
                                     <option value="{{ category.id }}">{{ category.name }}</option>
                                 {% endfor %}
@@ -254,6 +257,7 @@
             </select>
             <select class="component-category-filter border rounded px-2 py-1" style="min-width:110px">
                 <option value="">Todas</option>
+                <option value="none">Sin categoría</option>
                 {% for category in categories %}
                 <option value="{{ category.id }}">{{ category.name }}</option>
                 {% endfor %}
@@ -332,7 +336,7 @@
         let totalComponents = 0;
         let anyComponent = false;
         let componentsArray = [];
-        rows.forEach(row => {
+        rows.forEach row => {
             const type = row.querySelector('.component-type-select').value;
             let ids = [];
             if (type === 'product') {

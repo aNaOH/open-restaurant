@@ -4,7 +4,7 @@ $router->mount('/composed', function() use ($router) {
     // Formulario para crear producto compuesto
     $router->get('/add', function() {
         $categories = Category::getAll();
-        $products = Product::getAllByType(EPRODUCT_TYPE::SIMPLE);
+        $products = Product::getAllByType(EPRODUCT_TYPE::STANDARD);
         $data = [
             'categories' => $categories,
             'products' => $products
