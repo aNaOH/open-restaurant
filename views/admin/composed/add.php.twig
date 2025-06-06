@@ -47,6 +47,40 @@
                             title="Quitar componente"
                             style="display:none">&times;</button>
                     </div>
+                    <div class="component-row flex gap-2 items-center">
+                        <!-- Selector de tipo de componente: permite elegir entre producto o categoría -->
+                        <select class="component-type-select border rounded px-2 py-1" style="min-width:110px">
+                            <option value="product">Producto</option>
+                            <option value="category">Categoría</option>
+                        </select>
+                        <!-- Filtro de categoría: muestra solo productos de la categoría seleccionada -->
+                        <select class="component-category-filter border rounded px-2 py-1" style="min-width:110px">
+                            <option value="">Todas</option>
+                            <option value="none">Sin categoría</option>
+                            {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <!-- Selector de productos: permite seleccionar uno o varios productos (filtrados por categoría si aplica) -->
+                        <select class="component-product-select border rounded px-2 py-1" multiple style="min-width:160px">
+                            {% for product in products %}
+                                <option value="{{ product.id }}" data-category="{{ product.category.id }}">{{ product.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <!-- Selector de categoría: solo visible si el tipo es "categoría" -->
+                        <select class="component-category-select border rounded px-2 py-1" style="min-width:160px; display:none">
+                            <option value="">Selecciona categoría</option>
+                            {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <!-- Botón para quitar la fila de componente (visible solo si hay más de dos filas) -->
+                        <button
+                            type="button"
+                            class="remove-component-btn text-red-600 hover:text-red-800 text-xl font-bold px-2"
+                            title="Quitar componente"
+                            style="display:none">&times;</button>
+                    </div>
                 </div>
                 <button type="button" id="addComponentBtn" class="mt-2 btn secondary flex items-center gap-1"><i data-feather="plus"></i> Añadir componente</button>
             </div>

@@ -138,6 +138,7 @@
                 </select>
             </div>
             <button type="submit" class="btn primary flex items-center gap-2"><i data-feather="save"></i> Guardar cambios</button>
+            <div id="componentsError" class="text-red-500 text-sm mt-2" style="display:none"></div>
         </form>
     </div>
 {% endblock %}
@@ -311,32 +312,28 @@
     form.addEventListener('submit', function(event) {
         event.preventDefault();
         const formData = new FormData(form);
+        const errorDiv = document.getElementById('componentsError');
+        errorDiv.textContent = '';
+        errorDiv.style.display = 'none';
         // Imagen desde file-upload (opcional)
-        const imgUpload = document.getElementById('imgUpload');
-        if (
-            imgUpload &&
-            typeof imgUpload.getFileInput === 'function' &&
-            Array.isArray(imgUpload.getFileInput()) &&
-            imgUpload.getFileInput().length > 0 &&
-            imgUpload.getFileInput()[0]
-        ) {
-            formData.append('image', imgUpload.getFileInput()[0]);
-        } else {
-            // Si no hay imagen, no se envía el campo 'image' (no es obligatoria en edición)
-        }
-        // Componentes: productos o categorías
-        // Elimina todos los posibles campos previos de componentes
-        for (let key of Array.from(formData.keys())) {
-            if (key === 'components[]' || key === 'components') {
-                formData.delete(key);
+        let imgFile = null;
+        if (imgUpload && typeof imgUpload.getFileInput === 'function') {
+            const fileInput = imgUpload.getFileInput();
+            if (fileInput && fileInput.length > 0 && fileInput[0]) {
+                imgFile = fileInput[0];
             }
         }
+        if (imgFile) {
+            formData.append('image', imgFile);
+        }
+        // Componentes: productos o categorías
+        formData.delete('components[]');
         const rows = componentsContainer.querySelectorAll('.component-row');
         let valid = true;
         let totalComponents = 0;
         let anyComponent = false;
         let componentsArray = [];
-        rows.forEach row => {
+        rows.forEach(row => {
             const type = row.querySelector('.component-type-select').value;
             let ids = [];
             if (type === 'product') {
@@ -363,12 +360,9 @@
                 anyComponent = true;
             }
         });
-        if (!anyComponent) {
-            alert('Debes añadir al menos un componente.');
-            return;
-        }
-        if (!valid || totalComponents < 2) {
-            alert('Debes seleccionar al menos dos productos o categorías en total para los componentes.');
+        if (!anyComponent || !valid || totalComponents < 2) {
+            errorDiv.textContent = 'Debes seleccionar al menos dos productos o categorías en total para los componentes.';
+            errorDiv.style.display = 'block';
             return;
         }
         // Enviar los componentes como un solo campo JSON
