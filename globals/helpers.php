@@ -239,6 +239,7 @@ class OrderHelpers {
             'id' => $product->id,
             'name' => $product->name,
             'price' => $product->price,
+            'points' => $product->points,
             'image' => $product->getImagePath(),
             'code' => $product->code,
             'type' => $product->type->value,
