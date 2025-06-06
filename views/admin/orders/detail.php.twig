@@ -1,5 +1,9 @@
 {% extends "/templates/admin.php.twig" %}
 
+{% block title %}Detalles del pedido #{{ order.id }}{% endblock %}
+
+{% block name %}Detalles del pedido #{{ order.id }}{% endblock %}
+
 {% block content %}
 <div class="container mx-auto p-6">
     <a href="/admin/orders" class="inline-flex items-center gap-2 text-blue-600 hover:underline mb-4">

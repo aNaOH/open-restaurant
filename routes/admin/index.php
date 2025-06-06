@@ -156,7 +156,7 @@ $router->mount('/admin', function() use ($router) {
     $router->get('/orders', function() {
         // Obtener todos los pedidos ordenados del más reciente al más antiguo
         $orders = Order::getAll(['order' => 'created_at DESC']);
-        ViewController::render('admin/orders', [
+        ViewController::render('admin/orders/index', [
             'orders' => $orders
         ]);
     });
@@ -169,7 +169,7 @@ $router->mount('/admin', function() use ($router) {
             header('Location: /admin/orders');
             exit;
         }
-        ViewController::render('admin/order_detail', [
+        ViewController::render('admin/order/detail', [
             'order' => $order
         ]);
     });
