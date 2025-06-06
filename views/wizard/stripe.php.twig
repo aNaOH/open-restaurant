@@ -1,0 +1,100 @@
+{% extends "/templates/wizard.php.twig" %}
+
+{% block steps %}
+    <div class="flex items-center justify-center gap-2 mb-4">
+        <div class="flex flex-col items-center">
+            <span class="bg-blue-200 text-blue-700 rounded-full w-8 h-8 flex items-center justify-center font-bold">1</span>
+            <span class="text-xs mt-1 text-blue-700">Base de datos</span>
+        </div>
+        <span class="w-6 h-1 bg-blue-200 rounded"></span>
+        <div class="flex flex-col items-center">
+            <span class="bg-blue-200 text-blue-700 rounded-full w-8 h-8 flex items-center justify-center font-bold">2</span>
+            <span class="text-xs mt-1 text-blue-700">Restaurante</span>
+        </div>
+        <span class="w-6 h-1 bg-blue-200 rounded"></span>
+        <div class="flex flex-col items-center">
+            <span class="bg-blue-200 text-blue-700 rounded-full w-8 h-8 flex items-center justify-center font-bold">3</span>
+            <span class="text-xs mt-1 text-blue-700">Administrador</span>
+        </div>
+        <span class="w-6 h-1 bg-blue-500 rounded"></span>
+        <div class="flex flex-col items-center">
+            <span class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">4</span>
+            <span class="text-xs mt-1 text-blue-700 font-semibold">Stripe</span>
+        </div>
+        <span class="w-6 h-1 bg-blue-200 rounded"></span>
+        <div class="flex flex-col items-center">
+            <span class="bg-blue-200 text-blue-700 rounded-full w-8 h-8 flex items-center justify-center font-bold">5</span>
+            <span class="text-xs mt-1 text-blue-700">Características</span>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+<form id="stripeForm" action="/wizard/stripe" method="POST" class="space-y-5 max-w-lg mx-auto bg-white rounded-xl shadow-md p-8 mt-10">
+    <div id="formError" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"></div>
+    <div class="flex flex-col items-center mb-6">
+        <span class="bg-blue-100 rounded-full p-3 mb-2">
+            <i data-feather="credit-card" class="w-8 h-8 text-blue-600"></i>
+        </span>
+        <h2 class="text-xl font-bold text-blue-700 mb-2">Configuración de Stripe</h2>
+        <p class="text-gray-600 text-center">Introduce tus claves de Stripe para habilitar pagos en línea.</p>
+    </div>
+    <div>
+        <label for="stripe_public" class="block text-gray-700 text-sm font-bold mb-2">Clave pública de Stripe</label>
+        <input type="text" id="stripe_public" name="stripe_public" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+    </div>
+    <div>
+        <label for="stripe_secret" class="block text-gray-700 text-sm font-bold mb-2">Clave secreta de Stripe</label>
+        <input type="text" id="stripe_secret" name="stripe_secret" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+    </div>
+    <div class="text-sm text-gray-500">Puedes obtener tus claves en <a href="https://dashboard.stripe.com/apikeys" target="_blank" class="text-blue-600 underline">Stripe Dashboard</a>.</div>
+    <div class="flex justify-end mt-4">
+        <button type="submit" class="flex items-center gap-2 px-5 py-2 rounded-full font-semibold text-white bg-blue-500 shadow hover:bg-cyan-500 transition-all duration-200 text-lg">
+            <i data-feather="check" class="w-5 h-5"></i>
+            Guardar y continuar
+        </button>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function showFormError(message) {
+        const errorDiv = document.getElementById('formError');
+        errorDiv.textContent = message;
+        errorDiv.classList.remove('hidden');
+    }
+    function clearFormError() {
+        const errorDiv = document.getElementById('formError');
+        errorDiv.textContent = '';
+        errorDiv.classList.add('hidden');
+    }
+    document.getElementById('stripeForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        clearFormError();
+        const formData = new FormData(event.target);
+        $.ajax({
+            url: '/stripe',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    window.location.href = response.redirect || '/features';
+                } else {
+                    showFormError(response.error || 'Error desconocido.');
+                }
+            },
+            error: function(xhr) {
+                let msg = 'Error al guardar los datos.';
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    msg = xhr.responseJSON.error;
+                }
+                showFormError(msg);
+            }
+        });
+    });
+</script>
+{% endblock %}

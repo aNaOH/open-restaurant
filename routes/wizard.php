@@ -34,6 +34,11 @@ $router->get("/features", function() {
     ViewController::render('wizard/features');
 });
 
+// Ruta para la configuración de Stripe
+$router->get("/stripe", function() {
+    ViewController::render('wizard/stripe');
+});
+
 // Guardar configuración de la base de datos
 $router->post("/db", function() {
     $db_host = $_POST['db_host'];
@@ -119,7 +124,7 @@ $router->post("/admin", function() {
     $admin->save();
 
     header('Content-Type: application/json');
-    echo json_encode(['success' => true, 'redirect' => '/features']);
+    echo json_encode(['success' => true, 'redirect' => '/stripe']);
     exit;
 });
 
@@ -200,6 +205,28 @@ $router->post("/features", function() {
 
     header('Content-Type: application/json');
     echo json_encode(['success' => true, 'redirect' => '/login']);
+    exit;
+});
+
+// Guardar configuración de Stripe
+$router->post("/stripe", function() {
+    $stripe_public = isset($_POST['stripe_public']) ? trim($_POST['stripe_public']) : '';
+    $stripe_secret = isset($_POST['stripe_secret']) ? trim($_POST['stripe_secret']) : '';
+
+    if (empty($stripe_public) || empty($stripe_secret)) {
+        header('Content-Type: application/json');
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Ambas claves de Stripe son obligatorias.']);
+        exit;
+    }
+
+    $config = new Config();
+    $config->STRIPE_PUBLIC_KEY = $stripe_public;
+    $config->STRIPE_SECRET_KEY = $stripe_secret;
+    $config->save();
+
+    header('Content-Type: application/json');
+    echo json_encode(['success' => true, 'redirect' => '/features']);
     exit;
 });
 
