@@ -133,7 +133,7 @@ $router->post("/config", function() {
     $restaurant_name = $_POST['restaurant_name'];
     $restaurant_address = $_POST['restaurant_address'];
     $restaurant_phone = $_POST['restaurant_phone'];
-    $restaurant_email = isset($_POST['restaurant_email']) ? $_POST['restaurant_email'] : '';
+    $restaurant_email = isset($_POST['restaurant_email']) ? trim($_POST['restaurant_email']) : '';
     $restaurant_logo = $_FILES['restaurant_logo'];
     $timezone = isset($_POST['timezone']) ? $_POST['timezone'] : 'Europe/Madrid';
 

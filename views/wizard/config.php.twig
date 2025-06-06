@@ -61,6 +61,13 @@
             <input type="text" id="restaurant_phone" name="restaurant_phone" required class="mt-1 block w-full border-blue-200 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-base px-4 py-2">
         </div>
         <div>
+            <label for="restaurant_email" class="text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+                <i data-feather="mail" class="w-4 h-4 text-blue-400"></i>
+                Correo electrónico
+            </label>
+            <input type="email" id="restaurant_email" name="restaurant_email" required class="mt-1 block w-full border-blue-200 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-base px-4 py-2">
+        </div>
+        <div>
             <label for="logoUpload" class="text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
                 <i data-feather="image" class="w-4 h-4 text-blue-400"></i>
                 Logo del restaurante
@@ -124,10 +131,15 @@
                 showFormError('Por favor, introduce el teléfono del restaurante.');
                 return;
             }
+            if (!document.getElementById('restaurant_email').value) {
+                showFormError('Por favor, introduce el correo electrónico del restaurante.');
+                return;
+            }
             const formData = new FormData();
             formData.append('restaurant_name', document.getElementById('restaurant_name').value);
             formData.append('restaurant_address', document.getElementById('restaurant_address').value);
             formData.append('restaurant_phone', document.getElementById('restaurant_phone').value);
+            formData.append('restaurant_email', document.getElementById('restaurant_email').value);
             formData.append('restaurant_logo', logoFiles[0]);
             $.ajax({
                 url: '/config',
