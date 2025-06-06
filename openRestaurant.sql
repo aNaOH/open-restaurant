@@ -33,7 +33,7 @@ CREATE TABLE `ComposedBy` (
   `product_id` int NOT NULL,
   `child_id` int NOT NULL,
   `position` int NOT NULL DEFAULT 0,
-  PRIMARY KEY (`product_id`, `child_id`),
+  PRIMARY KEY (`product_id`, `child_id`, `position`),
   FOREIGN KEY (`product_id`) REFERENCES `Product` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`child_id`) REFERENCES `Product` (`id`) ON DELETE CASCADE
 );
@@ -42,7 +42,7 @@ CREATE TABLE `ComposedCategory` (
   `product_id` int NOT NULL,
   `category_id` int NOT NULL,
   `position` int NOT NULL DEFAULT 0,
-  PRIMARY KEY (`product_id`, `category_id`),
+  PRIMARY KEY (`product_id`, `category_id`, `position`),
   FOREIGN KEY (`product_id`) REFERENCES `Product` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`category_id`) REFERENCES `Category` (`id`) ON DELETE CASCADE
 );
