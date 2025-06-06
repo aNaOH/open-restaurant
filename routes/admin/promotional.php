@@ -17,8 +17,28 @@ $router->mount('/promotional', function() use ($router) {
     $router->get('/add', function() {
         $categories = Category::getAll();
         $products = Product::getAllByType(EPRODUCT_TYPE::STANDARD); // Solo productos simples
+
+        //Filtrar categorías que solo contengan productos compuestos o promocionales (para eliminarlas)
+        //o que no tengan productos (es decir, que no tengan productos simples)
+        $filteredCategories = [];
+        foreach ($categories as $category) {
+            $hasComposedOrPromotional = false;
+            $hasStandardProducts = false;
+            foreach ($category->products as $product) {
+                if ($product->type === EPRODUCT_TYPE::COMPOSED || $product->type === EPRODUCT_TYPE::PROMOTION) {
+                    $hasComposedOrPromotional = true;
+                } elseif ($product->type === EPRODUCT_TYPE::STANDARD) {
+                    $hasStandardProducts = true;
+                }
+            }
+            // Solo añadir categorías que no tengan productos compuestos o promocionales, o que no tengan productos simples
+            if (!$hasComposedOrPromotional && $hasStandardProducts) {
+                $filteredCategories[] = $category;
+            }
+        }
+
         $data = [
-            'categories' => $categories,
+            'categories' => $filteredCategories,
             'products' => $products,
             'discountEnabled' => CONFIG->DISCOUNT_ENABLED,
             'fidelityEnabled' => CONFIG->FIDELITY_ENABLED
@@ -204,13 +224,33 @@ $router->mount('/promotional', function() use ($router) {
         }
         $categories = Category::getAll();
         $products = Product::getAll();
+
+        //Filtrar categorías que solo contengan productos compuestos o promocionales (para eliminarlas)
+        //o que no tengan productos (es decir, que no tengan productos simples)
+        $filteredCategories = [];
+        foreach ($categories as $category) {
+            $hasComposedOrPromotional = false;
+            $hasStandardProducts = false;
+            foreach ($category->products as $product) {
+                if ($product->type === EPRODUCT_TYPE::COMPOSED || $product->type === EPRODUCT_TYPE::PROMOTION) {
+                    $hasComposedOrPromotional = true;
+                } elseif ($product->type === EPRODUCT_TYPE::STANDARD) {
+                    $hasStandardProducts = true;
+                }
+            }
+            // Solo añadir categorías que no tengan productos compuestos o promocionales, o que no tengan productos simples
+            if (!$hasComposedOrPromotional && $hasStandardProducts) {
+                $filteredCategories[] = $category;
+            }
+        }
+
         // Procesar componentes y categoría para el formulario
         $components = $composed->getChildren();
         $category = is_object($composed->category) ? $composed->category : ($composed->category ? Category::getById($composed->category) : null);
         $data = [
             'composed' => $composed,
             'components' => $components,
-            'categories' => $categories,
+            'categories' => $filteredCategories,
             'products' => $products,
             'category' => $category,
             'discountEnabled' => CONFIG->DISCOUNT_ENABLED,
