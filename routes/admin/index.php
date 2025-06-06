@@ -197,7 +197,7 @@ $router->mount('/admin', function() use ($router) {
             header('Location: /admin/orders');
             exit;
         }
-        ViewController::render('admin/order/detail', [
+        ViewController::render('admin/orders/detail', [
             'order' => $order
         ]);
     });
