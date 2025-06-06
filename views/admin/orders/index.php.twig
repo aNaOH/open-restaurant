@@ -3,52 +3,51 @@
 {% block title %}Pedidos{% endblock %}
 
 {% block name %}Pedidos{% endblock %}
-
 {% block content %}
-<div class="flex flex-col gap-6">
-    <div class="bg-white rounded-2xl shadow border border-blue-100 p-0 overflow-x-auto">
-        {% if orders|length == 0 %}
-            <div class="text-gray-500 text-center py-12">No hay pedidos registrados.</div>
-        {% else %}
-        <table class="min-w-full divide-y divide-blue-100">
-            <thead class="bg-blue-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">ID</th>
-                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Mesa</th>
-                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Fecha</th>
-                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Total</th>
-                    <th class="px-6 py-3 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Estado</th>
-                    <th class="px-6 py-3"></th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-blue-50">
-                {% for order in orders %}
-                <tr class="hover:bg-blue-50 transition">
-                    <td class="px-6 py-3 font-mono">{{ order.id }}</td>
-                    <td class="px-6 py-3">{{ order.table }}</td>
-                    <td class="px-6 py-3">{{ order.date }} {{ order.time|slice(0,5) }}</td>
-                    <td class="px-6 py-3">{{ order.getTotal()|number_format(2, '.', ',') }} €</td>
-                    <td class="px-6 py-3">
-                        <span class="inline-block px-2 py-1 rounded text-xs font-semibold
-                            {% if order.status == 'completed' %}bg-green-100 text-green-700
-                            {% elseif order.status == 'pending' %}bg-yellow-100 text-yellow-700
-                            {% elseif order.status == 'not_started' %}bg-gray-100 text-gray-700
-                            {% else %}bg-gray-100 text-gray-500{% endif %}">
-                            {% if order.status == 'completed' %}Completado
-                            {% elseif order.status == 'pending' %}En progreso
-                            {% elseif order.status == 'not_started' %}Pendiente
-                            {% elseif order.status == 'empty' %}Vacío
-                            {% else %}{{ order.status|capitalize }}{% endif %}
-                        </span>
-                    </td>
-                    <td class="px-6 py-3 text-right">
-                        <a href="/admin/orders/{{ order.id }}" class="text-blue-600 hover:underline font-semibold">Ver detalles</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% endif %}
+    <div class="flex flex-col h-full">
+        <div class="overflow-x-auto bg-blue-50 border border-blue-100 rounded-2xl shadow">
+            {% if orders|length == 0 %}
+                <div class="text-gray-500 text-center py-12">No hay pedidos registrados.</div>
+            {% else %}
+            <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg">
+                <thead>
+                    <tr class="bg-blue-100 text-blue-700 uppercase text-sm leading-normal">
+                        <th class="py-3 px-6 text-left">ID</th>
+                        <th class="py-3 px-6 text-left">Mesa</th>
+                        <th class="py-3 px-6 text-left">Fecha</th>
+                        <th class="py-3 px-6 text-left">Total</th>
+                        <th class="py-3 px-6 text-left">Estado</th>
+                        <th class="py-3 px-6 text-left">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-600 text-sm font-light">
+                    {% for order in orders %}
+                        <tr class="border-b border-gray-200 hover:bg-blue-50 transition">
+                            <td class="py-3 px-6 text-left font-mono">{{ order.id }}</td>
+                            <td class="py-3 px-6 text-left">{{ order.table }}</td>
+                            <td class="py-3 px-6 text-left">{{ order.date }} {{ order.time|slice(0,5) }}</td>
+                            <td class="py-3 px-6 text-left">{{ order.getTotal()|number_format(2, '.', ',') }} €</td>
+                            <td class="py-3 px-6 text-left">
+                                <span class="inline-block px-2 py-1 rounded text-xs font-semibold
+                                    {% if order.status == 'completed' %}bg-green-100 text-green-700
+                                    {% elseif order.status == 'pending' %}bg-yellow-100 text-yellow-700
+                                    {% elseif order.status == 'not_started' %}bg-gray-100 text-gray-700
+                                    {% else %}bg-gray-100 text-gray-500{% endif %}">
+                                    {% if order.status == 'completed' %}Completado
+                                    {% elseif order.status == 'pending' %}En progreso
+                                    {% elseif order.status == 'not_started' %}Pendiente
+                                    {% elseif order.status == 'empty' %}Vacío
+                                    {% else %}{{ order.status|capitalize }}{% endif %}
+                                </span>
+                            </td>
+                            <td class="py-3 px-6 text-left flex gap-2">
+                                <a href="/admin/orders/{{ order.id }}" class="btn secondary flex items-center gap-1"><i data-feather="eye"></i> Ver detalles</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+        </div>
     </div>
-</div>
 {% endblock %}
