@@ -25,9 +25,16 @@
                             <th class="py-3 px-6 text-left">Acciones</th>
                         </tr>
                     </thead>
+                    {% set colCount = 5 %}
+                    {% if discountEnabled %}
+                        {% set colCount = colCount + 1 %}
+                    {% endif %}
+                    {% if fidelityEnabled %}
+                        {% set colCount = colCount + 1 %}
+                    {% endif %}
                     <tbody class="text-gray-600 text-sm font-light">
                         {% if promotionalProducts|length == 0 %}
-                            <div class="text-gray-500 text-center py-12">No hay productos promocionales registrados.</div>
+                            <tr><td colspan="{{ colCount }}"><div class="text-gray-500 text-center py-12">No hay productos promocionales registrados.</div></td></tr>
                         {% else %}
                             {% for product in promotionalProducts %}
                                 <tr class="border-b border-gray-200 hover:bg-blue-50 transition">
