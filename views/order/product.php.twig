@@ -83,7 +83,7 @@
                                         <span class="font-semibold text-gray-700">Incluye uno de la categoría: {{ comp.object.name }}</span>
                                         <div class="flex flex-wrap gap-2">
                                             {% for prod in catProducts %}
-                                                {% if prod.type == 0 %}
+                                                {% if prod.type.value == 0 %}
                                                     <label class="option-card flex flex-col items-center gap-2 cursor-pointer bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg border border-blue-100 min-w-[140px] max-w-[180px]">
                                                         <input type="radio" name="category_{{ comp.object.id }}" value="product_{{ prod.id }}" class="accent-blue-500 mb-1" required>
                                                         <img src="/{{ prod.getImagePath() }}" alt="{{ prod.name }}" class="w-16 h-16 object-cover rounded-xl border border-blue-100 bg-gray-50">
