@@ -99,6 +99,12 @@
                     </div>
                     <textarea name="notes" placeholder="Notas para este producto (opcional)" rows="2" class="border border-blue-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200 resize-none mt-2 mb-2" autocomplete="off"></textarea>
                     <div class="flex items-center gap-4 mt-2">
+                        {% if not (product.points and (promo is not defined or not promo)) %}
+                            <label for="quantity" class="font-semibold text-gray-700">Cantidad:</label>
+                            <input type="number" id="quantity" name="quantity" value="1" min="1" class="border border-blue-200 rounded-lg px-4 py-2 w-24 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200" required>
+                        {% else %}
+                            <input type="hidden" name="quantity" value="1">
+                        {% endif %}
                         {% if promo is defined and promo %}
                             <button id="cancelPromoBtn" type="button" class="flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-red-600 bg-red-50 hover:bg-red-100 border border-red-100 shadow-none transition-all duration-200 cursor-pointer" style="">
                                 <i data-feather="x" class="w-5 h-5"></i> Cancelar
