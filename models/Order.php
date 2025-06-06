@@ -111,7 +111,7 @@ class Order {
      */
     public function addProduct($product_id, $price, $quantity, $metadata = null) {
 
-        $index = count($this->getProducts());
+        $index = count(Connection::doSelect(DBCONN, 'OrderContains', ['order_id' => $this->id]));
 
         $data = [
             'order_id' => $this->id, // Escapa el nombre de la columna reservada
