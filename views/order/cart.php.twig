@@ -76,7 +76,7 @@
                         <div class="flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">
                             <img src="/{{ promo.image }}" alt="{{ promo.name }}" class="w-10 h-10 object-cover rounded">
                             <span class="font-semibold text-blue-800">{{ promo.name }}</span>
-                            <form method="post" action="/order/cancel-promo" onsubmit="return removePromo(event, '{{ code }}')">
+                            <form method="post" action="/order/cancel-promo" onsubmit="event.preventDefault(); removePromo(event, '{{ code }}'); return false;">
                                 <button type="submit" class="ml-2 text-red-600 hover:text-red-800 font-semibold flex items-center gap-1 px-2 py-1 rounded-full bg-red-50 border border-red-100">
                                     <i data-feather="x" class="w-4 h-4"></i> Quitar
                                 </button>
@@ -494,5 +494,31 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 {% endif %}
+
+// --- CANCELAR PROMO EN CARRITO ---
+function removePromo(event, code) {
+    event.preventDefault();
+    const form = event.target.closest('form');
+    if (!code) return false;
+    fetch('/order/cancel-promo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data && data.success) {
+            // Quitar promo de la UI
+            const promoDiv = form.closest('.flex.items-center');
+            if (promoDiv) promoDiv.remove();
+            // Opcional: recargar totales o la página si es necesario
+            location.reload(); // Si quieres recargar totales y carrito
+        } else {
+            alert(data.error || 'No se pudo quitar la promoción.');
+        }
+    })
+    .catch(() => alert('Error de red al quitar la promoción.'));
+    return false;
+}
 </script>
 {% endblock %}
