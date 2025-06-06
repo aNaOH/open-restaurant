@@ -26,7 +26,8 @@ $router->mount('/composed', function() use ($router) {
         }
 
         $data = [
-            'categories' => $filteredCategories,
+            'categories' => $categories,
+            'filteredCategories' => $filteredCategories,
             'products' => $products
         ];
         ViewController::render('admin/composed/add', $data);
@@ -220,7 +221,8 @@ $router->mount('/composed', function() use ($router) {
         $data = [
             'composed' => $composed,
             'components' => $components,
-            'categories' => $filteredCategories,
+            'categories' => $categories,
+            'filteredCategories' => $filteredCategories,
             'products' => $products,
             'category' => $category
         ];

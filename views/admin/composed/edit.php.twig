@@ -25,7 +25,7 @@
                                     <select class="component-category-filter border rounded px-2 py-1" style="min-width:110px;{% if comp.items[0].type != 'product' %}display:none{% endif %}">
                                         <option value="">Todas</option>
                                         <option value="none">Sin categoría</option>
-                                        {% for category in categories %}
+                                        {% for category in filteredCategories %}
                                             <option value="{{ category.id }}">{{ category.name }}</option>
                                         {% endfor %}
                                     </select>
@@ -50,7 +50,7 @@
                                                 {% set selected_categories = selected_categories|merge([item.object.id]) %}
                                             {% endif %}
                                         {% endfor %}
-                                        {% for category in categories %}
+                                        {% for category in filteredCategories %}
                                             <option value="{{ category.id }}"{% if category.id in selected_categories %} selected{% endif %}>{{ category.name }}</option>
                                         {% endfor %}
                                     </select>
@@ -65,7 +65,7 @@
                                     <select class="component-category-filter border rounded px-2 py-1" style="min-width:110px;{% if comp.type != 'product' %}display:none{% endif %}">
                                         <option value="">Todas</option>
                                         <option value="none">Sin categoría</option>
-                                        {% for category in categories %}
+                                        {% for category in filteredCategories %}
                                             <option value="{{ category.id }}">{{ category.name }}</option>
                                         {% endfor %}
                                     </select>
@@ -78,7 +78,7 @@
                                     </select>
                                     <select class="component-category-select border rounded px-2 py-1" style="min-width:160px;{% if comp.type != 'category' %}display:none{% endif %}">
                                         <option value="">Selecciona categoría</option>
-                                        {% for category in categories %}
+                                        {% for category in filteredCategories %}
                                             <option value="{{ category.id }}"{% if comp.type == 'category' and category.id == comp.object.id %} selected{% endif %}>{{ category.name }}</option>
                                         {% endfor %}
                                     </select>
@@ -95,7 +95,7 @@
                             <select class="component-category-filter border rounded px-2 py-1" style="min-width:110px">
                                 <option value="">Todas</option>
                                 <option value="none">Sin categoría</option>
-                                {% for category in categories %}
+                                {% for category in filteredCategories %}
                                     <option value="{{ category.id }}">{{ category.name }}</option>
                                 {% endfor %}
                             </select>
@@ -106,7 +106,7 @@
                             </select>
                             <select class="component-category-select border rounded px-2 py-1" style="min-width:160px; display:none">
                                 <option value="">Selecciona categoría</option>
-                                {% for category in categories %}
+                                {% for category in filteredCategories %}
                                     <option value="{{ category.id }}">{{ category.name }}</option>
                                 {% endfor %}
                             </select>
@@ -259,7 +259,7 @@
             <select class="component-category-filter border rounded px-2 py-1" style="min-width:110px">
                 <option value="">Todas</option>
                 <option value="none">Sin categoría</option>
-                {% for category in categories %}
+                {% for category in filteredCategories %}
                 <option value="{{ category.id }}">{{ category.name }}</option>
                 {% endfor %}
             </select>
@@ -270,7 +270,7 @@
             </select>
             <select class="component-category-select border rounded px-2 py-1" style="min-width:160px; display:none">
                 <option value="">Selecciona categoría</option>
-                {% for category in categories %}
+                {% for category in filteredCategories %}
                 <option value="{{ category.id }}">{{ category.name }}</option>
                 {% endfor %}
             </select>

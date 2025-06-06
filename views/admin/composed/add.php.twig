@@ -23,7 +23,7 @@
                         <select class="component-category-filter border rounded px-2 py-1" style="min-width:110px">
                             <option value="">Todas</option>
                             <option value="none">Sin categoría</option>
-                            {% for category in categories %}
+                            {% for category in filteredCategories %}
                                 <option value="{{ category.id }}">{{ category.name }}</option>
                             {% endfor %}
                         </select>
@@ -36,7 +36,7 @@
                         <!-- Selector de categoría: solo visible si el tipo es "categoría" -->
                         <select class="component-category-select border rounded px-2 py-1" style="min-width:160px; display:none">
                             <option value="">Selecciona categoría</option>
-                            {% for category in categories %}
+                            {% for category in filteredCategories %}
                                 <option value="{{ category.id }}">{{ category.name }}</option>
                             {% endfor %}
                         </select>
@@ -57,7 +57,7 @@
                         <select class="component-category-filter border rounded px-2 py-1" style="min-width:110px">
                             <option value="">Todas</option>
                             <option value="none">Sin categoría</option>
-                            {% for category in categories %}
+                            {% for category in filteredCategories %}
                                 <option value="{{ category.id }}">{{ category.name }}</option>
                             {% endfor %}
                         </select>
@@ -70,7 +70,7 @@
                         <!-- Selector de categoría: solo visible si el tipo es "categoría" -->
                         <select class="component-category-select border rounded px-2 py-1" style="min-width:160px; display:none">
                             <option value="">Selecciona categoría</option>
-                            {% for category in categories %}
+                            {% for category in filteredCategories %}
                                 <option value="{{ category.id }}">{{ category.name }}</option>
                             {% endfor %}
                         </select>

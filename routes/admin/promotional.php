@@ -38,7 +38,8 @@ $router->mount('/promotional', function() use ($router) {
         }
 
         $data = [
-            'categories' => $filteredCategories,
+            'categories' => $categories,
+            'filteredCategories' => $filteredCategories,
             'products' => $products,
             'discountEnabled' => CONFIG->DISCOUNT_ENABLED,
             'fidelityEnabled' => CONFIG->FIDELITY_ENABLED
@@ -250,7 +251,8 @@ $router->mount('/promotional', function() use ($router) {
         $data = [
             'composed' => $composed,
             'components' => $components,
-            'categories' => $filteredCategories,
+            'categories' => $categories,
+            'filteredCategories' => $filteredCategories,
             'products' => $products,
             'category' => $category,
             'discountEnabled' => CONFIG->DISCOUNT_ENABLED,
