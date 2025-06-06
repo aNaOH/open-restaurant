@@ -9,9 +9,6 @@
             <a href="/admin/promotional/add" class="btn primary flex items-center gap-2"><i data-feather="plus-square"></i> Añadir producto promocional</a>
         </div>
         <div class="overflow-x-auto bg-blue-50 border border-blue-100 rounded-2xl shadow">
-            {% if promotionalProducts|length == 0 %}
-                <div class="text-gray-500 text-center py-12">No hay productos promocionales registrados.</div>
-            {% else %}
                 <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-lg">
                     <thead>
                         <tr class="bg-blue-100 text-blue-700 uppercase text-sm leading-normal">
@@ -29,48 +26,52 @@
                         </tr>
                     </thead>
                     <tbody class="text-gray-600 text-sm font-light">
-                        {% for product in promotionalProducts %}
-                            <tr class="border-b border-gray-200 hover:bg-blue-50 transition">
-                                <td class="py-3 px-6 text-left">{{ product.id }}</td>
-                                <td class="py-3 px-6 text-left">{{ product.name }}</td>
-                                <td class="py-3 px-6 text-left">
-                                    {% if product.getChildren() is not empty %}
-                                        <ul class="ml-4">
-                                        {% for group in product.getChildren() %}
-                                            <li class="mb-2 list-disc">
-                                                {% if group.type == "product" %}
-                                                    Producto: {{ group.object.name }}
-                                                {% elseif group.type == "category" %}
-                                                    Categoría: {{ group.object.name }}
-                                                {% elseif group.type == "group" %}
-                                                    Productos:
-                                                    {% for prod in group.items %}
-                                                        {{ prod.object.name }}{% if not loop.last %}, {% endif %}
-                                                    {% endfor %}
-                                                {% endif %}
-                                            </li>
-                                        {% endfor %}
-                                        </ul>
-                                    {% else %}
-                                        <span class="text-gray-400">Sin componente</span>
+                        {% if promotionalProducts|length == 0 %}
+                            <div class="text-gray-500 text-center py-12">No hay productos promocionales registrados.</div>
+                        {% else %}
+                            {% for product in promotionalProducts %}
+                                <tr class="border-b border-gray-200 hover:bg-blue-50 transition">
+                                    <td class="py-3 px-6 text-left">{{ product.id }}</td>
+                                    <td class="py-3 px-6 text-left">{{ product.name }}</td>
+                                    <td class="py-3 px-6 text-left">
+                                        {% if product.getChildren() is not empty %}
+                                            <ul class="ml-4">
+                                            {% for group in product.getChildren() %}
+                                                <li class="mb-2 list-disc">
+                                                    {% if group.type == "product" %}
+                                                        Producto: {{ group.object.name }}
+                                                    {% elseif group.type == "category" %}
+                                                        Categoría: {{ group.object.name }}
+                                                    {% elseif group.type == "group" %}
+                                                        Productos:
+                                                        {% for prod in group.items %}
+                                                            {{ prod.object.name }}{% if not loop.last %}, {% endif %}
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                </li>
+                                            {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            <span class="text-gray-400">Sin componente</span>
+                                        {% endif %}
+                                    </td>
+                                    {% if discountEnabled %}
+                                    <td class="py-3 px-6 text-left">{{ product.code ?: '-' }}</td>
                                     {% endif %}
-                                </td>
-                                {% if discountEnabled %}
-                                <td class="py-3 px-6 text-left">{{ product.code ?: '-' }}</td>
-                                {% endif %}
-                                {% if fidelityEnabled %}
-                                <td class="py-3 px-6 text-left">{{ product.points ?: '-' }}</td>
-                                {% endif %}
-                                <td class="py-3 px-6 text-left">{{ product.price|number_format(2, '.', ',') }} €</td>
-                                <td class="py-3 px-6 text-left flex gap-2">
-                                    <a href="/admin/promotional/edit/{{ product.id }}" class="btn secondary flex items-center gap-1"><i data-feather="edit"></i> Editar</a>
-                                    <form action="/admin/promotional/delete/{{ product.id }}" method="POST" class="inline-block delete-entity-form" data-entity="promotional">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="submit" class="btn danger flex items-center gap-1 ml-2"><i data-feather="trash-2"></i> Eliminar</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
+                                    {% if fidelityEnabled %}
+                                    <td class="py-3 px-6 text-left">{{ product.points ?: '-' }}</td>
+                                    {% endif %}
+                                    <td class="py-3 px-6 text-left">{{ product.price|number_format(2, '.', ',') }} €</td>
+                                    <td class="py-3 px-6 text-left flex gap-2">
+                                        <a href="/admin/promotional/edit/{{ product.id }}" class="btn secondary flex items-center gap-1"><i data-feather="edit"></i> Editar</a>
+                                        <form action="/admin/promotional/delete/{{ product.id }}" method="POST" class="inline-block delete-entity-form" data-entity="promotional">
+                                            <input type="hidden" name="_method" value="DELETE">
+                                            <button type="submit" class="btn danger flex items-center gap-1 ml-2"><i data-feather="trash-2"></i> Eliminar</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
                     </tbody>
                 </table>
             {% endif %}
