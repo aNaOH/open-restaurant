@@ -110,8 +110,12 @@ class Order {
      * @param array|null $metadata
      */
     public function addProduct($product_id, $price, $quantity, $metadata = null) {
+
+        $index = count($this->getProducts());
+
         $data = [
             'order_id' => $this->id, // Escapa el nombre de la columna reservada
+            'index' => $index, // Añade el índice para mantener el orden
             'product' => $product_id,
             'price' => $price,
             'quantity' => $quantity,
