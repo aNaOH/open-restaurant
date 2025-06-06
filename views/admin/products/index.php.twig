@@ -21,28 +21,36 @@
                     </tr>
                 </thead>
                 <tbody class="text-gray-600 text-sm font-light">
-                    {% for product in products %}
-                        <tr class="border-b border-gray-200 hover:bg-blue-50 transition">
-                            <td class="py-3 px-6 text-left">{{ product.id }}</td>
-                            <td class="py-3 px-6 text-left">{{ product.name }}</td>
-                            <td class="py-3 px-6 text-left">{{ product.description }}</td>
-                            <td class="py-3 px-6 text-left">{{ product.price }} €</td>
-                            <td class="py-3 px-6 text-left">
-                                {% if product.category %}
-                                    {{ product.category.name }}
-                                {% else %}
-                                    Ninguna
-                                {% endif %}
-                            </td>
-                            <td class="py-3 px-6 text-left flex gap-2">
-                                <a href="/admin/products/edit/{{ product.id }}" class="btn secondary flex items-center gap-1"><i data-feather="edit"></i> Editar</a>
-                                <form action="/admin/products/delete/{{ product.id }}" method="POST" class="inline-block delete-entity-form" data-entity="product">
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="btn danger flex items-center gap-1 ml-2"><i data-feather="trash-2"></i> Eliminar</button>
-                                </form>
+                    {% if products|length == 0 %}
+                        <tr>
+                            <td colspan="6" class="py-3 px-6 text-center text-gray-500">
+                                No hay productos registrados.
                             </td>
                         </tr>
-                    {% endfor %}
+                    {% else %}
+                        {% for product in products %}
+                            <tr class="border-b border-gray-200 hover:bg-blue-50 transition">
+                                <td class="py-3 px-6 text-left">{{ product.id }}</td>
+                                <td class="py-3 px-6 text-left">{{ product.name }}</td>
+                                <td class="py-3 px-6 text-left">{{ product.description }}</td>
+                                <td class="py-3 px-6 text-left">{{ product.price }} €</td>
+                                <td class="py-3 px-6 text-left">
+                                    {% if product.category %}
+                                        {{ product.category.name }}
+                                    {% else %}
+                                        Ninguna
+                                    {% endif %}
+                                </td>
+                                <td class="py-3 px-6 text-left flex gap-2">
+                                    <a href="/admin/products/edit/{{ product.id }}" class="btn secondary flex items-center gap-1"><i data-feather="edit"></i> Editar</a>
+                                    <form action="/admin/products/delete/{{ product.id }}" method="POST" class="inline-block delete-entity-form" data-entity="product">
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="submit" class="btn danger flex items-center gap-1 ml-2"><i data-feather="trash-2"></i> Eliminar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
                 </tbody>
             </table>
         </div>

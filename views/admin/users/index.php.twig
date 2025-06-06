@@ -23,28 +23,34 @@
                     </tr>
                 </thead>
                 <tbody class="text-gray-600 text-sm font-light">
-                    {% for user in users %}
-                        <tr class="border-b border-gray-200 hover:bg-blue-50 transition">
-                            <td class="py-3 px-6 text-left">{{ user.id }}</td>
-                            <td class="py-3 px-6 text-left">{{ user.name }}</td>
-                            <td class="py-3 px-6 text-left">{{ user.email }}</td>
-                            <td class="py-3 px-6 text-left">
-                                {% if user.role and user.role.value == 0 %}Cliente{% endif %}
-                                {% if user.role and user.role.value == 1 %}Empleado{% endif %}
-                                {% if user.role and user.role.value == 2 %}Administrador{% endif %}
-                            </td>
-                            {% if fidelityEnabled %}
-                            <td class="py-3 px-6 text-left">{{ user.points }}</td>
-                            {% endif %}
-                            <td class="py-3 px-6 text-left flex gap-2">
-                                <a href="/admin/users/edit/{{ user.id }}" class="btn secondary flex items-center gap-1"><i data-feather="edit"></i> Editar</a>
-                                <form action="/admin/users/delete/{{ user.id }}" method="POST" class="inline-block delete-entity-form" data-entity="user"{% if user.role and user.role.value == 2 %} data-role="admin"{% endif %}>
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="btn danger flex items-center gap-1 ml-2"><i data-feather="trash-2"></i> Eliminar</button>
-                                </form>
-                            </td>
+                    {% if users|length == 0 %}
+                        <tr>
+                            <td colspan="{% if fidelityEnabled %}5{% else %}4{% endif %}" class="text-gray-500 text-center py-12">No hay usuarios registrados.</td>
                         </tr>
-                    {% endfor %}
+                    {% else %}
+                        {% for user in users %}
+                            <tr class="border-b border-gray-200 hover:bg-blue-50 transition">
+                                <td class="py-3 px-6 text-left">{{ user.id }}</td>
+                                <td class="py-3 px-6 text-left">{{ user.name }}</td>
+                                <td class="py-3 px-6 text-left">{{ user.email }}</td>
+                                <td class="py-3 px-6 text-left">
+                                    {% if user.role and user.role.value == 0 %}Cliente{% endif %}
+                                    {% if user.role and user.role.value == 1 %}Empleado{% endif %}
+                                    {% if user.role and user.role.value == 2 %}Administrador{% endif %}
+                                </td>
+                                {% if fidelityEnabled %}
+                                <td class="py-3 px-6 text-left">{{ user.points }}</td>
+                                {% endif %}
+                                <td class="py-3 px-6 text-left flex gap-2">
+                                    <a href="/admin/users/edit/{{ user.id }}" class="btn secondary flex items-center gap-1"><i data-feather="edit"></i> Editar</a>
+                                    <form action="/admin/users/delete/{{ user.id }}" method="POST" class="inline-block delete-entity-form" data-entity="user"{% if user.role and user.role.value == 2 %} data-role="admin"{% endif %}>
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="submit" class="btn danger flex items-center gap-1 ml-2"><i data-feather="trash-2"></i> Eliminar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
                 </tbody>
             </table>
         </div>

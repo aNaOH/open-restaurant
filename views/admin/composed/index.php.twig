@@ -20,42 +20,48 @@
                     </tr>
                 </thead>
                 <tbody class="text-gray-600 text-sm font-light">
-                    {% for composed in composedProducts %}
-                        <tr class="border-b border-gray-200 hover:bg-blue-50 transition">
-                            <td class="py-3 px-6 text-left">{{ composed.id }}</td>
-                            <td class="py-3 px-6 text-left">{{ composed.name }}</td>
-                            <td class="py-3 px-6 text-left">
-                                {% if composed.getChildren() is not empty %}
-                                    <ul class="ml-4">
-                                    {% for group in composed.getChildren() %}
-                                        <li class="mb-2 list-disc">
-                                            {% if group.type == "product" %}
-                                                Producto: {{ group.object.name }}
-                                            {% elseif group.type == "category" %}
-                                                Categoría: {{ group.object.name }}
-                                            {% elseif group.type == "group" %}
-                                                Productos:
-                                                {% for prod in group.items %}
-                                                    {{ prod.object.name }}{% if not loop.last %}, {% endif %}
-                                                {% endfor %}
-                                            {% endif %}
-                                        </li>
-                                    {% endfor %}
-                                    </ul>
-                                {% else %}
-                                    <span class="text-gray-400">Ninguno</span>
-                                {% endif %}
-                            </td>
-                            <td class="py-3 px-6 text-left">{{ composed.price }} €</td>
-                            <td class="py-3 px-6 text-left flex gap-2">
-                                <a href="/admin/composed/edit/{{ composed.id }}" class="btn secondary flex items-center gap-1"><i data-feather="edit"></i> Editar</a>
-                                <form action="/admin/composed/delete/{{ composed.id }}" method="POST" class="inline-block delete-entity-form" data-entity="composed">
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="btn danger flex items-center gap-1 ml-2"><i data-feather="trash-2"></i> Eliminar</button>
-                                </form>
-                            </td>
+                    {% if composedProducts|length == 0 %}
+                        <tr>
+                            <td colspan="5" class="text-gray-500 text-center py-12">No hay productos compuestos registrados.</td>
                         </tr>
-                    {% endfor %}
+                    {% else %}
+                        {% for composed in composedProducts %}
+                            <tr class="border-b border-gray-200 hover:bg-blue-50 transition">
+                                <td class="py-3 px-6 text-left">{{ composed.id }}</td>
+                                <td class="py-3 px-6 text-left">{{ composed.name }}</td>
+                                <td class="py-3 px-6 text-left">
+                                    {% if composed.getChildren() is not empty %}
+                                        <ul class="ml-4">
+                                        {% for group in composed.getChildren() %}
+                                            <li class="mb-2 list-disc">
+                                                {% if group.type == "product" %}
+                                                    Producto: {{ group.object.name }}
+                                                {% elseif group.type == "category" %}
+                                                    Categoría: {{ group.object.name }}
+                                                {% elseif group.type == "group" %}
+                                                    Productos:
+                                                    {% for prod in group.items %}
+                                                        {{ prod.object.name }}{% if not loop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </li>
+                                        {% endfor %}
+                                        </ul>
+                                    {% else %}
+                                        <span class="text-gray-400">Ninguno</span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-3 px-6 text-left">{{ composed.price }} €</td>
+                                <td class="py-3 px-6 text-left flex gap-2">
+                                    <a href="/admin/composed/edit/{{ composed.id }}" class="btn secondary flex items-center gap-1"><i data-feather="edit"></i> Editar</a>
+                                    <form action="/admin/composed/delete/{{ composed.id }}" method="POST" class="inline-block delete-entity-form" data-entity="composed">
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="submit" class="btn danger flex items-center gap-1 ml-2"><i data-feather="trash-2"></i> Eliminar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
                 </tbody>
             </table>
         </div>
