@@ -72,6 +72,7 @@
                 </select>
             </div>
             <button type="submit" class="btn primary flex items-center gap-2"><i data-feather="plus-square"></i> Crear compuesto</button>
+            <div id="componentsError" class="text-red-500 text-sm mt-2" style="display:none"></div>
         </form>
     </div>
 {% endblock %}
@@ -206,12 +207,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 anyComponent = true;
             }
         });
-        if (!anyComponent) {
-            alert('Debes añadir al menos un componente.');
-            return;
-        }
-        if (!valid || totalComponents < 2) {
-            alert('Debes seleccionar al menos dos productos o categorías en total para los componentes.');
+        const errorDiv = document.getElementById('componentsError');
+        errorDiv.textContent = '';
+        errorDiv.style.display = 'none';
+        if (!anyComponent || !valid || totalComponents < 2) {
+            errorDiv.textContent = 'Debes seleccionar al menos dos productos o categorías en total para los componentes.';
+            errorDiv.style.display = 'block';
             return;
         }
         // Enviar los componentes como un solo campo JSON
