@@ -97,7 +97,7 @@ class Connection {
      * @param PDO $dbConn Conexión activa.
      * @param string $table Nombre de la tabla.
      * @param array $conditions Condiciones para el WHERE.
-     * @param array $order Ordenación, por ejemplo: ['order' => 'created_at DESC']
+     * @param array $order Ordenación, por ejemplo: ['order' => 'date DESC, time DESC']
      * @return array Resultado de la consulta en forma de array asociativo.
      */
     public static function doSelect($dbConn, $table, $conditions = [], $order = []): array {
@@ -111,7 +111,7 @@ class Connection {
      * @param string $table Tabla objetivo.
      * @param array $data Datos a insertar/actualizar.
      * @param array $conditions Condiciones para el WHERE.
-     * @param array $order Ordenación, por ejemplo: ['order' => 'created_at DESC']
+     * @param array $order Ordenación, por ejemplo: ['order' => 'date DESC, time DESC']
      * @return PDOStatement|int Retorna el PDOStatement o el número de filas afectadas.
      */
     private static function executeSql($dbConn, $action, $table, $data, $conditions = [], $order = []): PDOStatement|int {
@@ -146,7 +146,7 @@ class Connection {
      * @param string $table Tabla objetivo.
      * @param array $data Datos a insertar/actualizar.
      * @param array $conditions Condiciones para el WHERE.
-     * @param array $order Ordenación, por ejemplo: ['order' => 'created_at DESC']
+     * @param array $order Ordenación, por ejemplo: ['order' => 'date DESC, time DESC']
      * @return string Sentencia SQL generada.
      */
     private static function generateSql($action, $table, $data, $conditions, $order = []): string {

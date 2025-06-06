@@ -79,7 +79,7 @@ class Order {
      * @return array Lista de pedidos
      */
     public static function getAll() {
-        $rows = Connection::doSelect(DBCONN, 'Orders', [], ['order' => 'created_at DESC']);
+        $rows = Connection::doSelect(DBCONN, 'Orders', [], ['order' => 'date DESC, time DESC']);
         return array_map([self::class, 'fromRow'], $rows);
     }
 
@@ -89,7 +89,7 @@ class Order {
      * @return array Lista de pedidos
      */
     public static function getByDate($date) {
-        $rows = Connection::doSelect(DBCONN, 'Orders', ['date' => $date], ['order' => 'created_at DESC']);
+        $rows = Connection::doSelect(DBCONN, 'Orders', ['date' => $date], ['order' => 'time DESC']);
         return array_map([self::class, 'fromRow'], $rows);
     }
 
