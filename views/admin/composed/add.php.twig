@@ -190,20 +190,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('form[action="/admin/composed/add"]');
     form.addEventListener('submit', function(event) {
         event.preventDefault();
-        const formData = new FormData(form);
+        const formData = new FormData();
+        // Campos manuales
+        formData.append('name', document.getElementById('name').value);
+        formData.append('description', document.getElementById('description').value);
+        formData.append('price', document.getElementById('price').value);
+        formData.append('category', document.getElementById('category').value);
         // Imagen desde file-upload (opcional)
         const imgUpload = document.getElementById('imgUpload');
-        if (
-            imgUpload &&
-            typeof imgUpload.getFileInput === 'function' &&
-            Array.isArray(imgUpload.getFileInput()) &&
-            imgUpload.getFileInput().length > 0 &&
-            imgUpload.getFileInput()[0]
-        ) {
+        if (imgUpload && typeof imgUpload.getFileInput === 'function' && imgUpload.getFileInput() && imgUpload.getFileInput()[0]) {
             formData.append('image', imgUpload.getFileInput()[0]);
         }
         // Componentes: productos o categorías
-        // Elimina todos los posibles campos previos de componentes
         for (let key of Array.from(formData.keys())) {
             if (key === 'components[]' || key === 'components') {
                 formData.delete(key);
