@@ -95,6 +95,10 @@ $router->mount('/admin', function() use ($router) {
             $products = Product::getAll();
             foreach ($products as $product) {
                 if($product->type == EPRODUCT_TYPE::PROMOTION) {
+                    // Eliminar referencias en ordercontains
+                    Connection::doDelete(DBCONN, 'OrderContains', [
+                        'product' => $product->id
+                    ]);
                     $product->removeAllChildren();
                     $product->delete();
                 }
