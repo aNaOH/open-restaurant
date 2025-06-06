@@ -10,7 +10,6 @@
         {% endblock %}
     </head>
     <body class="bg-[#f0f0f0] w-full min-h-screen flex items-center justify-center">
-        {% include "/components/header.php.twig" %}
         <div class="w-full max-w-md mx-auto my-auto p-8 bg-white shadow-xl rounded-2xl border border-blue-100">
             <div class="flex flex-col items-center mb-6">
                 <img src="/logo" alt="{{restaurantName}} Logo" class="w-16 mb-2">
@@ -67,6 +66,12 @@
                     <a href="/login" class="inline-flex items-center gap-1 text-blue-600 hover:underline text-sm font-medium">
                         <i data-feather="log-in" class="w-4 h-4"></i>
                         ¿Ya tienes cuenta? Inicia sesión
+                    </a>
+                </div>
+                <div class="text-center mt-2">
+                    <a href="/" class="inline-flex items-center gap-1 text-blue-600 hover:underline text-sm font-medium">
+                        <i data-feather="home" class="w-4 h-4"></i>
+                        Volver al inicio
                     </a>
                 </div>
             </form>
