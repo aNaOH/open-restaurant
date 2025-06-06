@@ -136,10 +136,18 @@
                                                     {{ promoProduct.name }}
                                                 </div>
                                                 <div class="text-primary font-bold text-base mt-1">
-                                                    {% if promoProduct.price == 0 %}
+                                                    {% if promoProduct.price == 0 and (promoProduct.points is not defined or promoProduct.points == 0) %}
                                                         Gratis
                                                     {% else %}
-                                                        {{ promoProduct.price|number_format(2, '.', ',') }} €
+                                                        {% if promoProduct.price > 0 %}
+                                                            {{ promoProduct.price|number_format(2, '.', ',') }} €
+                                                        {% endif %}
+                                                        {% if promoProduct.points is defined and promoProduct.points > 0 %}
+                                                            <span class="text-yellow-700 flex items-center gap-1 justify-center w-full">
+                                                                {% if promoProduct.price > 0 %} + {% endif %}
+                                                                <i data-feather="star" class="w-5 h-5 text-yellow-500"></i> {{ promoProduct.points }} puntos
+                                                            </span>
+                                                        {% endif %}
                                                     {% endif %}
                                                 </div>
                                                 <div class="text-gray-600 text-xs mt-1">Código: <span class="font-mono">{{ promoCode }}</span></div>
