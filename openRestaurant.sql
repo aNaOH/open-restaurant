@@ -60,13 +60,13 @@ CREATE TABLE `Orders` (
 
 CREATE TABLE `OrderContains` (
   `order_id` int NOT NULL,
-  `index` int NOT NULL,
+  `iio` int NOT NULL,
   `product` int NOT NULL,
   `price` float NOT NULL,
   `done` boolean NOT NULL DEFAULT false,
   `quantity` int NOT NULL DEFAULT 1,
   `metadata` text DEFAULT NULL,
-  PRIMARY KEY (`order_id`, `index`, `product`),
+  PRIMARY KEY (`order_id`, `iio`, `product`),
   FOREIGN KEY (`order_id`) REFERENCES `Orders` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`product`) REFERENCES `Product` (`id`) ON DELETE CASCADE
 );
