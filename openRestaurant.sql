@@ -60,7 +60,7 @@ CREATE TABLE `Orders` (
 
 CREATE TABLE `OrderContains` (
   `order_id` int NOT NULL,
-  `index` int NOT NULL,
+  `iio` int NOT NULL,
   `product` int NOT NULL,
   `price` float NOT NULL,
   `done` boolean NOT NULL DEFAULT false,
